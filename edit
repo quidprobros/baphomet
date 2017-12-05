@@ -2,10 +2,11 @@
 
 ALTERNATE_EDITOR=""
 EMACS_SERVER="serve-you-right"
+EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 
 check_for_socket () {
     :
-    [ -S "${TMPDIR-/tmp}/emacs$(id -u)/${EMACS_SERVER}" ]
+    [ -S "$EMACS_SOCKET_DIR/${EMACS_SERVER}" ]
     return $?
 }
 check_for_socket
@@ -14,7 +15,13 @@ STATUS=$?
 key="$1"
 
 case $key in
-    --stop)
+    -list|-list-daemons|--l)
+        for socket in $EMACS_SOCKET_DIR/*; do
+            [ -S $socket ] && echo $socket;
+        done
+        exit
+        ;;
+    -stop)
 	if [ $STATUS -eq 0 ]; then
 	    exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
 		printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
@@ -24,7 +31,7 @@ case $key in
 	    exit
 	fi
 	;;
-    --start)
+    -start)
 	if [ $STATUS -ne 0 ]; then
 	    exec /opt/local/bin/emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
 	    exit
