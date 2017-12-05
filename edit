@@ -1,0 +1,100 @@
+#!/usr/bin/env bash
+
+ALTERNATE_EDITOR=""
+EMACS_SERVER="serve-you-right"
+
+check_for_socket () {
+    :
+    [ -S "${TMPDIR-/tmp}/emacs$(id -u)/${EMACS_SERVER}" ]
+    return $?
+}
+check_for_socket
+STATUS=$?
+
+key="$1"
+
+case $key in
+    --stop)
+	if [ $STATUS -eq 0 ]; then
+	    exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
+		printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
+	    exit
+	else
+	    printf 'Socket not found, no known process to stop!\n'
+	    exit
+	fi
+	;;
+    --start)
+	if [ $STATUS -ne 0 ]; then
+	    exec /opt/local/bin/emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
+	    exit
+	else
+	    printf 'Daemon appears to be running.'
+	    exit
+	fi
+	;;
+esac
+
+
+if [ $STATUS -eq 0 ]; then
+    exec /opt/local/bin/emacsclient -q -c -s "${EMACS_SERVER}" "$@"
+else
+    printf 'Socket not found, run emacs --start\n'
+fi
+
+# if [ -S "${TMPDIR-/tmp}/emacs$(id -u)/${EMACS_SERVER}" ]; then
+#     
+# else
+#     exit
+# fi
+
+
+
+
+
+
+
+# FINALLY, this works with crontab, baby
+
+# lisp="(defmacro safe-wrap (fn \&rest clean-up)
+#   \`(unwind-protect
+#        (let (retval)
+#          (condition-case ex
+#              (setq retval (progn \,fn))
+#            (\'error
+#             (message (format \"Caught exception\: [\%s]\" ex))
+#             (setq retval (cons \'exception (list ex)))))
+#          retval)
+#      \,\@clean-up))
+#      (safe-wrap (error (kill-emacs 7)) (message \"Unwinding...\"))"
+# command emacs -batch -eval "${lisp}"
+# exit
+
+# # check if server running
+# command emacs -batch --eval "(server-eval-at \"serve-you-right\" '(+ 1 2))"
+
+# # check if there is any frame to attach to
+# command emacsclient -n -s serve-you-right -e "(if (> (length (frame-list)) 1) 't)"
+# exit
+# screencmd="command emacs -nw -u ${USER} --daemon=serve-you-right"
+# # check if a daemon is running already
+# command emacsclient -batch --eval '(unless (daemonp) (kill-emacs 7))'
+# echo $?;exit
+# if [ $? -eq 1 ]; then
+#     echo "starting server"
+#     screen -S emacs-daemon -dm bash -c "${screencmd}"
+# else
+#     echo "attaching client"
+#     exec emacsclient -q --alternate-editor="" -c -s serve-you-right "$@"
+# fi
+# #command emacs -nw -u "${USER}" --daemon="${EMACS_SERVER_NAME}"
+# # printf 'Starting emacs server "%s"\n' "${EMACS_SERVER_NAME}"
+# # exec emacsclient -q --alternate-editor="" \
+    #     #      -c -s "${EMACS_SERVER_NAME}" "$@"
+# # Checks if there's a frame open
+# # emacsclient -n -s "${EMACS_SERVER_NAME}" -e "(if (> (length (frame-list)) 1) 't)" | grep t
+# # if [ "$?" -eq 0 ]; then
+# #     emacsclient -a '' -qc -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
+# # else
+# #     emacsclient -nq -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
+# # fi
