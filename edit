@@ -15,14 +15,13 @@ check_for_socket () {
 }
 check_for_socket
 
-make_socket_array () {
+list_sockets () {
     :
     printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
     for socket in $EMACS_SOCKET_DIR/*; do
         [[ -S $socket ]] && printf '%s\e[33m%s=\e[0m\n' '|- ' $(basename $socket)
     done    
 }
-
 
 
 STATUS=$?
@@ -40,28 +39,37 @@ case $key in
         exit
         ;;
     -list|-list-daemons|--l)
-        make_socket_array 
+        list_sockets
         exit
         ;;
     -stop)
-	if [[ $STATUS -eq 0 ]]; then
-	    exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
-		printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
-	    exit
-	else
-	    printf 'Socket not found, no known process to stop!\n'
-	    exit
-	fi
-	;;
+	      if [[ $STATUS -eq 0 ]]; then
+	          exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
+		            printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
+	          exit
+	      else
+	          printf 'Socket not found, no known process to stop!\n'
+	          exit
+	      fi
+	      ;;
     -start)
-	if [[ $STATUS -ne 0 ]]; then
-	    exec /opt/local/bin/emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
-	    exit
-	else
-	    printf 'Daemon appears to be running.'
-	    exit
-	fi
-	;;
+	      if [[ $STATUS -ne 0 ]]; then
+	          exec /opt/local/bin/emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
+	          exit
+	      else
+	          printf 'Daemon appears to be running.'
+	          exit
+	      fi
+	      ;;
+    -help|--h)
+        echo 'lol you need help XD'
+        echo 'jk give me time'
+        exit
+        ;;
+    -*)
+        printf '\e[31mUnknown argument "%s".\e[0m\n' $key
+        exit
+        ;;
 esac
 
 
@@ -71,19 +79,7 @@ else
     printf 'Socket not found, run emacs --start\n'
 fi
 
-# if [ -S "${TMPDIR-/tmp}/emacs$(id -u)/${EMACS_SERVER}" ]; then
-#     
-# else
-#     exit
-# fi
 
-
-
-
-
-
-
-# FINALLY, this works with crontab, baby
 
 # lisp="(defmacro safe-wrap (fn \&rest clean-up)
 #   \`(unwind-protect
