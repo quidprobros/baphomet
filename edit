@@ -23,6 +23,14 @@ list_sockets () {
     done    
 }
 
+select_socket () {
+    arrSockets=()
+    :
+    for socket in $EMACS_SOCKET_DIR/*; do
+        [[ -S $socket ]] && arrSockets+="$(basename ${socket})=  "
+    done    
+}
+
 
 STATUS=$?
 
@@ -31,9 +39,19 @@ key="$1"
 case $key in
     -join|--j)
         :
-        select socket in columbia endeavour challenger discovery atlantis enterprise pathfinder
+        # select socket in columbia endeavour challenger discovery atlantis enterprise pathfinder
+        # do
+        #     echo "$shuttle selected"
+        # done
+        select_socket
+        printf '\e[37;4;2msockets\e[0m\n'
+        if [[ "${#arrSockets[@]}" -eq 0 ]]; then
+            printf "NONE\n"
+            exit
+        fi
+        select sock in $(echo "${arrSockets}")
         do
-            echo "$shuttle selected"
+            exec /opt/local/bin/emacsclient -q -c -s "${sock}"
         done
 
         exit
