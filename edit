@@ -10,10 +10,11 @@ EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 
 check_for_socket () {
     :
+    [[ $# -ne 0 ]] && EMACS_SERVER=$1
     [[ -S $EMACS_SOCKET_DIR/$EMACS_SERVER ]]
-    return $?
+    STATUS=$?
+    return $STATUS
 }
-check_for_socket
 
 list_sockets () {
     :
@@ -32,7 +33,6 @@ select_socket () {
 }
 
 
-STATUS=$?
 
 key="$1"
 
@@ -71,11 +71,13 @@ case $key in
 	      fi
 	      ;;
     -start)
+        check_for_socket "$2"
+        [[ $? -ne 0 ]] && EMACS_SERVER=$2
 	      if [[ $STATUS -ne 0 ]]; then
 	          exec /opt/local/bin/emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
 	          exit
 	      else
-	          printf 'Daemon appears to be running.'
+	          printf 'Daemon appears to be running.\n'
 	          exit
 	      fi
 	      ;;
@@ -90,7 +92,7 @@ case $key in
         ;;
 esac
 
-
+exit
 if [[ $STATUS -eq 0 ]]; then
     exec /opt/local/bin/emacsclient -q -c -s "${EMACS_SERVER}" "$@"
 else
