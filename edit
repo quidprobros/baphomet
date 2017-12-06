@@ -17,8 +17,9 @@ check_for_socket
 
 make_socket_array () {
     :
+    printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
     for socket in $EMACS_SOCKET_DIR/*; do
-        [[ -S $socket ]] && printf '\e[33m%s=\e[0m\n' $(basename $socket)
+        [[ -S $socket ]] && printf '%s\e[33m%s=\e[0m\n' '|- ' $(basename $socket)
     done    
 }
 
