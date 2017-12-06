@@ -4,25 +4,46 @@ ALTERNATE_EDITOR=""
 EMACS_SERVER="serve-you-right"
 EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 
+# it is possible to specify a dir by supplying
+## absolute path to --daemon
+#EMACS_CUSTOM_SOCKET_DIR=
+
 check_for_socket () {
     :
-    [ -S "$EMACS_SOCKET_DIR/${EMACS_SERVER}" ]
+    [[ -S $EMACS_SOCKET_DIR/$EMACS_SERVER ]]
     return $?
 }
 check_for_socket
+
+make_socket_array () {
+    :
+    for socket in $EMACS_SOCKET_DIR/*; do
+        [[ -S $socket ]] && printf '\e[33m%s=\e[0m\n' $(basename $socket)
+    done    
+}
+
+
+
 STATUS=$?
 
 key="$1"
 
 case $key in
-    -list|-list-daemons|--l)
-        for socket in $EMACS_SOCKET_DIR/*; do
-            [ -S $socket ] && echo $socket;
+    -join|--j)
+        :
+        select socket in columbia endeavour challenger discovery atlantis enterprise pathfinder
+        do
+            echo "$shuttle selected"
         done
+
+        exit
+        ;;
+    -list|-list-daemons|--l)
+        make_socket_array 
         exit
         ;;
     -stop)
-	if [ $STATUS -eq 0 ]; then
+	if [[ $STATUS -eq 0 ]]; then
 	    exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
 		printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
 	    exit
@@ -32,7 +53,7 @@ case $key in
 	fi
 	;;
     -start)
-	if [ $STATUS -ne 0 ]; then
+	if [[ $STATUS -ne 0 ]]; then
 	    exec /opt/local/bin/emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
 	    exit
 	else
@@ -43,7 +64,7 @@ case $key in
 esac
 
 
-if [ $STATUS -eq 0 ]; then
+if [[ $STATUS -eq 0 ]]; then
     exec /opt/local/bin/emacsclient -q -c -s "${EMACS_SERVER}" "$@"
 else
     printf 'Socket not found, run emacs --start\n'
