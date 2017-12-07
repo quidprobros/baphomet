@@ -4,13 +4,13 @@ shopt -s nullglob
 
 
 ALTERNATE_EDITOR=""
-EMACS_SERVER="serve-you-right"
+EMACS_SERVER="server"
 EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 
-# it is possible to specify a dir by supplying
-## absolute path to --daemon
-#EMACS_CUSTOM_SOCKET_DIR=
 
+# #
+# UTILS
+# #
 containsElement () {
     local e match="$1"
     shift
@@ -18,22 +18,6 @@ containsElement () {
     return 1
 }
 
-count_sockets () {
-    for socket in $EMACS_SOCKET_DIR/*; do
-        [[ -S $socket ]] && arrSockets+="$(basename ${socket}) "
-        echo $socket
-    done
-exit
-}
-
-check_for_socket () {
-    :
-    [[ $# -ne 0 ]] && EMACS_SERVER=$1
-    [[ -S $EMACS_SOCKET_DIR/$EMACS_SERVER ]]
-    STATUS=$?
-    
-    return $STATUS
-}
 
 list_sockets () {
     arrSockets=()
@@ -42,7 +26,7 @@ list_sockets () {
     for socket in $EMACS_SOCKET_DIR/*; do
         [[ -S $socket ]] && \
             [[ $# -eq 0 ]] &&  printf '%s\e[33m%s=\e[0m\n' '|- ' $(basename $socket)
-            arrSockets+=("$(basename ${socket})")
+        arrSockets+=("$(basename ${socket})")
     done
     if [[ $# -ne 0 ]]; then
         echo $1
@@ -50,7 +34,31 @@ list_sockets () {
         return $?
     fi        
 }
+list_sockets &>/dev/null
+check_for_socket () {
+    :
+    # check if supplied socket ref exists
+    if [[ $# -ne 0 ]]; then
+        [[ -S $EMACS_SOCKET_DIR/$1 ]]
+    fi
+    # if it doesn't exist, see if a single one does...
+    if [[ $? -eq -1 ]]; then
+        if [[ "${#arrSockets[@]}" -eq 1 ]]; then
+            EMACS_SERVER="${arrSockets[0]}"
+        fi
+    fi
+}
 
+
+count_sockets () {
+    SOCKET_COUNT=()
+    for socket in $EMACS_SOCKET_DIR/*; do
+        if [[ -S $socket ]]; then
+            SOCKET_COUNT=$(( $SOCKET_COUNT + 1 ))
+        fi
+    done
+}
+count_sockets # count the sockets
 
 
 
@@ -84,7 +92,8 @@ case $key in
         exit
         ;;
     --list|--list-daemons|-l)
-        list_sockets
+       # list_sockets
+        printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
         [[ ${#arrSockets[*]} -eq 0 ]] && \
             printf 'No sockets found.\n'
         exit
@@ -127,7 +136,8 @@ esac
 
 check_for_socket
 if [[ $STATUS -eq 0 ]]; then
-    exec command emacsclient -q -c -s "${EMACS_SERVER}" -e "(message 'wtf')" "$@"
+    command emacsclient -q -c -s "${EMACS_SERVER}" "$@"
+    exit
 else
     printf 'Default Socket not found! Here are your options:\n'
     select option in 'List daemons' 'Join'
@@ -142,51 +152,49 @@ else
         esac
         exit
     done
-    
-    
 fi
 
 
 
 # lisp="(defmacro safe-wrap (fn \&rest clean-up)
-         #   \`(unwind-protect
-         #        (let (retval)
-         #          (condition-case ex
-         #              (setq retval (progn \,fn))
-         #            (\'error
-         #             (message (format \"Caught exception\: [\%s]\" ex))
-         #             (setq retval (cons \'exception (list ex)))))
-         #          retval)
-         #      \,\@clean-up))
-         #      (safe-wrap (error (kill-emacs 7)) (message \"Unwinding...\"))"
-         # command emacs -batch -eval "${lisp}"
-         # exit
+#   \`(unwind-protect
+#        (let (retval)
+#          (condition-case ex
+#              (setq retval (progn \,fn))
+#            (\'error
+#             (message (format \"Caught exception\: [\%s]\" ex))
+#             (setq retval (cons \'exception (list ex)))))
+#          retval)
+#      \,\@clean-up))
+#      (safe-wrap (error (kill-emacs 7)) (message \"Unwinding...\"))"
+# command emacs -batch -eval "${lisp}"
+# exit
 
-         # # check if server running
-         # command emacs -batch --eval "(server-eval-at \"serve-you-right\" '(+ 1 2))"
+# # check if server running
+# command emacs -batch --eval "(server-eval-at \"serve-you-right\" '(+ 1 2))"
 
-         # # check if there is any frame to attach to
-         # command emacsclient -n -s serve-you-right -e "(if (> (length (frame-list)) 1) 't)"
-         # exit
-         # screencmd="command emacs -nw -u ${USER} --daemon=serve-you-right"
-         # # check if a daemon is running already
-         # command emacsclient -batch --eval '(unless (daemonp) (kill-emacs 7))'
-         # echo $?;exit
-         # if [ $? -eq 1 ]; then
-         #     echo "starting server"
-         #     screen -S emacs-daemon -dm bash -c "${screencmd}"
-         # else
-         #     echo "attaching client"
-         #     exec emacsclient -q --alternate-editor="" -c -s serve-you-right "$@"
-         # fi
-         # #command emacs -nw -u "${USER}" --daemon="${EMACS_SERVER_NAME}"
-         # # printf 'Starting emacs server "%s"\n' "${EMACS_SERVER_NAME}"
-         # # exec emacsclient -q --alternate-editor="" \
-             #     #      -c -s "${EMACS_SERVER_NAME}" "$@"
-         # # Checks if there's a frame open
-         # # emacsclient -n -s "${EMACS_SERVER_NAME}" -e "(if (> (length (frame-list)) 1) 't)" | grep t
-         # # if [ "$?" -eq 0 ]; then
-         # #     emacsclient -a '' -qc -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
-         # # else
-         # #     emacsclient -nq -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
-         # # fi
+# # check if there is any frame to attach to
+# command emacsclient -n -s serve-you-right -e "(if (> (length (frame-list)) 1) 't)"
+# exit
+# screencmd="command emacs -nw -u ${USER} --daemon=serve-you-right"
+# # check if a daemon is running already
+# command emacsclient -batch --eval '(unless (daemonp) (kill-emacs 7))'
+# echo $?;exit
+# if [ $? -eq 1 ]; then
+#     echo "starting server"
+#     screen -S emacs-daemon -dm bash -c "${screencmd}"
+# else
+#     echo "attaching client"
+#     exec emacsclient -q --alternate-editor="" -c -s serve-you-right "$@"
+# fi
+# #command emacs -nw -u "${USER}" --daemon="${EMACS_SERVER_NAME}"
+# # printf 'Starting emacs server "%s"\n' "${EMACS_SERVER_NAME}"
+# # exec emacsclient -q --alternate-editor="" \
+    #     #      -c -s "${EMACS_SERVER_NAME}" "$@"
+# # Checks if there's a frame open
+# # emacsclient -n -s "${EMACS_SERVER_NAME}" -e "(if (> (length (frame-list)) 1) 't)" | grep t
+# # if [ "$?" -eq 0 ]; then
+# #     emacsclient -a '' -qc -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
+# # else
+# #     emacsclient -nq -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
+# # fi
