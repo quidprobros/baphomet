@@ -89,7 +89,7 @@ case $key in
             printf 'No sockets found.\n'
         exit
         ;;
-    --stop|-k)
+    --stop|--kill|-k)
         :
         list_sockets &>/dev/null
         [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to stop.\n' && exit
@@ -101,42 +101,6 @@ case $key in
 		            printf 'Shutting down daemon "%s"\n' "${sock}"
             exit
         done
-        # case $value in
-        #     all)
-        #         echo all
-        #         exit
-        #         ;;
-        #     '')
-        #         list_sockets
-          
-        #         if [[ "${#arrSockets[@]}" -eq 0 ]]; then
-        #             printf 'Socket not found, no known process to stop!\n'
-        #             exit
-        #         fi
-        #         if [[ "${#arrSockets[@]}" -eq 1 ]]; then
-        #             exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
-		    #                 printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
-	      #             exit
-        #         fi
-                
-        #         echo empty
-        #         exit
-        #         ;;
-        #     *)
-        #         select_socket
-        #         echo ${arrSockets}
-        #         exit
-        #         exit
-	      #         if [[ $STATUS -eq 0 ]]; then
-	      #             exec command emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
-		    #                 printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
-	      #             exit
-	      #         else
-	      #             printf 'Socket not found, no known process to stop!\n'
-	      #             exit
-	      #         fi
-	      #         ;;
-        # esac
         exit
         ;;
     --start|-c|-s)
