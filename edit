@@ -146,10 +146,13 @@ case $key in
         check_for_socket "$2"
         if [[ $? -ne 0 ]]; then
             EMACS_SERVER=$2
-	          exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
+	          exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER} &>/dev/null &
+            printf "Loading daemon ..."
+            wait
+            printf " done.\n"
 	          exit
 	      else
-	          printf 'Daemon appears to be running.\n'
+	          printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
 	          exit
 	      fi
 	      ;;
