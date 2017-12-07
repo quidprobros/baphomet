@@ -5,12 +5,15 @@ shopt -s nullglob
 
 ALTERNATE_EDITOR=""
 EMACS_SERVER="server"
+EMACS_SERVER_RANDOM=""
 EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 
+readonly ER_MISSING=404
 
-# #
-# UTILS
-# #
+
+# # # # #
+# U T I L
+# # # # #
 containsElement () {
     local e match="$1"
     shift
@@ -22,11 +25,9 @@ containsElement () {
 list_sockets () {
     arrSockets=()
     :
-    [[ $# -eq 0 ]] && printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
     for socket in $EMACS_SOCKET_DIR/*; do
         [[ -S $socket ]] && \
-            [[ $# -eq 0 ]] &&  printf '%s\e[33m%s=\e[0m\n' '|- ' $(basename $socket)
-        arrSockets+=("$(basename ${socket})")
+            arrSockets+=("$(basename ${socket})")
     done
     if [[ $# -ne 0 ]]; then
         echo $1
@@ -35,20 +36,31 @@ list_sockets () {
     fi        
 }
 list_sockets &>/dev/null
+
 check_for_socket () {
     :
     # check if supplied socket ref exists
-    if [[ $# -ne 0 ]]; then
-        [[ -S $EMACS_SOCKET_DIR/$1 ]]
-    fi
-    # if it doesn't exist, see if a single one does...
-    if [[ $? -eq -1 ]]; then
-        if [[ "${#arrSockets[@]}" -eq 1 ]]; then
-            EMACS_SERVER="${arrSockets[0]}"
-        fi
-    fi
+    containsElement "${1//=/}" "${arrSockets[@]}"
+    return $?
+    
+    # if [[ $# -ne 0 ]]; then
+    #     [[ -S $EMACS_SOCKET_DIR/$1 ]] && return 0
+    #     return $ER_MISSING
+    # fi
+    # # if it doesn't exist, see if a single one does...
+    # if [[ $? -eq -1 ]]; then
+    #     if [[ "${#arrSockets[@]}" -eq 1 ]]; then
+    #         EMACS_SERVER="${arrSockets[0]}"
+    #     fi
+    # fi
 }
 
+# check_socket_status ()
+# {
+    
+
+# }
+    
 
 count_sockets () {
     SOCKET_COUNT=()
@@ -92,7 +104,8 @@ case $key in
         exit
         ;;
     --list|--list-daemons|-l)
-       # list_sockets
+        # list_sockets
+        printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
         printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
         [[ ${#arrSockets[*]} -eq 0 ]] && \
             printf 'No sockets found.\n'
@@ -100,22 +113,39 @@ case $key in
         ;;
     --stop|--kill|-k)
         :
-        list_sockets &>/dev/null
         [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to stop.\n' && exit
-        printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
-        select sock in "${arrSockets[@]}="
-        do
-            sock="${sock//=/}"
-            command emacsclient -s $sock -e '(kill-emacs)' && \
-		            printf 'Shutting down daemon "%s"\n' "${sock}"
+        :
+        if [[ ${#value} -ne 0 ]]; then
+            check_for_socket $value
+            if [[ $? -eq 1 ]]; then
+                printf "No such demon.\n"
+            else
+                command emacsclient -s $value -e '(kill-emacs)' && \
+		                printf 'Shutting down daemon "%s"\n' "${value}"                        
+            fi
             exit
-        done
+        fi
+        :
+        [[ "${#value}" -eq 0 ]] && \
+            printf "Choose a demon to slay:\n" && \
+            select sock in "${arrSockets[@]}="
+            do
+                sock="${sock//=/}"
+                if [[ ${#sock} -eq 0  ]]; then
+                    printf '\e[31mBad choice.\e[0m\n'
+                    exec $0 -k
+                fi
+                command emacsclient -s $sock -e '(kill-emacs)' && \
+		                printf 'Shutting down daemon "%s"\n' "${sock}"
+                exit
+            done        
+        :
         exit
         ;;
     --start|-c|-s)
         check_for_socket "$2"
-        [[ $? -ne 0 ]] && EMACS_SERVER=$2
-	      if [[ $STATUS -ne 0 ]]; then
+        if [[ $? -ne 0 ]]; then
+            EMACS_SERVER=$2
 	          exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
 	          exit
 	      else
@@ -144,10 +174,10 @@ else
     do
         case $option in
             'List daemons')
-                $0 -l
+                exec $0 -l
                 ;;
             'Join')
-                $0 -j
+                exec $0 -j
                 ;;
         esac
         exit
