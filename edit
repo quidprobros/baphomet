@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+:
+shopt -s nullglob
+
 
 ALTERNATE_EDITOR=""
 EMACS_SERVER="serve-you-right"
@@ -8,80 +11,146 @@ EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 ## absolute path to --daemon
 #EMACS_CUSTOM_SOCKET_DIR=
 
+containsElement () {
+    local e match="$1"
+    shift
+    for e; do [[ "$e" == "$match" ]] && return 0; done
+    return 1
+}
+
+count_sockets () {
+    for socket in $EMACS_SOCKET_DIR/*; do
+        [[ -S $socket ]] && arrSockets+="$(basename ${socket}) "
+        echo $socket
+    done
+exit
+}
+
 check_for_socket () {
     :
     [[ $# -ne 0 ]] && EMACS_SERVER=$1
     [[ -S $EMACS_SOCKET_DIR/$EMACS_SERVER ]]
     STATUS=$?
+    
     return $STATUS
 }
 
 list_sockets () {
-    :
-    printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
-    for socket in $EMACS_SOCKET_DIR/*; do
-        [[ -S $socket ]] && printf '%s\e[33m%s=\e[0m\n' '|- ' $(basename $socket)
-    done    
-}
-
-select_socket () {
     arrSockets=()
     :
+    [[ $# -eq 0 ]] && printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
     for socket in $EMACS_SOCKET_DIR/*; do
-        [[ -S $socket ]] && arrSockets+="$(basename ${socket})=  "
-    done    
+        [[ -S $socket ]] && \
+            [[ $# -eq 0 ]] &&  printf '%s\e[33m%s=\e[0m\n' '|- ' $(basename $socket)
+            arrSockets+=("$(basename ${socket})")
+    done
+    if [[ $# -ne 0 ]]; then
+        echo $1
+        containsElement "${1//=/}" "${arrSockets[@]}"
+        return $?
+    fi        
 }
+
 
 
 
 key="$1"
+value="$2"
 
 case $key in
-    -join|--j)
+    --join|-j)
+        sock="${value//=/}"
         :
-        # select socket in columbia endeavour challenger discovery atlantis enterprise pathfinder
-        # do
-        #     echo "$shuttle selected"
-        # done
-        select_socket
-        printf '\e[37;4;2msockets\e[0m\n'
-        if [[ "${#arrSockets[@]}" -eq 0 ]]; then
-            printf "NONE\n"
-            exit
+        if [[ ${#sock} -ne 0 ]]; then
+            list_sockets $sock
+            if [[ $? -eq 0 ]]; then            
+                exec command emacsclient -q -c -s "${sock}" "${@:3}"
+            else
+                printf 'Socket not found, no known process to join!\n'
+                printf '`%s -l` to list sockets by name.\n' "$0"
+                exit 1
+            fi        
         fi
-        select sock in $(echo "${arrSockets}")
+
+        list_sockets &>/dev/null
+        printf '\e[37;4;2msockets\e[0m\n'
+        select sock in "${arrSockets[@]}"
         do
-            exec /opt/local/bin/emacsclient -q -c -s "${sock}"
+            sock="${sock//=/}"
+            exec command emacsclient -q -c -s "${sock}" -e '(momentary-string-display "hello there" 200)'
+            exit
         done
 
         exit
         ;;
-    -list|-list-daemons|--l)
+    --list|--list-daemons|-l)
         list_sockets
+        [[ ${#arrSockets[*]} -eq 0 ]] && \
+            printf 'No sockets found.\n'
         exit
         ;;
-    -stop)
-	      if [[ $STATUS -eq 0 ]]; then
-	          exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
-		            printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
-	          exit
-	      else
-	          printf 'Socket not found, no known process to stop!\n'
-	          exit
-	      fi
-	      ;;
-    -start)
+    --stop|-k)
+        :
+        list_sockets &>/dev/null
+        [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to stop.\n' && exit
+        printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
+        select sock in "${arrSockets[@]}="
+        do
+            sock="${sock//=/}"
+            command emacsclient -s $sock -e '(kill-emacs)' && \
+		            printf 'Shutting down daemon "%s"\n' "${sock}"
+            exit
+        done
+        # case $value in
+        #     all)
+        #         echo all
+        #         exit
+        #         ;;
+        #     '')
+        #         list_sockets
+          
+        #         if [[ "${#arrSockets[@]}" -eq 0 ]]; then
+        #             printf 'Socket not found, no known process to stop!\n'
+        #             exit
+        #         fi
+        #         if [[ "${#arrSockets[@]}" -eq 1 ]]; then
+        #             exec /opt/local/bin/emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
+		    #                 printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
+	      #             exit
+        #         fi
+                
+        #         echo empty
+        #         exit
+        #         ;;
+        #     *)
+        #         select_socket
+        #         echo ${arrSockets}
+        #         exit
+        #         exit
+	      #         if [[ $STATUS -eq 0 ]]; then
+	      #             exec command emacsclient -s ${EMACS_SERVER} -e '(kill-emacs)' && \
+		    #                 printf 'Shutting down daemon "%s"\n' "${EMACS_SERVER}"
+	      #             exit
+	      #         else
+	      #             printf 'Socket not found, no known process to stop!\n'
+	      #             exit
+	      #         fi
+	      #         ;;
+        # esac
+        exit
+        ;;
+    --start|-c|-s)
         check_for_socket "$2"
         [[ $? -ne 0 ]] && EMACS_SERVER=$2
 	      if [[ $STATUS -ne 0 ]]; then
-	          exec /opt/local/bin/emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
+	          exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER}
 	          exit
 	      else
 	          printf 'Daemon appears to be running.\n'
 	          exit
 	      fi
 	      ;;
-    -help|--h)
+    --help|--h)
         echo 'lol you need help XD'
         echo 'jk give me time'
         exit
@@ -92,54 +161,68 @@ case $key in
         ;;
 esac
 
-exit
+check_for_socket
 if [[ $STATUS -eq 0 ]]; then
-    exec /opt/local/bin/emacsclient -q -c -s "${EMACS_SERVER}" "$@"
+    exec command emacsclient -q -c -s "${EMACS_SERVER}" -e "(message 'wtf')" "$@"
 else
-    printf 'Socket not found, run emacs --start\n'
+    printf 'Default Socket not found! Here are your options:\n'
+    select option in 'List daemons' 'Join'
+    do
+        case $option in
+            'List daemons')
+                $0 -l
+                ;;
+            'Join')
+                $0 -j
+                ;;
+        esac
+        exit
+    done
+    
+    
 fi
 
 
 
 # lisp="(defmacro safe-wrap (fn \&rest clean-up)
-#   \`(unwind-protect
-#        (let (retval)
-#          (condition-case ex
-#              (setq retval (progn \,fn))
-#            (\'error
-#             (message (format \"Caught exception\: [\%s]\" ex))
-#             (setq retval (cons \'exception (list ex)))))
-#          retval)
-#      \,\@clean-up))
-#      (safe-wrap (error (kill-emacs 7)) (message \"Unwinding...\"))"
-# command emacs -batch -eval "${lisp}"
-# exit
+         #   \`(unwind-protect
+         #        (let (retval)
+         #          (condition-case ex
+         #              (setq retval (progn \,fn))
+         #            (\'error
+         #             (message (format \"Caught exception\: [\%s]\" ex))
+         #             (setq retval (cons \'exception (list ex)))))
+         #          retval)
+         #      \,\@clean-up))
+         #      (safe-wrap (error (kill-emacs 7)) (message \"Unwinding...\"))"
+         # command emacs -batch -eval "${lisp}"
+         # exit
 
-# # check if server running
-# command emacs -batch --eval "(server-eval-at \"serve-you-right\" '(+ 1 2))"
+         # # check if server running
+         # command emacs -batch --eval "(server-eval-at \"serve-you-right\" '(+ 1 2))"
 
-# # check if there is any frame to attach to
-# command emacsclient -n -s serve-you-right -e "(if (> (length (frame-list)) 1) 't)"
-# exit
-# screencmd="command emacs -nw -u ${USER} --daemon=serve-you-right"
-# # check if a daemon is running already
-# command emacsclient -batch --eval '(unless (daemonp) (kill-emacs 7))'
-# echo $?;exit
-# if [ $? -eq 1 ]; then
-#     echo "starting server"
-#     screen -S emacs-daemon -dm bash -c "${screencmd}"
-# else
-#     echo "attaching client"
-#     exec emacsclient -q --alternate-editor="" -c -s serve-you-right "$@"
-# fi
-# #command emacs -nw -u "${USER}" --daemon="${EMACS_SERVER_NAME}"
-# # printf 'Starting emacs server "%s"\n' "${EMACS_SERVER_NAME}"
-# # exec emacsclient -q --alternate-editor="" \
-    #     #      -c -s "${EMACS_SERVER_NAME}" "$@"
-# # Checks if there's a frame open
-# # emacsclient -n -s "${EMACS_SERVER_NAME}" -e "(if (> (length (frame-list)) 1) 't)" | grep t
-# # if [ "$?" -eq 0 ]; then
-# #     emacsclient -a '' -qc -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
-# # else
-# #     emacsclient -nq -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
-# # fi
+         # # check if there is any frame to attach to
+         # command emacsclient -n -s serve-you-right -e "(if (> (length (frame-list)) 1) 't)"
+         # exit
+         # screencmd="command emacs -nw -u ${USER} --daemon=serve-you-right"
+         # # check if a daemon is running already
+         # command emacsclient -batch --eval '(unless (daemonp) (kill-emacs 7))'
+         # echo $?;exit
+         # if [ $? -eq 1 ]; then
+         #     echo "starting server"
+         #     screen -S emacs-daemon -dm bash -c "${screencmd}"
+         # else
+         #     echo "attaching client"
+         #     exec emacsclient -q --alternate-editor="" -c -s serve-you-right "$@"
+         # fi
+         # #command emacs -nw -u "${USER}" --daemon="${EMACS_SERVER_NAME}"
+         # # printf 'Starting emacs server "%s"\n' "${EMACS_SERVER_NAME}"
+         # # exec emacsclient -q --alternate-editor="" \
+             #     #      -c -s "${EMACS_SERVER_NAME}" "$@"
+         # # Checks if there's a frame open
+         # # emacsclient -n -s "${EMACS_SERVER_NAME}" -e "(if (> (length (frame-list)) 1) 't)" | grep t
+         # # if [ "$?" -eq 0 ]; then
+         # #     emacsclient -a '' -qc -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
+         # # else
+         # #     emacsclient -nq -s "${EMACS_SERVER_NAME}" "$@" &> /dev/null
+         # # fi

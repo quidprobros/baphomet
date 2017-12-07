@@ -1,0 +1,11 @@
+(defun test-fn ()
+  (interactive)
+  (message "Test message")
+  (sit-for 300)
+  )
+
+(progn
+  (interactive)
+  (message "Test message")
+  )
+
