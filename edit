@@ -171,7 +171,19 @@ case $key in
 	      ;;
     --help|-h)
         cat << EOM
-Options:
+Usage: $SCRIPT_NAME [switches] [arguments]
+-h, --help                    Display help menu
+-s, --start [name]            Start a daemon with name 'name'
+-k, --kill, --stop [name]     Stop a daemon with name 'name'
+-j, --join [name] [buffer]    Join a daemon with name 'name' and
+                               create a new buffer 'buffer'
+-l, --list                    List known daemons
+
+Examples with a daemon named 'baphomet'
+ start daemon: $SCRIPT_NAME --start baphomet
+ stop daemon:  $SCRIPT_NAME --stop baphomet
+ join daemon:  $SCRIPT_NAME --join baphomet
+
 
 EOM
         exit
