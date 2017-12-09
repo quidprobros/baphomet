@@ -229,6 +229,7 @@ do
             ;;
         --help|-h)
             cat << 'EOF'
+BAPHOMET: An emacs demonic wrapper.
 Usage: $SCRIPT_NAME [switches] [arguments]
 -h, --help                    Display help menu
 -s, --start [name]            Start a daemon with name 'name'
@@ -253,12 +254,12 @@ EOF
 done
 
 
-
+# when no socket is specified, the first socket referenced in socket array is chosen
 check_for_socket
 if [[ $? -eq 0 ]]; then
     command emacsclient -q -c -s "${EMACS_SERVER}" "$@"
 else
-    printf 'Default Socket not found! Here are your options:\n'
+    printf 'No sockets were found! Here are your options:\n'
     select option in 'List daemons' 'Join' 'Create'
     do
         case $option in
