@@ -1,6 +1,32 @@
 #!/usr/bin/env bash
+
+
+:
+source ~/bin/spin.bash
 :
 shopt -s nullglob
+shopt -s extglob
+
+
+# case $1 in
+#     a*             ) foo;;    # matches anything starting with "a"
+#     b?             ) bar;;    # matches any two-character string starting with "b"
+#     c[de]          ) baz;;    # matches "cd" or "ce"
+#     me?(e)t        ) qux;;    # matches "met" or "meet"
+#     @(a|e|i|o|u)   ) fuzz;;   # matches one vowel
+#     m+(iss)?(ippi) ) fizz;;   # matches "miss" or "mississippi" or others
+#                      esac
+#                      exit
+
+
+# case $1 in
+#     --kill-all              ) echo $1
+#                       ;;
+# esac
+# exit
+
+
+
 
 SCRIPT_NAME=$(basename $0)
 
@@ -32,176 +58,179 @@ list_sockets () {
         [[ -S $socket ]] && \
             arrSockets+=("$(basename ${socket})")
     done
-    if [[ $# -ne 0 ]]; then
-        echo $1
-        containsElement "${1//=/}" "${arrSockets[@]}"
-        return $?
-    fi        
 }
-list_sockets &>/dev/null
+# generate list of daemon sockets
+list_sockets
 
 check_for_socket () {
     :
     # check if supplied socket ref exists
-    containsElement "${1//=/}" "${arrSockets[@]}"
-    return $?
-    
-    # if [[ $# -ne 0 ]]; then
-    #     [[ -S $EMACS_SOCKET_DIR/$1 ]] && return 0
-    #     return $ER_MISSING
-    # fi
-    # # if it doesn't exist, see if a single one does...
-    # if [[ $? -eq -1 ]]; then
-    #     if [[ "${#arrSockets[@]}" -eq 1 ]]; then
-    #         EMACS_SERVER="${arrSockets[0]}"
-    #     fi
-    # fi
+    [[ $# -ne 0 ]] && \
+        containsElement "${1//=/}" "${arrSockets[@]}" && \
+        return $?
+
+    # join any
+    [[ "${#arrSockets[@]}" -ne 0 ]] && \
+        EMACS_SERVER="${arrSockets[0]}" && \
+        return $?
+
+    return $ER_MISSING
 }
 
-
-count_sockets () {
-    SOCKET_COUNT=()
-    for socket in $EMACS_SOCKET_DIR/*; do
-        if [[ -S $socket ]]; then
-            SOCKET_COUNT=$(( $SOCKET_COUNT + 1 ))
-        fi
-    done
-}
-count_sockets # count the sockets
-
-
-# kill multiple in one command
 # jump between daemons
 # new buffer when starting daemon
 # handle arbitrary options
 # include image of baphomet
+# probably want an interative switch? mehhhh
 
 
 key="$1"
 value="$2"
 
-case $key in
-    --join|-j)
-        socket="${value//=/}"
-        buffer="${3}"
-        
-        [[ "${#arrSockets[@]}" -eq 0 ]] && \
-            printf 'No sockets found!\n' && exit
-        :
-        sock="${value//=/}"
-        :
-        if [[ ${#sock} -eq 0 ]]; then
-            printf '\e[37;4;2msockets\e[0m\n'
-            select sock in "${arrSockets[@]}"
-            do
-                sock="${sock//=/}"
-                exec command emacsclient -q -c -s "${sock}" -e '(momentary-string-display "hello there" 200)'
-                exit
-            done
-        fi
-        
-        if [[ ${#sock} -ne 0 ]]; then
-            check_for_socket $sock
-            if [[ $? -eq 0 ]]; then            
-                exec command emacsclient -q -c -s "${sock}" "${@:3}"
-            else
-                printf 'Socket not found, no known process to join!\n'
-                printf '`\e[36m%s -l\e[0m` to list sockets by name.\n' "${SCRIPT_NAME}"
-                exit 1
-            fi        
-        fi
-        exit
-        ;;
-    --list|--list-daemons|-l)
-        # list buffers too
-        # list_sockets
-        printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
-        printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
-        [[ ${#arrSockets[*]} -eq 0 ]] && \
-            printf 'No sockets found.\n'
-        exit
-        ;;
-    --stop|--kill|-k)
-        :
-        [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to slay.\n' && exit
-        :
-        case $value in
-            all)
-                for socket in $EMACS_SOCKET_DIR/*; do
-                    if [[ -S $socket ]]; then
-                        socket_name=$(basename ${socket})
-                        command emacsclient -e '(kill-emacs)' -s $socket_name &
-                        printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
-                        wait
-                        printf " done\n"
-                    fi                    
+while [[ ${#@} -ne 0 ]]
+do
+    case $1 in
+        --join|-j)
+            socket="${2//=/}"
+            socket="${2//=/}"
+            buffer="${3}"
+            
+            [[ "${#arrSockets[@]}" -eq 0 ]] && \
+                printf 'No sockets found!\n' && exit
+            :
+            [[ "${#arrSockets[@]}" -eq 1 && "${#socket}" -eq 0 ]] && \
+                exec command emacsclient -c -s "${arrSockets[0]}"
+            exit
+            
+            :
+            if [[ ${#socket} -eq 0 ]]; then
+                printf '\e[37;4;2msockets\e[0m\n'
+                select sock in "${arrSockets[@]}"
+                do
+                    socket="${sock//=/}"
+                    exec command emacsclient -c -s "${socket}" -e '(momentary-string-display "hello there" 200)'
+                    exit
                 done
-                exit
-                ;;
-        esac
-        
-        if [[ ${#value} -ne 0 ]]; then
-            check_for_socket $value
-            if [[ $? -eq 1 ]]; then
-                printf "No such demon.\n"
-            else
-                command emacsclient -e '(kill-emacs)' -s $value  && \
-		                printf 'Shutting down daemon "%s"\n' "${value}"                        
+            fi
+            
+            if [[ ${#sock} -ne 0 ]]; then
+                check_for_socketet $sock
+                if [[ $? -eq 0 ]]; then            
+                    exec command emacsclient -q -c -s "${socket}" "${@:3}"
+                else
+                    printf 'Socket not found, no known process to join!\n'
+                    printf '`\e[36m%s -l\e[0m` to list sockets by name.\n' "${SCRIPT_NAME}"
+                    exit 1
+                fi        
             fi
             exit
-        fi
-        :
-        [[ "${#value}" -eq 0 ]] && \
-            printf "Choose a demon to slay:\n" && \
-            select sock in "${arrSockets[@]}="
-            do
-                sock="${sock//=/}"
-                if [[ ${#sock} -eq 0  ]]; then
-                    printf '\e[31mBad choice.\e[0m\n'
-                    exec $0 -k
+            ;;
+        --list|--list-daemons|-l)
+            # list buffers too
+            # list_sockets
+            printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
+            printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
+            [[ ${#arrSockets[*]} -eq 0 ]] && \
+                printf 'No sockets found.\n'
+            exit
+            ;;
+        --kill-all)
+            2="all"
+            ;&
+        --stop|--kill|-k)
+            :
+            [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to slay.\n' && exit
+            :
+            case $2 in
+                all)
+                    for socket in $EMACS_SOCKET_DIR/*; do
+                        if [[ -S $socket ]]; then
+                            socket_name=$(basename ${socket})
+                            command emacsclient -e '(kill-emacs)' -s $socket_name &
+                            printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
+                            wait
+                            printf " done\n"
+                        fi                    
+                    done
+                    exit
+                    ;;
+            esac
+            
+            if [[ ${#2} -ne 0 ]]; then
+                check_for_socket $2
+                if [[ $? -eq 1 ]]; then
+                    printf "No such demon.\n"
+                else
+                    command emacsclient -e '(kill-emacs)' -s $2  && \
+		                    printf 'Shutting down daemon "%s"\n' "${2}"                        
                 fi
-                command emacsclient -s $sock -e '(kill-emacs)' && \
-		                printf 'Shutting down daemon "%s"\n' "${sock}"
                 exit
-            done        
-        :
-        exit
-        ;;
-    --file|-f|--buffer|-b)
-        if [[ ${#2} -eq 0 ]]; then
-            echo 'no file specified';exit
-        else
-            EMACS_BUFFER_NAME=$2
-        fi
-        shift 2
-        ;&
-    --start|-c|-s)
-        EMACS_SERVER=$2
-        :
-        check_for_socket "$EMACS_SERVER"
-        if [[ $? -eq 0 ]]; then
-	          printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
-	          exit
-        fi
-        :
-        if [[ ${#EMACS_BUFFER_NAME} -ge 0 ]]; then
-            exec command emacs --user=${USER} --daemon=${EMACS_SERVER} &>/dev/null &
-            printf "Loading daemon ..."
-            wait
-            printf " done.\n"
-            exec emacsclient -nw --socket-name=${EMACS_SERVER} -- ${EMACS_BUFFER_NAME}            
-        else
-            exec command emacs -u ${USER} --daemon=${EMACS_SERVER}
-        fi
-        exit
-        ;;
-    --help|-h)
-        cat << EOM
+            fi
+            :
+            [[ "${#2}" -eq 0 ]] && \
+                printf "Choose a demon to slay:\n" && \
+                select sock in "${arrSockets[@]}="
+                do
+                    socket="${sock//=/}"
+                    if [[ ${#socket} -eq 0  ]]; then
+                        printf '\e[31mBad choice.\e[0m\n'
+                        exec $0 -k
+                    fi
+                    command emacsclient -s $socket -e '(kill-emacs)' && \
+		                    printf 'Shutting down daemon "%s"\n' "${socket}"
+                    exit
+                done        
+            :
+            exit
+            ;;
+        --file|-f|--buffer|-b)
+            if [[ ${#2} -eq 0 ]]; then
+                echo 'no file specified';exit
+            else
+                EMACS_BUFFER_NAME=$2
+            fi
+            shift 2
+            ;&
+        --start|-c|-s)
+            EMACS_SERVER=$2
+            shift 2
+            case $1 in
+                -f)
+                    EMACS_BUFFER_NAME=$2
+                    ;;
+            esac
+            :
+            check_for_socket "$EMACS_SERVER"
+            if [[ $? -eq 0 ]]; then
+                if [[ ${#EMACS_BUFFER_NAME} -eq 0 ]];then
+	                  printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
+	                  exit
+                else
+                    exec $0 -j "$EMACS_SERVER" "$EMACS_BUFFER_NAME"
+                    exit
+                fi                   
+            fi
+            :
+            if [[ ${#EMACS_BUFFER_NAME} -ge 0 ]]; then
+                exec command emacs --user=${USER} --daemon=${EMACS_SERVER} &>/dev/null &
+                printf "      Summoning daemon ..."
+                spinner 5
+                wait %1
+                #            kill %2
+                printf " done.\n"
+                exec emacsclient -nw --socket-name=${EMACS_SERVER} -- ${EMACS_BUFFER_NAME}            
+            else
+                exec command emacs -u ${USER} --daemon=${EMACS_SERVER}
+            fi
+            exit
+            ;;
+        --help|-h)
+            cat << 'EOF'
 Usage: $SCRIPT_NAME [switches] [arguments]
 -h, --help                    Display help menu
 -s, --start [name]            Start a daemon with name 'name'
 -k, --kill, --stop [name]     Stop a daemon with name 'name'
--j, --join [name] [buffer]    Join a daemon with name 'name' and
+-j, --join [name] -b [buffer]    Join a daemon with name 'name' and
                                create a new buffer 'buffer'
 -l, --list                    List known daemons
 
@@ -210,23 +239,24 @@ Examples with a daemon named 'baphomet'
  stop daemon:  $SCRIPT_NAME --stop baphomet
  join daemon:  $SCRIPT_NAME --join baphomet
 
+EOF
+            exit
+            ;;
+        -*)
+            printf '\e[31mUnknown argument "%s".\e[0m\n' $1
+            exit 1
+            ;;
+    esac
+done
 
-EOM
-        exit
-        ;;
-    -*)
-        printf '\e[31mUnknown argument "%s".\e[0m\n' $key
-        exit
-        ;;
-esac
-exit
+
+
 check_for_socket
-if [[ $STATUS -eq 0 ]]; then
+if [[ $? -eq 0 ]]; then
     command emacsclient -q -c -s "${EMACS_SERVER}" "$@"
-    exit
 else
     printf 'Default Socket not found! Here are your options:\n'
-    select option in 'List daemons' 'Join'
+    select option in 'List daemons' 'Join' 'Create'
     do
         case $option in
             'List daemons')
@@ -234,6 +264,9 @@ else
                 ;;
             'Join')
                 exec $0 -j
+                ;;
+            'Create')
+                exec $0 -s
                 ;;
         esac
         exit
