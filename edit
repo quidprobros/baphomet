@@ -9,6 +9,8 @@ EMACS_SERVER="server"
 EMACS_SERVER_RANDOM=""
 EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 
+EMACS_BUFFER_NAME=""
+
 readonly ER_MISSING=404
 
 
@@ -68,12 +70,21 @@ count_sockets () {
 count_sockets # count the sockets
 
 
+# kill multiple in one command
+# jump between daemons
+# new buffer when starting daemon
+# handle arbitrary options
+# include image of baphomet
+
 
 key="$1"
 value="$2"
 
 case $key in
     --join|-j)
+        socket="${value//=/}"
+        buffer="${3}"
+        
         [[ "${#arrSockets[@]}" -eq 0 ]] && \
             printf 'No sockets found!\n' && exit
         :
@@ -112,7 +123,7 @@ case $key in
         ;;
     --stop|--kill|-k)
         :
-        [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to stop.\n' && exit
+        [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to slay.\n' && exit
         :
         case $value in
             all)
@@ -122,7 +133,7 @@ case $key in
                         command emacsclient -e '(kill-emacs)' -s $socket_name &
                         printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
                         wait
-                        printf " done.\n"
+                        printf " done\n"
                     fi                    
                 done
                 exit
@@ -156,20 +167,46 @@ case $key in
         :
         exit
         ;;
+    --file|-f|--buffer|-b)
+        if [[ ${#2} -eq 0 ]]; then
+            echo 'no file specified';exit
+        else
+            EMACS_BUFFER_NAME=$2
+        fi
+        shift 2
+        ;&
     --start|-c|-s)
-        check_for_socket "$2"
-        if [[ $? -ne 0 ]]; then
-            EMACS_SERVER=$2
-	          exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER} &>/dev/null &
+        EMACS_SERVER=$2
+        :
+        check_for_socket "$EMACS_SERVER"
+        if [[ $? -eq 0 ]]; then
+	          printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
+	          exit
+        fi
+
+        if [[ ${#EMACS_BUFFER_NAME} -ge 0 ]]; then
+            exec command emacs --user=${USER} --daemon=${EMACS_SERVER} &>/dev/null &
             printf "Loading daemon ..."
             wait
             printf " done.\n"
-	          exit
-	      else
-	          printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
-	          exit
-	      fi
-	      ;;
+            exec emacsclient -nw --socket-name=${EMACS_SERVER} -- ${EMACS_BUFFER_NAME}            
+        else
+            exec command emacs -u ${USER} --daemon=${EMACS_SERVER}
+        fi
+            
+        # if [[ $? -ne 0 ]]; then
+        #    
+	      #     exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER} "${@:3}" &>/dev/null &
+        #     printf "Loading daemon ..."
+        #     wait
+        #     printf " done\n"
+	      #     exit
+	      # else
+	      #     printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
+	      #     exit
+	      # fi
+   #     exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER} --file=${EMACS_BUFFER_NAME}        
+        ;;
     --help|-h)
         cat << EOM
 Usage: $SCRIPT_NAME [switches] [arguments]
@@ -194,7 +231,7 @@ EOM
         exit
         ;;
 esac
-
+exit
 check_for_socket
 if [[ $STATUS -eq 0 ]]; then
     command emacsclient -q -c -s "${EMACS_SERVER}" "$@"
@@ -228,7 +265,7 @@ exit 0
 #          retval)
 #      \,\@clean-up))
 #      (safe-wrap (error (kill-emacs 7)) (message \"Unwinding...\"))"
-# command emacs -batch -eval "${lisp}"
+# command emacs -batch -eval "${lisp} --kill"
 # exit
 
 # # check if server running
@@ -239,7 +276,7 @@ exit 0
 # exit
 # screencmd="command emacs -nw -u ${USER} --daemon=serve-you-right"
 # # check if a daemon is running already
-# command emacsclient -batch --eval '(unless (daemonp) (kill-emacs 7))'
+# command emacsclient -batch --eval '(unless (daemonp) (kill-emacs 7)) --kill'
 # echo $?;exit
 # if [ $? -eq 1 ]; then
 #     echo "starting server"

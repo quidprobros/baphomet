@@ -5,10 +5,6 @@ Wrapper script for running emacs daemon on MacOS.
 
 
 
-(use-package safq
-             :ensure t
-)
-
 
 TO-DO
 ===
