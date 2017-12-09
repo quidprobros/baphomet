@@ -68,14 +68,14 @@ check_for_socket () {
     # check if supplied socket ref exists
     [[ $# -ne 0 ]] && \
         containsElement "${1//=/}" "${arrSockets[@]}" && \
-        return $?
+        return 0
 
-    # join any
+    # join first in array
     [[ "${#arrSockets[@]}" -ne 0 ]] && \
         EMACS_SERVER="${arrSockets[0]}" && \
-        return $?
+        return 0
 
-    return $ERR_MISSING_SOCKET
+    return 1
 }
 
 # jump between daemons
@@ -83,6 +83,7 @@ check_for_socket () {
 # handle arbitrary options
 # include image of baphomet
 # probably want an interative switch? mehhhh
+# wikipedia save
 
 while [[ ${#@} -ne 0 ]]
 do
@@ -188,20 +189,16 @@ do
             ;&
         --start|-c|-s)
             EMACS_SERVER="${2}"
-            shift 2
-            case $1 in
-                -f)
-                    EMACS_BUFFER_NAME=$2
-                    ;;
-            esac
             :
-            if [[ ${#EMACS_SERVER} -ge 1 ]]; then
-                check_for_socket "$EMACS_SERVER"
-            else
+            # check if daemon exists.
+            check_for_socket "$EMACS_SERVER"
+            # if daemon doesn't exist create a random one
+            if [[ $? -eq 1 ]]; then
                 tempname=RANDOM
-                EMACS_SERVER=$(printf 'emacs-socket_%07d' "${!tempname}")
+                EMACS_SERVER=$(printf 'server_%07d' "${!tempname}")
+                unset tempname
             fi
-            exit
+            :
             if [[ $? -eq 0 ]]; then
                 if [[ ${#EMACS_BUFFER_NAME} -eq 0 ]];then
 	                  printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "${EMACS_SERVER}"
@@ -226,6 +223,7 @@ do
                 exec command emacs -u ${USER} --daemon=${EMACS_SERVER}
             fi
             exit
+            shift
             ;;
         --help|-h)
             cat << 'EOF'
