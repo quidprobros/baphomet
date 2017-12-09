@@ -6,6 +6,7 @@ source ~/bin/spin.bash
 :
 shopt -s nullglob
 shopt -s extglob
+shopt -s nocasematch
 
 
 # case $1 in
@@ -37,7 +38,7 @@ EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 
 EMACS_BUFFER_NAME=""
 
-readonly ER_MISSING=404
+readonly ERR_MISSING_SOCKET=404
 
 
 # # # # #
@@ -74,7 +75,7 @@ check_for_socket () {
         EMACS_SERVER="${arrSockets[0]}" && \
         return $?
 
-    return $ER_MISSING
+    return $ERR_MISSING_SOCKET
 }
 
 # jump between daemons
@@ -83,15 +84,10 @@ check_for_socket () {
 # include image of baphomet
 # probably want an interative switch? mehhhh
 
-
-key="$1"
-value="$2"
-
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
         --join|-j)
-            socket="${2//=/}"
             socket="${2//=/}"
             buffer="${3}"
             
@@ -134,28 +130,27 @@ do
                 printf 'No sockets found.\n'
             exit
             ;;
-        --kill-all)
-            2="all"
-            ;&
+        --kill-all|-ka)
+            DIE=0
+            exec $0 --stop all            
+            exit
+            ;;
         --stop|--kill|-k)
             :
             [[ "${#arrSockets[@]}" -eq 0 ]] && printf 'No daemons to slay.\n' && exit
             :
-            case $2 in
-                all)
-                    for socket in $EMACS_SOCKET_DIR/*; do
-                        if [[ -S $socket ]]; then
-                            socket_name=$(basename ${socket})
-                            command emacsclient -e '(kill-emacs)' -s $socket_name &
-                            printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
-                            wait
-                            printf " done\n"
-                        fi                    
-                    done
-                    exit
-                    ;;
-            esac
-            
+            if [[ $2 == "all" && $DIE -eq 0 ]]; then
+                for socket in $EMACS_SOCKET_DIR/*; do
+                    if [[ -S $socket ]]; then
+                        socket_name=$(basename ${socket})
+                        command emacsclient -e '(kill-emacs)' -s $socket_name &
+                        printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
+                        wait
+                        printf " done\n"
+                    fi                    
+                done
+            fi
+            exit
             if [[ ${#2} -ne 0 ]]; then
                 check_for_socket $2
                 if [[ $? -eq 1 ]]; then
@@ -192,7 +187,7 @@ do
             shift 2
             ;&
         --start|-c|-s)
-            EMACS_SERVER=$2
+            EMACS_SERVER="${2}"
             shift 2
             case $1 in
                 -f)
@@ -200,16 +195,24 @@ do
                     ;;
             esac
             :
-            check_for_socket "$EMACS_SERVER"
+            if [[ ${#EMACS_SERVER} -ge 1 ]]; then
+                check_for_socket "$EMACS_SERVER"
+            else
+                tempname=RANDOM
+                EMACS_SERVER=$(printf 'emacs-socket_%07d' "${!tempname}")
+            fi
+            exit
             if [[ $? -eq 0 ]]; then
                 if [[ ${#EMACS_BUFFER_NAME} -eq 0 ]];then
-	                  printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
+	                  printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "${EMACS_SERVER}"
 	                  exit
                 else
                     exec $0 -j "$EMACS_SERVER" "$EMACS_BUFFER_NAME"
                     exit
                 fi                   
             fi
+            echo nope
+            exit
             :
             if [[ ${#EMACS_BUFFER_NAME} -ge 0 ]]; then
                 exec command emacs --user=${USER} --daemon=${EMACS_SERVER} &>/dev/null &
