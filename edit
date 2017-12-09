@@ -183,7 +183,7 @@ case $key in
 	          printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
 	          exit
         fi
-
+        :
         if [[ ${#EMACS_BUFFER_NAME} -ge 0 ]]; then
             exec command emacs --user=${USER} --daemon=${EMACS_SERVER} &>/dev/null &
             printf "Loading daemon ..."
@@ -193,19 +193,7 @@ case $key in
         else
             exec command emacs -u ${USER} --daemon=${EMACS_SERVER}
         fi
-            
-        # if [[ $? -ne 0 ]]; then
-        #    
-	      #     exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER} "${@:3}" &>/dev/null &
-        #     printf "Loading daemon ..."
-        #     wait
-        #     printf " done\n"
-	      #     exit
-	      # else
-	      #     printf 'Daemon \e[33m%s=\e[0m appears to be running.\n' "$2"
-	      #     exit
-	      # fi
-   #     exec command emacs -nw -u ${USER} --daemon=${EMACS_SERVER} --file=${EMACS_BUFFER_NAME}        
+        exit
         ;;
     --help|-h)
         cat << EOM
