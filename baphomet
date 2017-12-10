@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 :
+case $1 in
+    -x|--escape)
+        command emacs "${@:2}"
+        exit
+        ;;
+esac
 
 shopt -s nullglob
 shopt -s extglob
@@ -266,6 +272,9 @@ if [ "$?" -eq 0 ]; then
 else
     cmd='emacsclient -q -s '
 fi
+
+
+
 
 # when no arguments supplies, join the first daemon
 if [[ ${#@} -eq 0 ]]; then
