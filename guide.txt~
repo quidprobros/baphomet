@@ -1,0 +1,15 @@
+;; This buffer is for text that is not saved, and for Lisp evaluation.
+;; To create a file, visit it with C-x C-f and enter text in its buffer.
+
+
+
+starting emacs daemon
+* name specified
+* * check if exists
+* * * if exists, say so and exit
+* * * else, create
+* name not specified
+* * check if default (server) exists
+* * * if not, start
+* * * if yes, say so
+

@@ -1,0 +1,7 @@
+
+
+
+
+* JOIN server
+* * if not specified
+* * * present list
