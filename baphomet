@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 :
+
 shopt -s nullglob
 shopt -s extglob
 #shopt -s nocasematch
@@ -14,14 +15,6 @@ shopt -s extglob
 #     m+(iss)?(ippi) ) fizz;;   # matches "miss" or "mississippi" or others
 #                      esac
 #                      exit
-
-
-# case $1 in
-#     --kill-all              ) echo $1
-#                       ;;
-# esac
-# exit
-
 
 
 
@@ -96,7 +89,7 @@ do
                 select sock in "${arrSockets[@]}"
                 do
                     socket="${sock//=/}"
-                    exec command emacsclient -c -s "${socket}"
+                    exec command emacsclient -c -s "${socket}" "${@:3}"
                     exit
                 done
             fi
@@ -132,8 +125,22 @@ do
         --stop|--kill|-k)
             socket="${2//=/}"
             :
-            [[ ${#socket} -eq 0 && "${#arrSockets[@]}" -eq 0 ]] && \
+            [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
+            :  
+            :
+            if [[ $2 == "all" && $DIE -eq 0 ]]; then
+                for socket in $EMACS_SOCKET_DIR/*; do
+                    if [[ -S $socket ]]; then
+                        socket_name=$(basename ${socket})
+                        command emacsclient -e '(kill-emacs)' -s $socket_name &
+                        printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
+                        wait
+                        printf " done\n"
+                    fi                    
+                done
+                exit
+            fi
             :
             if [[ "${#socket}" -ne 0 ]]; then
                 check_for_socket "${socket}"
@@ -169,7 +176,7 @@ do
         #     fi
         #     shift 2
         #     ;&
-        --start|-c|-s)
+        --start|--summon|-c|-s)
             [[ "${#2}" -ne 0 ]] && \
                 EMACS_SERVER="${2}"                
             :
@@ -179,7 +186,7 @@ do
                 select yn in "Yes" "No"
                 do
                     case $yn in
-                        Yes ) exec $0 -j "$EMACS_SERVER"
+                        Yes ) exec $0 -j "$EMACS_SERVER" "${@:3}"
                               exit
                               ;;
                         No ) exit
@@ -255,9 +262,9 @@ wait
 
 check_for_frames "${EMACS_SERVER}"
 if [ "$?" -eq 0 ]; then
-        cmd='emacsclient -qc -s '
-    else
-        cmd='emacsclient -q -s '
+    cmd='emacsclient -qc -s '
+else
+    cmd='emacsclient -q -s '
 fi
 
 # when no arguments supplies, join the first daemon
@@ -268,13 +275,13 @@ else
     do
         case $option in
             'List')
-                exec $0 -l
+                exec "${0}" -l "${@}"
                 ;;
             'Join')
-                exec $0 -j
+                exec "${0}" -j "${EMACS_SERVER}" "${@}"
                 ;;
             'Summon')
-                exec $0 -s
+                exec "${0}" -s "${EMACS_SERVER}" "${@}"
                 ;;
         esac
         exit
