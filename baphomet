@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 :
+# Execute this script at your own peril!
+:
 case $1 in
     -x|--escape)
         command emacs "${@:2}"
@@ -87,6 +89,9 @@ check_for_socket () {
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
+        -i|--interactive)
+            break
+            ;;
         --join|-j)
             socket="${2//=/}"
 
@@ -218,11 +223,12 @@ BAPHOMET -- manage your emacs daemons
                                    create a new buffer 'buffer'
  -l, --list                    List known daemons
 
-Examples with a daemon named 'baphomet'
+Examples with a daemon named ''
  start daemon: $SCRIPT_NAME --start baphomet
  stop daemon:  $SCRIPT_NAME --stop baphomet
  join daemon:  $SCRIPT_NAME --join baphomet
 
+Disclaimer: Execute this script at your own peril.
 EOF
             exit
             ;;
@@ -234,8 +240,9 @@ EOF
             printf '\e[31mUnknown argument "%s".\e[0m\n' $1
             exit 1
             ;;
-        *) break
-           ;;
+        *)
+            break
+            ;;
     esac
 done
 
@@ -279,21 +286,33 @@ fi
 # when no arguments supplies, join the first daemon
 if [[ ${#@} -eq 0 ]]; then
     eval "${cmd} ${EMACS_SERVER} ${EMACS_BUFFER_DEFAULT}"
-else
-    select option in 'List' 'Join' 'Summon'
-    do
-        case $option in
-            'List')
-                exec "${0}" -l "${@}"
-                ;;
-            'Join')
-                exec "${0}" -j "${EMACS_SERVER}" "${@}"
-                ;;
-            'Summon')
-                exec "${0}" -s "${EMACS_SERVER}" "${@}"
-                ;;
-        esac
-        exit
-    done
 fi
+
+
+case $1 in
+    -i|--interactive)
+        select option in 'List' 'Join' 'Summon'
+        do
+            case $option in
+                'List')
+                    exec "${0}" -l "${@}"
+                    ;;
+                'Join')
+                    exec "${0}" -j "${EMACS_SERVER}" "${@}"
+                    ;;
+                'Summon')
+                    exec "${0}" -s "${EMACS_SERVER}" "${@}"
+                    ;;
+            esac
+        done
+        ;;
+    -*)
+        exit 1
+        ;;
+    *)
+        eval "${cmd} ${EMACS_SERVER} ${1}"
+        exit
+        ;;
+esac
+
 exit 0
