@@ -1,6 +1,5 @@
 DISCLAIMER -- use at your own peril!
 
-
 ````
 BAPHOMET -- manage your emacs daemons
  Usage: $SCRIPT_NAME [switches] [arguments]
@@ -30,6 +29,9 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* list user buffers
+* allow/ensure assign user to daemon
 * color code path segments in socket path list
 * send name of daemon to new frame minibuffer
 * choose emacs and emacsclient based on compgen results
+

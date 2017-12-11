@@ -75,6 +75,13 @@ check_for_socket () {
     return 1
 }
 
+# buffer listing
+## (insert (mapconcat (function buffer-name) (buffer-list) " "))
+## (apply #'insert (mapcar (function buffer-name) (buffer-list)))
+## (send-string-to-terminal
+## \emacsclient --eval '(message "This message appears in the echo area!: %s." (buffer-list))' -s server
+## \emacsclient --eval '(message "%s" (buffer-list))' -s server
+
 # jump between daemons
 # new buffer when starting daemon
 # handle arbitrary options
