@@ -322,13 +322,13 @@ case $1 in
         do
             case $option in
                 'List')
-                    exec "${0}" -l "${@}"
+                    exec "${0}" -l
                     ;;
                 'Join')
-                    exec "${0}" -j "${EMACS_SERVER}" "${@}"
+                    exec "${0}" -j
                     ;;
                 'Summon')
-                    exec "${0}" -s "${EMACS_SERVER}" "${@}"
+                    exec "${0}" -s
                     ;;
             esac
         done
