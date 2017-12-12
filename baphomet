@@ -129,7 +129,7 @@ do
         --list|--list-daemons|-l)
             # list buffers too
             # list_sockets
-            printf '\e[37;4;2m%s\e[0m\n' $EMACS_SOCKET_DIR
+            printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
             [[ ${#arrSockets[*]} -eq 0 ]] && \
                 printf 'No sockets found.\n'
@@ -151,7 +151,7 @@ do
                 for socket in $EMACS_SOCKET_DIR/*; do
                     if [[ -S $socket ]]; then
                         socket_name=$(basename ${socket})
-                        command emacsclient -e '(kill-emacs)' -s $socket_name &
+                        command emacsclient -e '(kill-emacs)' -s "${socket_name}" &
                         printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
                         wait
                         printf " done\n"
@@ -297,7 +297,6 @@ if [ "$?" -eq 0 ]; then
 else
     cmd='emacsclient -q -s '
 fi
-
 
 
 
