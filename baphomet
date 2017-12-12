@@ -283,9 +283,12 @@ check_for_frames () {
     return 1
 }
 
-
-check_for_socket "${EMACS_SERVER}"
-[[ $? -ne 0 ]] && exec $0 -s "${EMACS_SERVER}"
+check_for_socket "${arrSockets[0]}"
+if [[ $? -ne 0 ]]; then
+    exec $0 -s "${EMACS_SERVER}" &
+else
+    EMACS_SERVER="${arrSockets[0]}"
+fi
 wait
 
 check_for_frames "${EMACS_SERVER}"
