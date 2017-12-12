@@ -34,4 +34,22 @@ TO-DO
 * color code path segments in socket path list
 * send name of daemon to new frame minibuffer
 * choose emacs and emacsclient based on compgen results
+# buffer listing
+## (insert (mapconcat (function buffer-name) (buffer-list) " "))
+## (apply #'insert (mapcar (function buffer-name) (buffer-list)))
+## (send-string-to-terminal
+## \emacsclient --eval '(message "This message appears in the echo area!: %s." (buffer-list))' -s server
+## \emacsclient --eval '(message "%s" (buffer-list))' -s server
+
+# jump between daemons
+# new buffer when starting daemon
+# handle arbitrary options
+# include image of baphomet
+# probably want an interative switch? mehhhh
+# wikipedia save
+# hm, a universal keyboard using registers or whatever might be nice...
+# annotate functions
+# option to kill only clientless daemons
+# suggest daemon names
+
 

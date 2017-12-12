@@ -25,6 +25,9 @@ shopt -s extglob
 #                      exit
 
 
+LISP_FRAME_CHECK="(if (> (length (frame-list)) 1) 't)"
+LISP_BUFFER_COUNT="(length (buffer-list))"
+
 
 SCRIPT_NAME=$(basename $0)
 
@@ -50,19 +53,31 @@ containsElement () {
 }
 
 list_sockets () {
+    local sock
     read -r -a Msg <<< \
          '# generate list of daemon sockets'
     [[ $1 == "DEBUG" ]] && printf '%s\n' "${Msg[*]}"
-    
-    
+    :    
     arrSockets=()
     :
     for socket in $EMACS_SOCKET_DIR/*; do
-        [[ -S $socket ]] && \
-            arrSockets+=("$(basename ${socket})")
+        if [[ -S $socket ]]; then 
+            sock="$(basename ${socket})"
+            arrSockets+=("${sock}")
+        fi
     done
 }
 list_sockets
+
+count_buffers () {
+    arrBuffers=()
+    for s in "${arrSockets[@]}"
+    do
+        command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${sock}"
+    done  
+
+ #   =$(command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${sock}")
+}
 
 check_for_socket () {
     :
@@ -129,6 +144,10 @@ do
         --list|--list-daemons|-l)
             # list buffers too
             # list_sockets
+            # exit
+           count_buffers
+            
+            
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
             [[ ${#arrSockets[*]} -eq 0 ]] && \
@@ -278,7 +297,7 @@ check_for_frames () {
 
     check_for_socket "${EMACS_SERVER}" 
     [[ $?  -eq 0 ]] && \
-        command emacsclient -n -s "${EMACS_SERVER}" -e "(if (> (length (frame-list)) 1) 't)" | grep t &>/dev/null && return $?
+        command emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t &>/dev/null && return $?
 
     return 1
 }
