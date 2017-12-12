@@ -71,12 +71,15 @@ list_sockets
 
 count_buffers () {
     arrBuffers=()
-    for s in "${arrSockets[@]}"
-    do
-        command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${sock}"
-    done  
-
- #   =$(command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${sock}")
+    if [[ ${#arrSockets[*]} -gt 0 ]]; then
+           for s in "${arrSockets[@]}"
+           do
+               read count  < <(command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${s}")
+               exit
+           done
+    else
+        return 1
+    fi
 }
 
 check_for_socket () {
@@ -90,23 +93,6 @@ check_for_socket () {
     return 1
 }
 
-# buffer listing
-## (insert (mapconcat (function buffer-name) (buffer-list) " "))
-## (apply #'insert (mapcar (function buffer-name) (buffer-list)))
-## (send-string-to-terminal
-## \emacsclient --eval '(message "This message appears in the echo area!: %s." (buffer-list))' -s server
-## \emacsclient --eval '(message "%s" (buffer-list))' -s server
-
-# jump between daemons
-# new buffer when starting daemon
-# handle arbitrary options
-# include image of baphomet
-# probably want an interative switch? mehhhh
-# wikipedia save
-# hm, a universal keyboard using registers or whatever might be nice...
-# annotate functions
-# option to kill only clientless daemons
-# suggest daemon names
 
 while [[ ${#@} -ne 0 ]]
 do
@@ -116,20 +102,22 @@ do
             ;;
         --join|-j)
             socket="${2//=/}"
-
+            shift 2
+            case $1 in -b) EMACS_BUFFER_NAME="${2}" ;; esac
+            
             if [[ ${#socket} -eq 0 ]]; then
                 printf '\e[37;4;2msockets\e[0m\n'
                 select sock in "${arrSockets[@]}"
                 do
                     socket="${sock//=/}"
-                    exec command emacsclient -c -s "${socket}" "${@:3}"
+                    exec command emacsclient -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
                     exit
                 done
             fi
             :
-            check_for_socket "${2//=/}" "${arrSockets[@]}"
+            check_for_socket "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then            
-                exec command emacsclient -q -c -s "${socket}" "${@:3}"
+                exec command emacsclient -q -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
             elif [[ "${#arrSockets[@]}" -eq 0 ]]; then
                 printf 'Socket not found, no known process to join!\n'
                 printf '`\e[36m%s -s\e[0m` to summon a daemon.\n' "${SCRIPT_NAME}"
@@ -145,14 +133,17 @@ do
             # list buffers too
             # list_sockets
             # exit
-           count_buffers
-            
+           # count_buffers
+           # exit
             
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
             [[ ${#arrSockets[*]} -eq 0 ]] && \
                 printf 'No sockets found.\n'
             exit
+            ;;
+        --list-buffers|-lb)
+            
             ;;
         --kill-all|-ka)
             DIE=0
