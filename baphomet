@@ -180,7 +180,7 @@ do
                 fi
                 exit
             else
-                printf "Choose a demon to slay:\n" && \
+                printf "Choose a daemon to slay:\n" && \
                     select sock in "${arrSockets[@]}"
                     do
                         sock="${sock//=/}"
@@ -223,9 +223,10 @@ do
                 done
             else
                 exec command emacs --user="${USER}" --daemon="${EMACS_SERVER}" &>/dev/null &
-                printf "      Summoning daemon ..."
+                printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
                 wait %1
-                printf " done.\n"
+                printf " done. \n"
+                printf 'So summoned.\n'
             fi
             exit
             ;;

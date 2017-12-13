@@ -27,16 +27,20 @@ Disclaimer: Execute this script at your own peril.
 ````
 
 
+
+
+
 TO-DO
 ===
+* determine min requirements
 * list user buffers
 * allow/ensure assign user to daemon
 * color code path segments in socket path list
 * send name of daemon to new frame minibuffer
 * choose emacs and emacsclient based on compgen results
-# buffer listing
-## (insert (mapconcat (function buffer-name) (buffer-list) " "))
-## (apply #'insert (mapcar (function buffer-name) (buffer-list)))
+* buffer listing
+* * `(insert (mapconcat (function buffer-name) (buffer-list) " "))`
+* * `(apply #'insert (mapcar (function buffer-name) (buffer-list)))`
 ## (send-string-to-terminal
 ## \emacsclient --eval '(message "This message appears in the echo area!: %s." (buffer-list))' -s server
 ## \emacsclient --eval '(message "%s" (buffer-list))' -s server
