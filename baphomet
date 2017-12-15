@@ -28,6 +28,26 @@ shopt -s extglob
 LISP_FRAME_CHECK="(if (> (length (frame-list)) 1) 't)"
 LISP_BUFFER_COUNT="(length (buffer-list))"
 
+# LISP_BUFFER_HEADER=(
+#     ';(progn'
+#       ';(setq ov-baphomet-header (make-overlay 0 0 (current-buffer) nil nil)))'
+
+# )
+#  $(setq ov-baphomet-header (make-overlay 0 0 (current-buffer) nil nil))
+#    $(mapcar
+#    $(lambda (p) (overlay-put ov-baphomet-header (car p) (cadr p)))
+# $\'\((before-string "Baphomet Buffer:")
+#   $\(after-string "\\n")
+#   $(face \'(:foreground "red" :background "blue"))
+#   $(intangible t)   
+#   $)))'
+#'
+#< <(${LISP_BUFFER_HEADER[@]});exit
+#echo ${LISP_BUFFER_HEADER[@]};exit
+
+# echo "${LISP_BUFFER_HEADER}"
+# exit
+
 
 SCRIPT_NAME=$(basename $0)
 
@@ -72,11 +92,11 @@ list_sockets
 count_buffers () {
     arrBuffers=()
     if [[ ${#arrSockets[*]} -gt 0 ]]; then
-           for s in "${arrSockets[@]}"
-           do
-               read count  < <(command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${s}")
-               exit
-           done
+        for s in "${arrSockets[@]}"
+        do
+            read count < <(command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${s}")
+            exit
+        done
     else
         return 1
     fi
@@ -133,8 +153,8 @@ do
             # list buffers too
             # list_sockets
             # exit
-           # count_buffers
-           # exit
+            # count_buffers
+            # exit
             
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
@@ -227,6 +247,8 @@ do
                 wait %1
                 printf " done. \n"
                 printf 'So summoned.\n'
+                # fallback down
+                #[[ ! -z $QUICK ]] && break;
             fi
             exit
             ;;
@@ -273,6 +295,7 @@ EOF
 done
 
 
+
 # case $1 in
 #     -D)
 #         if [[ ${#2} -ne 0 ]]; then
@@ -296,7 +319,7 @@ check_for_frames () {
 
 check_for_socket "${arrSockets[0]}"
 if [[ $? -ne 0 ]]; then
-    exec $0 -s "${EMACS_SERVER}" &
+    QUICK=1 exec $0 -s "${EMACS_SERVER}" &
 else
     EMACS_SERVER="${arrSockets[0]}"
 fi
@@ -314,6 +337,7 @@ fi
 # when no arguments supplies, join the first daemon
 if [[ ${#@} -eq 0 ]]; then
     eval "${cmd} ${EMACS_SERVER} ${EMACS_BUFFER_DEFAULT}"
+    exit
 fi
 
 

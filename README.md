@@ -47,9 +47,7 @@ TO-DO
 
 # jump between daemons
 # new buffer when starting daemon
-# handle arbitrary options
 # include image of baphomet
-# probably want an interative switch? mehhhh
 # wikipedia save
 # hm, a universal keyboard using registers or whatever might be nice...
 # annotate functions
