@@ -122,6 +122,7 @@ do
             ;;
         --join|-j)
             socket="${2//=/}"
+            EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
             shift 2
             case $1 in -b) EMACS_BUFFER_NAME="${2}" ;; esac
             
@@ -130,6 +131,7 @@ do
                 select sock in "${arrSockets[@]}"
                 do
                     socket="${sock//=/}"
+
                     exec command emacsclient -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
                     exit
                 done
@@ -296,15 +298,6 @@ done
 
 
 
-# case $1 in
-#     -D)
-#         if [[ ${#2} -ne 0 ]]; then
-#             echo shit
-#             list_sockets DEBUG
-#         fi
-#         exit
-#         ;;
-# esac
 check_for_frames () {
     local EMACS_SERVER=$1
     [[ ${#EMACS_SERVER} -eq 0 ]] && \
