@@ -244,7 +244,7 @@ do
                     esac
                 done
             else
-                exec command emacs --user="${USER}" --daemon="${EMACS_SERVER}" &>/dev/null &
+                exec command emacs --user="${USER}" --daemon="${EMACS_SERVER}" > /dev/null 2>&1 &
                 printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
                 wait %1
                 printf " done. \n"
@@ -305,7 +305,7 @@ check_for_frames () {
 
     check_for_socket "${EMACS_SERVER}" 
     [[ $?  -eq 0 ]] && \
-        command emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t &>/dev/null && return $?
+        command emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 
     return 1
 }
