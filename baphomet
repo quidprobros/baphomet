@@ -28,26 +28,20 @@ shopt -s extglob
 LISP_FRAME_CHECK="(if (> (length (frame-list)) 1) 't)"
 LISP_BUFFER_COUNT="(length (buffer-list))"
 
+# (send-string-to-terminal (number-to-string (length (buffer-list))))
+
+
 # LISP_BUFFER_HEADER=(
-#     ';(progn'
-#       ';(setq ov-baphomet-header (make-overlay 0 0 (current-buffer) nil nil)))'
-
+#     '(prog'
+#     '(setq ov-baphomet-header (make-overlay 0 0 (current-buffer) nil nil))'
+#     '(mapcar'
+#     '(lambda (p) (overlay-put ov-baphomet-header (car p) (cadr p)))'
+#     '((before-string "Baphomet Buffer:")'
+#     '(after-string "\\n")'
+#     '(face ''(:foreground "red" :background "blue"))'
+#     '(intangible t)'
+#     ')))'
 # )
-#  $(setq ov-baphomet-header (make-overlay 0 0 (current-buffer) nil nil))
-#    $(mapcar
-#    $(lambda (p) (overlay-put ov-baphomet-header (car p) (cadr p)))
-# $\'\((before-string "Baphomet Buffer:")
-#   $\(after-string "\\n")
-#   $(face \'(:foreground "red" :background "blue"))
-#   $(intangible t)   
-#   $)))'
-#'
-#< <(${LISP_BUFFER_HEADER[@]});exit
-#echo ${LISP_BUFFER_HEADER[@]};exit
-
-# echo "${LISP_BUFFER_HEADER}"
-# exit
-
 
 SCRIPT_NAME=$(basename $0)
 
@@ -95,12 +89,13 @@ count_buffers () {
         for s in "${arrSockets[@]}"
         do
             read count < <(command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${s}")
-            exit
+            arrBuffers+=("${count}")
         done
     else
         return 1
     fi
 }
+count_buffers
 
 check_for_socket () {
     :
@@ -157,7 +152,6 @@ do
             # exit
             # count_buffers
             # exit
-            
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
             [[ ${#arrSockets[*]} -eq 0 ]] && \
@@ -165,7 +159,13 @@ do
             exit
             ;;
         --list-buffers|-lb)
-            
+            count_buffers
+            printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "Buffer #"
+            for index in "${!arrBuffers[@]}"
+            do
+                printf '|- \e[33m%-20s\e[0m %s\n' "${arrSockets[$index]}=" "${arrBuffers[$index]}"
+            done
+            exit
             ;;
         --kill-all|-ka)
             DIE=0
@@ -287,7 +287,7 @@ EOF
             break
             ;;
         -*)
-            printf '\e[31mUnknown argument "%s".\e[0m\n' $1
+            printf '\e[31mUnknown argument "%s".\e[0m\n' "${1}"
             exit 1
             ;;
         *)
