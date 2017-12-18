@@ -14,21 +14,8 @@ shopt -s extglob
 #shopt -s nocasematch
 
 
-# case $1 in
-#     a*             ) foo;;    # matches anything starting with "a"
-#     b?             ) bar;;    # matches any two-character string starting with "b"
-#     c[de]          ) baz;;    # matches "cd" or "ce"
-#     me?(e)t        ) qux;;    # matches "met" or "meet"
-#     @(a|e|i|o|u)   ) fuzz;;   # matches one vowel
-#     m+(iss)?(ippi) ) fizz;;   # matches "miss" or "mississippi" or others
-#                      esac
-#                      exit
-
-
 LISP_FRAME_CHECK="(if (> (length (frame-list)) 1) 't)"
 LISP_BUFFER_COUNT="(length (buffer-list))"
-
-# (send-string-to-terminal (number-to-string (length (buffer-list))))
 
 
 # LISP_BUFFER_HEADER=(
@@ -95,7 +82,6 @@ count_buffers () {
         return 1
     fi
 }
-count_buffers
 
 check_for_socket () {
     :
@@ -147,11 +133,6 @@ do
             exit
             ;;
         --list|--list-daemons|-l)
-            # list buffers too
-            # list_sockets
-            # exit
-            # count_buffers
-            # exit
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
             [[ ${#arrSockets[*]} -eq 0 ]] && \
@@ -169,17 +150,14 @@ do
             ;;
         --kill-all|-ka)
             DIE=0
-            exec $0 --stop all            
-            exit
-            ;;
+            ;&
         --stop|--kill|-k)
             socket="${2//=/}"
             :
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
             :  
-            :
-            if [[ $2 == "all" && $DIE -eq 0 ]]; then
+            if [[ $DIE -eq 0 ]]; then
                 for socket in $EMACS_SOCKET_DIR/*; do
                     if [[ -S $socket ]]; then
                         socket_name=$(basename ${socket})
@@ -218,14 +196,14 @@ do
             :
             exit
             ;;
-        # --file|-f|--buffer|-b)
-        #     if [[ ${#2} -eq 0 ]]; then
-        #         echo 'no file specified';exit
-        #     else
-        #         EMACS_BUFFER_NAME=$2
-        #     fi
-        #     shift 2
-        #     ;&
+        --file|-f|--buffer|-b)
+            if [[ ${#2} -eq 0 ]]; then
+                echo 'no file  specified';exit
+            else
+                EMACS_BUFFER_NAME=$2
+            fi
+            shift 2
+            ;;
         --start|--summon|-c|-s)
             [[ "${#2}" -ne 0 ]] && \
                 EMACS_SERVER="${2}"                
