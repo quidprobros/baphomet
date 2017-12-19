@@ -109,7 +109,7 @@ do
             
             if [[ ${#socket} -eq 0 ]]; then
                 printf '\e[37;4;2msockets\e[0m\n'
-                select sock in "${arrSockets[@]}"
+                select sock in "${arrSockets[@]/%/=}"
                 do
                     socket="${sock//=/}"
 
@@ -122,7 +122,7 @@ do
             if [[ $? -eq 0 ]]; then            
                 exec command emacsclient -q -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
             elif [[ "${#arrSockets[@]}" -eq 0 ]]; then
-                printf 'Socket not found, no known process to join!\n'
+                printf 'Daemon not found, no known process to join!\n'
                 printf '`\e[36m%s -s\e[0m` to summon a daemon.\n' "${SCRIPT_NAME}"
                 
             else
@@ -134,15 +134,15 @@ do
             ;;
         --list|--list-daemons|-l)
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
-            printf '|- \e[33m%s=\e[0m\n' "${arrSockets[@]}"
+            printf '|- \e[33m%s\e[0m\n' "${arrSockets[@]/%/=}"
             [[ ${#arrSockets[*]} -eq 0 ]] && \
-                printf 'No sockets found.\n'
+                printf 'No daemons found.\n'
             exit
             ;;
         --list-buffers|-lb)
             count_buffers
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "Buffer #"
-            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]}=") <(printf '%s\n' "${arrBuffers[@]}")
+            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffers[@]}")
             exit
             ;;
         --kill-all|-ka)
@@ -159,9 +159,10 @@ do
                     if [[ -S $socket ]]; then
                         socket_name=$(basename ${socket})
                         command emacsclient -e '(kill-emacs)' -s "${socket_name}" &
-                        printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "${socket_name}"
+                        printf 'Slaying daemon known as \e[33m%s\e[0m ...' "${socket_name/%/=}"
                         wait
-                        printf " done\n"
+                        printf ' done.\n'
+                        printf ' So slain.\n'
                     fi                    
                 done
                 exit
@@ -195,40 +196,48 @@ do
             ;;
         --file|-f|--buffer|-b)
             if [[ ${#2} -eq 0 ]]; then
-                echo 'no file  specified';exit
+                printf 'No file or buffer specified!\n';exit
             else
                 EMACS_BUFFER_NAME=$2
             fi
-            shift 2
             ;;
         --start|--summon|-c|-s)
             [[ "${#2}" -ne 0 ]] && \
                 EMACS_SERVER="${2}"                
             :
-            check_for_socket "$EMACS_SERVER"
-            if [[ $? -eq 0 ]]; then
-                printf 'Daemon \e[33m%s=\e[0m appears to be running. Do you wish to join?\n' "${EMACS_SERVER}"
-                select yn in "Yes" "No"
-                do
-                    case $yn in
-                        Yes ) exec $0 -j "$EMACS_SERVER" "${@:3}"
-                              exit
-                              ;;
-                        No ) exit
-                             ;;
-                    esac
-                done
-            else
-                exec command emacs --user="${USER}" --daemon="${EMACS_SERVER}" > /dev/null 2>&1 &
-                printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
-                wait %1
-                printf " done. \n"
-                printf 'So summoned.\n'
-                # fallback down
-                #[[ ! -z $QUICK ]] && break;
-            fi
-            exit
+
+            # check_for_socket "$EMACS_SERVER"
+            # if [[ $? -eq 0 ]]; then
+            #     printf 'Daemon \e[33m%s=\e[0m appears to be running. Do you wish to join?\n' "${EMACS_SERVER}"
+            #     select yn in "Yes" "No"
+            #     do
+            #         case $yn in
+            #             Yes ) exec $0 -j "$EMACS_SERVER" "${@:3}"
+            #                   exit
+            #                   ;;
+            #             No ) exit
+            #                  ;;
+            #         esac
+            #     done
+            # else
+            #     exec command emacs --user="${USER}" --daemon="${EMACS_SERVER}" > /dev/null 2>&1 &
+            #     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
+            #     wait %1
+            #     printf ' done. \n'
+            #     printf 'So summoned.\n'
+            # fi
             ;;
+        -D)
+            echo debug
+            break
+            ;;
+        -z)
+            # for tessting
+            echo -e ${#@}
+            ;;
+        -*)
+            printf '\e[31mUnknown argument "%s"\e[0m\n\v' "${1}"
+            ;&
         --help|-h)
             cat << 'EOF'
 BAPHOMET -- manage your emacs daemons
@@ -257,20 +266,9 @@ Disclaimer: Execute this script at your own peril.
 EOF
             exit
             ;;
-        -D)
-            echo debug
-            break
-            ;;
-        -*)
-            printf '\e[31mUnknown argument "%s".\e[0m\n' "${1}"
-            exit 1
-            ;;
-        *)
-            break
-            ;;
     esac
+    shift 2
 done
-
 
 
 check_for_frames () {
@@ -301,10 +299,11 @@ else
 fi
 
 
+[[ ${#EMACS_BUFFER_NAME} -eq 0 ]] && EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
 
 # when no arguments supplies, join the first daemon
 if [[ ${#@} -eq 0 ]]; then
-    eval "${cmd} ${EMACS_SERVER} ${EMACS_BUFFER_DEFAULT}"
+    eval "${cmd} ${EMACS_SERVER} ${EMACS_BUFFER_NAME}"
     exit
 fi
 

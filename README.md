@@ -54,4 +54,5 @@ TO-DO
 # option to kill only clientless daemons
 # suggest daemon names
 
-
+# ignre this
+# irc//:physikoi@freenode.net#bash
