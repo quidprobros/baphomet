@@ -228,8 +228,8 @@ do
             # fi
             ;;
         -D)
-            echo debug
-            break
+            printf 'Debug mode not ready!\n'
+            exit
             ;;
         -z)
             # for tessting
