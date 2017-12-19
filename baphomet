@@ -142,10 +142,7 @@ do
         --list-buffers|-lb)
             count_buffers
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "Buffer #"
-            for index in "${!arrBuffers[@]}"
-            do
-                printf '|- \e[33m%-20s\e[0m %s\n' "${arrSockets[$index]}=" "${arrBuffers[$index]}"
-            done
+            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]}=") <(printf '%s\n' "${arrBuffers[@]}")
             exit
             ;;
         --kill-all|-ka)
