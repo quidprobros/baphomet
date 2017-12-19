@@ -15,9 +15,9 @@ shopt -s extglob
 
 
 LISP_FRAME_CHECK="(if (> (length (frame-list)) 1) 't)"
-LISP_BUFFER_COUNT="(length (buffer-list))"
+LISP_BUFFER_COUNT='(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
 
-
+#"(length (buffer-list))"
 # LISP_BUFFER_HEADER=(
 #     '(prog'
 #     '(setq ov-baphomet-header (make-overlay 0 0 (current-buffer) nil nil))'
@@ -142,7 +142,7 @@ do
             ;;
         --list-buffers|-lb)
             count_buffers
-            printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "Buffer #"
+            printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File #"
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffers[@]}")
             exit
             ;;
