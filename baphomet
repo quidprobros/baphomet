@@ -99,6 +99,7 @@ while [[ ${#@} -ne 0 ]]
 do
     case $1 in
         -i|--interactive)
+            shift
             break
             ;;
         --join|-j)
@@ -151,9 +152,11 @@ do
         --stop|--kill|-k)
             socket="${2//=/}"
             :
+            #  echo $DIE;exit
+
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
-            :  
+            :
             if [[ $DIE -eq 0 ]]; then
                 for socket in $EMACS_SOCKET_DIR/*; do
                     if [[ -S $socket ]]; then
@@ -202,30 +205,35 @@ do
             fi
             ;;
         --start|--summon|-c|-s)
-            [[ "${#2}" -ne 0 ]] && \
-                EMACS_SERVER="${2}"                
+            IFS=,
             :
-
-            # check_for_socket "$EMACS_SERVER"
-            # if [[ $? -eq 0 ]]; then
-            #     printf 'Daemon \e[33m%s=\e[0m appears to be running. Do you wish to join?\n' "${EMACS_SERVER}"
-            #     select yn in "Yes" "No"
-            #     do
-            #         case $yn in
-            #             Yes ) exec $0 -j "$EMACS_SERVER" "${@:3}"
-            #                   exit
-            #                   ;;
-            #             No ) exit
-            #                  ;;
-            #         esac
-            #     done
-            # else
-            #     exec command emacs --user="${USER}" --daemon="${EMACS_SERVER}" > /dev/null 2>&1 &
-            #     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
-            #     wait %1
-            #     printf ' done. \n'
-            #     printf 'So summoned.\n'
-            # fi
+            [[ "${#2}" -ne 0 ]] && \
+                EMACS_SERVER=$2                
+            :
+            for daemon in $EMACS_SERVER; do
+                :                
+                check_for_socket $daemon
+                if [[ $? -eq 0 ]]; then
+                    printf 'Daemon \e[33m%s\e[0m appears to be running. Do you wish to join?\n' "${EMACS_SERVER/%/=}"
+                    select yn in "Yes" "No"
+                    do
+                        case $yn in
+                            Yes ) exec $0 -j "$EMACS_SERVER" "${@:3}"
+                                  exit
+                                  ;;
+                            No ) exit
+                                 ;;
+                        esac
+                    done
+                else
+                    exec command emacs --user="${USER}" --daemon=$daemon > /dev/null 2>&1 &
+                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
+                    wait %1
+                    printf ' done. \n'
+                    printf 'So summoned.\n'
+                fi
+            done
+            exit
             ;;
         -D)
             printf 'Debug mode not ready!\n'
@@ -267,7 +275,7 @@ EOF
             exit
             ;;
     esac
-    shift 2
+    [[ "${#@}" -gt 0 ]] && shift 2
 done
 
 
