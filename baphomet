@@ -106,7 +106,6 @@ do
             socket="${2//=/}"
             EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
             shift 2
-
             [[ ${#@} -gt 0 ]] && continue
             
             if [[ ${#socket} -eq 0 ]]; then
@@ -242,9 +241,6 @@ do
             # for tessting
             echo -e ${#@}
             ;;
-        -*)
-            printf '\e[31mUnknown argument "%s"\e[0m\n\v' "${1}"
-            ;&
         --help|-h)
             cat << 'EOF'
 BAPHOMET -- manage your emacs daemons
@@ -273,7 +269,10 @@ Disclaimer: Execute this script at your own peril.
 EOF
             exit
             ;;
-    esac
+        -*)
+            printf '\e[31mUnknown argument "%s"\e[0m\n\v' "${1}"
+            ;;
+            esac
     [[ "${#@}" -gt 0 ]] && shift 2
 done
 
