@@ -106,7 +106,8 @@ do
             socket="${2//=/}"
             EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
             shift 2
-            case $1 in -b) EMACS_BUFFER_NAME="${2}" ;; esac
+
+            [[ ${#@} -gt 0 ]] && continue
             
             if [[ ${#socket} -eq 0 ]]; then
                 printf '\e[37;4;2msockets\e[0m\n'
@@ -152,8 +153,6 @@ do
         --stop|--kill|-k)
             socket="${2//=/}"
             :
-            #  echo $DIE;exit
-
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
             :

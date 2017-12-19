@@ -32,6 +32,7 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* dont kill daemons with unsaved buffers
 * determine min requirements
 * list user buffers
 * allow/ensure assign user to daemon
