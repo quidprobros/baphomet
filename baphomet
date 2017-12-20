@@ -14,8 +14,17 @@ shopt -s extglob
 #shopt -s nocasematch
 
 
-LISP_FRAME_CHECK="(if (> (length (frame-list)) 1) 't)"
-LISP_BUFFER_COUNT='(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
+LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) \'t)'
+#'
+LISP_BUFFER_COUNT=$'(length (cl-remove-if-not \'buffer-file-name (buffer-list)))'
+#'
+LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
+#'
+LISP_GREETING=$'(momentary-string-display "BAPHOMET" 200)'
+#'
+
+
+#$"'(progn (defconst baphomet-header "BAPHOMET") (setq header-line-format '(:eval (substring baphomet-header (min (length my-header) (window-hscroll))))))'"
 
 #"(length (buffer-list))"
 # LISP_BUFFER_HEADER=(
@@ -341,6 +350,7 @@ case $1 in
     *)
         eval "${cmd} ${EMACS_SERVER} ${1}"
         exit
+        #-e "${LISP_BUFFER_HEADER}"
         ;;
 esac
 

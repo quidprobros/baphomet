@@ -34,26 +34,15 @@ TO-DO
 ===
 * dont kill daemons with unsaved buffers
 * determine min requirements
-* list user buffers
 * allow/ensure assign user to daemon
 * color code path segments in socket path list
 * send name of daemon to new frame minibuffer
-* choose emacs and emacsclient based on compgen results
-* buffer listing
-* * `(insert (mapconcat (function buffer-name) (buffer-list) " "))`
-* * `(apply #'insert (mapcar (function buffer-name) (buffer-list)))`
-## (send-string-to-terminal
-## \emacsclient --eval '(message "This message appears in the echo area!: %s." (buffer-list))' -s server
-## \emacsclient --eval '(message "%s" (buffer-list))' -s server
+* jump between daemons
+* include image of baphomet
+* hm, a universal keyboard using registers or whatever might be nice...
+* annotate functions
+* option to kill only clientless daemons
+* suggest daemon names
 
-# jump between daemons
-# new buffer when starting daemon
-# include image of baphomet
-# wikipedia save
-# hm, a universal keyboard using registers or whatever might be nice...
-# annotate functions
-# option to kill only clientless daemons
-# suggest daemon names
-
-# ignre this
-# irc//:physikoi@freenode.net#bash
+* ignre this
+* irc//:physikoi@freenode.net#bash
