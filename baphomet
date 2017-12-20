@@ -272,6 +272,9 @@ EOF
         -*)
             printf '\e[31mUnknown argument "%s"\e[0m\n\v' "${1}"
             ;;
+        *)
+            break;
+            ;;
             esac
     [[ "${#@}" -gt 0 ]] && shift 2
 done
