@@ -23,22 +23,6 @@ LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 LISP_GREETING=$'(momentary-string-display "BAPHOMET" 200)'
 #'
 
-
-#$"'(progn (defconst baphomet-header "BAPHOMET") (setq header-line-format '(:eval (substring baphomet-header (min (length my-header) (window-hscroll))))))'"
-
-#"(length (buffer-list))"
-# LISP_BUFFER_HEADER=(
-#     '(prog'
-#     '(setq ov-baphomet-header (make-overlay 0 0 (current-buffer) nil nil))'
-#     '(mapcar'
-#     '(lambda (p) (overlay-put ov-baphomet-header (car p) (cadr p)))'
-#     '((before-string "Baphomet Buffer:")'
-#     '(after-string "\\n")'
-#     '(face ''(:foreground "red" :background "blue"))'
-#     '(intangible t)'
-#     ')))'
-# )
-
 SCRIPT_NAME=$(basename $0)
 
 ALTERNATE_EDITOR=""
@@ -142,7 +126,7 @@ do
             fi              
             exit
             ;;
-        --list|--list-daemons|-l)
+        --list|--list-daemons|-l|-ls)
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s\e[0m\n' "${arrSockets[@]/%/=}"
             [[ ${#arrSockets[*]} -eq 0 ]] && \
@@ -280,6 +264,7 @@ EOF
             ;;
         -*)
             printf '\e[31mUnknown argument "%s"\e[0m\n\v' "${1}"
+            exit 1
             ;;
         *)
             break;
