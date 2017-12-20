@@ -13,6 +13,13 @@ shopt -s nullglob
 shopt -s extglob
 #shopt -s nocasematch
 
+#  defanor> physikoi_: i don't know, but perhaps one can start investigating by
+#                  checking `server-mode', and `server-process-filter' in particular
+# 15:24 < defanor> there seems to be quite an informative docstring with command listing
+#                  and descriptions
+# 15:27 < defanor> seems to work that way: $ nc -U /tmp/emacs1000/server <<< '-eval
+#                  (emacs-version)' / -emacs-pid 20534 / -print
+# "GNU&_Emacs&_25.3.1&_(x86_64&-pc&-linux&-gnu,&_GTK+&_Version&_3.14.13)\n&_of&_2017&-09&-12
 
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) \'t)'
 #'
