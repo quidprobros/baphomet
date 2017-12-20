@@ -3,20 +3,26 @@ DISCLAIMER -- use at your own peril!
 ````
 BAPHOMET -- manage your emacs daemons
  Usage: $SCRIPT_NAME [switches] [arguments]
- -h, --help                    Display help menu
- -s, --start [name]            Start a daemon with name 'name'
- -k, --kill, --stop [name]     Stop a daemon with name 'name'
- -j, --join [name] -b [buffer]    Join a daemon with name 'name' and
-                                   create a new buffer 'buffer'
- -l, --list                    List known daemons
- -i, --interactive             Interactive mode
+ -h,  --help                      Display help menu
+ -s,  --start [name]              Start a daemon with name 'name'
+ -k,  --kill, --stop [name]       Stop a daemon with name 'name'
+ -ka, --kill-all                  Stop all daemons
+ -j,  --join [name] -b [buffer]   Join a daemon with name 'name' and
+                                       create a new buffer 'buffer'
+ -l,  --list                      List known daemons
+ -lv, --list-verbose              List daemons and file buffer count
+ -lvv, --list-very-verbose        List daemons and file buffer count
+                                       and daemon PID
+ -i,  --interactive               Interactive mode
 
- -x, --escape                  Exit script, run emacs as normal
+ -x,  --escape                    Exit script, run emacs as normal
 
 
 Note:
  When called without arguments, baphomet starts a new daemon
-  if necessary and opens a buffer with a default name.
+      if necessary and opens a buffer with a default name. 
+ When called with only a buffer or filename, baphomet joins any daemon
+      and creates buffer with specified name.
 
 Examples with a daemon named 'joey'
  start daemon: $SCRIPT_NAME --start joey
