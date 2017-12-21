@@ -1,0 +1,47 @@
+#!/usr/bin/env bash
+
+[[ -z $COLORTERM ]] && \
+  printf "Please use a True Color terminal!\n" && \
+  exit 1
+
+print_usage() {
+  printf '\a\n%s\n\n\x1b[38;4m%s\x1b[0m\n%s\n\v%s\n' \
+         "Usage:$0 RRR [GGG] [BBB]" \
+         "Note" \
+         "This program requires at least one argument, taking up to three of type integer. Each argument must be in range [0,255]. If an argument is unspecified, a 0-value is assumed." \
+         "The default background color is black."
+}
+
+if [[ "$*" =~ -h ]] ; then
+  print_usage
+  exit 0
+fi
+
+rgb2true() {
+  R=0;G=0;B=0
+  if [[ $# -eq 3 ]]; then
+    R=$1; G=$2; B=$3
+  else
+    [[ -z $1 ]] && print_usage && return 1
+    R=$1
+  fi
+  
+  for arg in $@; do
+    if [[ $arg -lt 0 || $arg -gt 255 ]]; then
+      printf '\a%s\n' "$0: Error...Argument '${arg}' does not fall in the range [0,255]." >&2
+      return 1
+    fi
+  done
+  
+  printf "\x1b[48;2;0;0;0m"
+  printf "\x1b[38;2;${R};${G};${B}m"
+  printf "TRUECOLOR"
+  printf "\x1b[0m"
+  printf "\t\v"
+  printf '%s' "\x1b[38;2;${R};${G};${B}mTRUECOLOR\x1b[0m"
+  printf "\n\v\t\t"
+  printf '%s\n' "printf \"\x1b[38;2;${R};${G};${B}m%s\x1b[0m\n\" \"example text\""
+  printf "\n"
+  
+}
+rgb2true "${@}"

@@ -268,8 +268,10 @@ do
             echo -e ${#@}
             ;;
         --help|-h)
-            cat << 'EOF'
-BAPHOMET -- manage your emacs daemons
+            printf "\x1b[38;2;250;0;0m%s\x1b[0m\n" \
+                   "BAPHOMET -- manage your emacs daemons"
+            printf "\x1b[38;2;100;100;100m"
+            cat <<'EOF'
  Usage: baphomet [switches] [arguments]
  -h,  --help                      Display help menu
  -s,  --start [name]              Start a daemon with name 'name'
@@ -299,6 +301,7 @@ Examples with a daemon named 'joey'
 
 Disclaimer: Execute this script at your own peril.
 EOF
+            printf "\x1b[0m"
             exit
             ;;
         -*)
