@@ -2,7 +2,7 @@ DISCLAIMER -- use at your own peril!
 
 ````
 BAPHOMET -- manage your emacs daemons
- Usage: $SCRIPT_NAME [switches] [arguments]
+ Usage: baphomet [switches] [arguments]
  -h,  --help                      Display help menu
  -s,  --start [name]              Start a daemon with name 'name'
  -k,  --kill, --stop [name]       Stop a daemon with name 'name'
@@ -25,9 +25,9 @@ Note:
       and creates buffer with specified name.
 
 Examples with a daemon named 'joey'
- start daemon: $SCRIPT_NAME --start joey
- stop daemon:  $SCRIPT_NAME --stop joey
- join daemon:  $SCRIPT_NAME --join joey
+ start daemon: baphomet --start joey
+ stop daemon:  baphomet --stop joey
+ join daemon:  baphomet --join joey
 
 Disclaimer: Execute this script at your own peril.
 ````
