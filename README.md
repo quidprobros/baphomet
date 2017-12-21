@@ -38,6 +38,7 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* check if compatible with gui version and xterm
 * dont kill daemons with unsaved buffers
 * determine min requirements
 * allow/ensure assign user to daemon
@@ -51,4 +52,4 @@ TO-DO
 * suggest daemon names
 
 * ignre this
-* irc//:physikoi@freenode.net#bash
+* `irc//:physikoi@freenode.net#bash`
