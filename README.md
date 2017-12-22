@@ -39,6 +39,7 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* probably better to wait for path change when determing daemon status re slaying
 * `http://graphemica.com/search?page=2&q=braille`
 * check if compatible with gui version and xterm
 * dont kill daemons with unsaved buffers
