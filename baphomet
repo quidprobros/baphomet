@@ -31,8 +31,11 @@ LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) \'t)'
 #'
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not \'buffer-file-name (buffer-list)))'
 #'
+LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not \'buffer-file-name (buffer-list)))'
+#'  (format "%s" (cl-remove-if-not 'buffer-file-name (buffer-list)))
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 #'
+
 LISP_GREETING=$'(momentary-string-display "BAPHOMET" 200)'
 #'
 
@@ -64,11 +67,11 @@ list_sockets () {
     read -r -a Msg <<< \
          '# generate list of daemon sockets'
     [[ $1 == "DEBUG" ]] && printf '%s\n' "${Msg[*]}"
-    :    
+    :
     arrSockets=()
     :
     for socket in $EMACS_SOCKET_DIR/*; do
-        if [[ -S $socket ]]; then 
+        if [[ -S $socket ]]; then
             sock="$(basename ${socket})"
             arrSockets+=("${sock}")
         fi
@@ -88,6 +91,22 @@ count_buffers () {
         return 1
     fi
 }
+
+
+list_buffers () {
+    arrBuffersData=()
+    if [[ ${#arrSockets[*]} -gt 0 ]]; then
+        for s in "${arrSockets[@]}"
+        do
+            read count < <(command emacsclient -e "${LISP_BUFFER_LIST}" -s "${s}")
+            
+            arrBuffersData+=("${count}")
+        done
+    else
+        return 1
+    fi
+
+    }
 
 get_pids () {
     arr_pids=()
@@ -126,7 +145,7 @@ do
             EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
             shift 2
             [[ ${#@} -gt 0 ]] && continue
-            
+
             if [[ ${#socket} -eq 0 ]]; then
                 printf '\e[37;4;2msockets\e[0m\n'
                 select sock in "${arrSockets[@]/%/=}"
@@ -139,17 +158,17 @@ do
             fi
             :
             check_for_socket "${socket}" "${arrSockets[@]}"
-            if [[ $? -eq 0 ]]; then            
+            if [[ $? -eq 0 ]]; then
                 exec command emacsclient -q -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
             elif [[ "${#arrSockets[@]}" -eq 0 ]]; then
                 printf 'Daemon not found, no known process to join!\n'
                 printf '`\e[36m%s -s\e[0m` to summon a daemon.\n' "${SCRIPT_NAME}"
-                
+
             else
                 printf 'Socket not found!\n'
                 printf '`\e[36m%s -l\e[0m` to list sockets by name.\n' "${SCRIPT_NAME}"
                 exit 1
-            fi              
+            fi
             exit
             ;;
         --list|--list-daemons|-l|-ls)
@@ -166,10 +185,16 @@ do
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%-20s\n' "${arrBuffers[@]}") <(printf '%-20s\n' "${arr_pids[@]}")
             exit
             ;;
-        --list-buffers|--list-verbose|-lv|-lb)
+        --list-verbose|-lv)
             count_buffers
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File #"
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffers[@]}")
+            exit
+            ;;
+        --list-buffers|-lb)
+            list_buffers
+            printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File buffers"
+            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffersData[@]}")
             exit
             ;;
         --kill-all|-ka)
@@ -190,7 +215,7 @@ do
                         wait
                         printf ' done.\n'
                         printf ' So slain.\n'
-                    fi                    
+                    fi
                 done
                 exit
             fi
@@ -201,7 +226,7 @@ do
                     printf "No such demon.\n"
                 else
                     command emacsclient -e '(kill-emacs)' -s "${socket}"  && \
-		                    printf 'Shutting down daemon "%s"\n' "${socket}"                        
+		                    printf 'Shutting down daemon "%s"\n' "${socket}"
                 fi
                 exit
             else
@@ -216,7 +241,7 @@ do
                         command emacsclient -s "${sock}" -e '(kill-emacs)' && \
 		                        printf 'Shutting down daemon "%s"\n' "${sock}"
                         exit
-                    done        
+                    done
             fi
             :
             exit
@@ -232,10 +257,10 @@ do
             IFS=,
             :
             [[ "${#2}" -ne 0 ]] && \
-                EMACS_SERVER=$2                
+                EMACS_SERVER=$2
             :
             for daemon in $EMACS_SERVER; do
-                :                
+                :
                 check_for_socket $daemon
                 if [[ $? -eq 0 ]]; then
                     printf 'Daemon \e[33m%s\e[0m appears to be running. Do you wish to join?\n' "${EMACS_SERVER/%/=}"
@@ -290,7 +315,7 @@ do
 
 Note:
  When called without arguments, baphomet starts a new daemon
-      if necessary and opens a buffer with a default name. 
+      if necessary and opens a buffer with a default name.
  When called with only a buffer or filename, baphomet joins any daemon
       and creates buffer with specified name.
 
@@ -321,7 +346,7 @@ check_for_frames () {
     [[ ${#EMACS_SERVER} -eq 0 ]] && \
         printf "You must specify a daemon!\n"
 
-    check_for_socket "${EMACS_SERVER}" 
+    check_for_socket "${EMACS_SERVER}"
     [[ $?  -eq 0 ]] && \
         command emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 

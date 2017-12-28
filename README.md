@@ -39,6 +39,8 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* option to display buffer names
+* option to mark daemons to slay
 * probably better to wait for path change when determing daemon status re slaying
 * `http://graphemica.com/search?page=2&q=braille`
 * check if compatible with gui version and xterm
