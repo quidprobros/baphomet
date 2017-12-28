@@ -39,12 +39,13 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* BUG: when joining nonexistent daemon, there should be prompt to summon or join existing
+* BUG: dont kill daemons with unsaved buffers
 * option to display buffer names
 * option to mark daemons to slay
 * probably better to wait for path change when determing daemon status re slaying
 * `http://graphemica.com/search?page=2&q=braille`
 * check if compatible with gui version and xterm
-* dont kill daemons with unsaved buffers
 * determine min requirements
 * allow/ensure assign user to daemon
 * color code path segments in socket path list
