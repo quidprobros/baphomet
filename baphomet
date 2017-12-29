@@ -195,14 +195,12 @@ do
             if [[ $DIE == "DIE" ]]; then
                 for socket in ${arrIterate[@]}
                 do
-                    if [[ -S $socket ]]; then
-                        socket_name=$(basename ${socket})
-                        command emacsclient -e '(kill-emacs)' -s "${socket_name}" &
-                        printf 'Slaying daemon known as \e[33m%s\e[0m ...' "${socket_name/%/=}"
-                        wait
-                        printf ' done.\n'
-                        printf ' So slain.\n'
-                    fi
+                    socket_name=$(basename ${socket})
+                    command emacsclient -e '(kill-emacs)' -s "${socket_name}" &
+                    printf 'Slaying daemon known as \e[33m%s\e[0m ...' "${socket_name/%/=}"
+                    wait
+                    printf ' done.\n'
+                    printf ' So slain.\n'
                 done
                 exit
             fi
