@@ -88,6 +88,8 @@ count_buffers () {
                                    $"-eval ${LISP_BUFFER_COUNT// /&_}" | \
                                awk $'NR == 2 {printf $2}')
             arrBuffers+=("${count}")
+            sock="$(basename ${s})"
+            arrSockets+=("${sock}")
         fi
     done
 }
@@ -102,6 +104,8 @@ list_buffers () {
             read buffy < <(command nc -U "${socket}" <<< $"-eval \'${LISP_BUFFER_LIST}\'")
 
             arrBuffersData+=("${buffy}")
+            sock="$(basename ${socket})"
+            arrSockets+=("${sock}")
             fi
         done
 }
@@ -114,6 +118,8 @@ get_pids () {
             if [[ -S $socket ]]; then
                 read pud < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
                 arr_pids+=("${pud// /}")
+                sock="$(basename ${socket})"
+                arrSockets+=("${sock}")
             fi
         done
 }
@@ -195,15 +201,16 @@ do
             exit
             ;;
         --kill-all|-ka)
-            DIE=0
+            DIE="DIE"
             ;&
         --stop|--kill|-k)
             socket="${2//=/}"
             :
+
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
             :
-            if [[ $DIE -eq 0 ]]; then
+            if [[ $DIE == "DIE" ]]; then
                 for socket in $EMACS_SOCKET_DIR/*; do
                     if [[ -S $socket ]]; then
                         socket_name=$(basename ${socket})
@@ -222,11 +229,12 @@ do
                 if [[ $? -eq 1 ]]; then
                     printf "No such demon.\n"
                 else
-                    command emacsclient -e '(kill-emacs)' -s "${socket}"  && \
+                    nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1  && \
 		                    printf 'Shutting down daemon "%s"\n' "${socket}"
                 fi
                 exit
             else
+                echo else;exit
                 printf "Choose a daemon to slay:\n" && \
                     select sock in "${arrSockets[@]}"
                     do
