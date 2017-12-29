@@ -186,7 +186,7 @@ do
                 for socket in ${arrIterate[@]}
                 do
                     socket_name=$(basename ${socket})
-                    command emacsclient -e '(kill-emacs)' -s "${socket_name}" &
+                    nc -U "${socket_name}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
                     printf 'Slaying daemon known as \e[33m%s\e[0m ...' "${socket_name/%/=}"
                     wait
                     printf ' done.\n'
