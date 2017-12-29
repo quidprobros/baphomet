@@ -183,12 +183,12 @@ do
         --stop|--kill|-k)
             socket="${2//=/}"
             :
-
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
             :
             if [[ $DIE == "DIE" ]]; then
-                for socket in $EMACS_SOCKET_DIR/*; do
+                for socket in ${arrIterate[@]}
+                do
                     if [[ -S $socket ]]; then
                         socket_name=$(basename ${socket})
                         command emacsclient -e '(kill-emacs)' -s "${socket_name}" &
