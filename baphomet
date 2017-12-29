@@ -63,33 +63,28 @@ containsElement () {
 }
 
 list_sockets () {
-    local socket
-    read -r -a Msg <<< \
-         '# generate list of daemon sockets'
-    [[ $1 == "DEBUG" ]] && printf '%s\n' "${Msg[*]}"
+    arrIterate=($EMACS_SOCKET_DIR/*)
     :
-    arrSockets=()
-    :
-    for socket in $EMACS_SOCKET_DIR/*; do
+    for socket in ${arrIterate[@]}
+    do
         if [[ -S $socket ]]; then
             sock="$(basename ${socket})"
             arrSockets+=("${sock}")
         fi
     done
 }
+# generate sockets array
 list_sockets
 
 count_buffers () {
     arrBuffers=()
-    for s in $EMACS_SOCKET_DIR/*
+    for s in ${arrIterate[@]}
     do
         if [[ -S $s ]]; then
             read count < <(command nc -U "${s}" <<< \
                                    $"-eval ${LISP_BUFFER_COUNT// /&_}" | \
                                awk $'NR == 2 {printf $2}')
             arrBuffers+=("${count}")
-            sock="$(basename ${s})"
-            arrSockets+=("${sock}")
         fi
     done
 }
@@ -98,14 +93,12 @@ count_buffers () {
 list_buffers () {
     local socket
     arrBuffersData=()
-        for socket in $EMACS_SOCKET_DIR/*
+        for socket in ${arrIterate[@]}
         do
             if [[ -S $socket ]]; then
             read buffy < <(command nc -U "${socket}" <<< $"-eval \'${LISP_BUFFER_LIST}\'")
 
             arrBuffersData+=("${buffy}")
-            sock="$(basename ${socket})"
-            arrSockets+=("${sock}")
             fi
         done
 }
@@ -113,13 +106,11 @@ list_buffers () {
 get_pids () {
     local socket
     arr_pids=()
-        for socket in $EMACS_SOCKET_DIR/*
+        for socket in ${arrIterate[@]}
         do
             if [[ -S $socket ]]; then
                 read pud < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
                 arr_pids+=("${pud// /}")
-                sock="$(basename ${socket})"
-                arrSockets+=("${sock}")
             fi
         done
 }
