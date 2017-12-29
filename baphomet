@@ -11,7 +11,6 @@ esac
 
 shopt -s extglob
 shopt -s nullglob
-#shopt -s nocasematch
 
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 # '
@@ -144,8 +143,8 @@ do
                 printf '`\e[36m%s -s\e[0m` to summon a daemon.\n' "${SCRIPT_NAME}"
 
             else
-                printf 'Socket not found!\n'
-                printf '`\e[36m%s -l\e[0m` to list sockets by name.\n' "${SCRIPT_NAME}"
+                printf 'Daemon not found!\n'
+                printf '`\e[36m%s -l\e[0m` to list daemons by name.\n' "${SCRIPT_NAME}"
                 exit 1
             fi
             exit
