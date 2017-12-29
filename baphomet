@@ -46,16 +46,6 @@ containsElement () {
     return 1
 }
 
-removeElement()
-{
-    #USAGE: remove arrayname position
-    local arrayname=${1:?Arrayname required} num=${2:-1}
-    local array
-    [ $num -lt 0 ] && num=0 #? Or should this return an error???
-    unset $arrayname[num]
-    eval "$arrayname=( \"\${$arrayname[@]}\" )"
-}
-
 
 list_sockets () {
     arrIterateTemp=($EMACS_SOCKET_DIR/*)
