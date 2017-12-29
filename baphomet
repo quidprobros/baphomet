@@ -150,10 +150,10 @@ do
             exit
             ;;
         --list|--list-daemons|-l|-ls)
-            printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf 'No daemons found.\n';exit
             fi
+            printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s\e[0m\n' "${arrSockets[@]/%/=}"
 
             exit
