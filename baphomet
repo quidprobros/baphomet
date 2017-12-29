@@ -234,7 +234,6 @@ do
                 fi
                 exit
             else
-                echo else;exit
                 printf "Choose a daemon to slay:\n" && \
                     select sock in "${arrSockets[@]}"
                     do
@@ -243,7 +242,7 @@ do
                             printf '\e[31mBad choice.\e[0m\n'
                             exec $0 -k
                         fi
-                        command emacsclient -s "${sock}" -e '(kill-emacs)' && \
+                         nc -U "${sock}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 && \
 		                        printf 'Shutting down daemon "%s"\n' "${sock}"
                         exit
                     done
