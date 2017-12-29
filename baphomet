@@ -9,8 +9,8 @@ case $1 in
         ;;
 esac
 
-shopt -s nullglob
 shopt -s extglob
+shopt -s nullglob
 #shopt -s nocasematch
 
 # thank defanor for this:
@@ -28,7 +28,7 @@ shopt -s extglob
 # "GNU&_Emacs&_25.3.1&_(x86_64&-pc&-linux&-gnu,&_GTK+&_Version&_3.14.13)\n&_of&_2017&-09&-12
 
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) \'t)'
-#'
+# '
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not \'buffer-file-name (buffer-list)))'
 #'
 LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not \'buffer-file-name (buffer-list)))'
@@ -63,7 +63,7 @@ containsElement () {
 }
 
 list_sockets () {
-    local sock
+    local socket
     read -r -a Msg <<< \
          '# generate list of daemon sockets'
     [[ $1 == "DEBUG" ]] && printf '%s\n' "${Msg[*]}"
@@ -81,36 +81,34 @@ list_sockets
 
 count_buffers () {
     arrBuffers=()
-    if [[ ${#arrSockets[*]} -gt 0 ]]; then
-        for s in "${arrSockets[@]}"
-        do
-            read count < <(command emacsclient -e "${LISP_BUFFER_COUNT}" -s "${s}")
-            arrBuffers+=("${count// /}")
-        done
-    else
-        return 1
-    fi
+    for s in $EMACS_SOCKET_DIR/*
+    do
+        if [[ -S $s ]]; then
+            read count < <(command nc -U "${s}" <<< \
+                                   $"-eval ${LISP_BUFFER_COUNT// /&_}" | \
+                               awk $'NR == 2 {printf $2}')
+            arrBuffers+=("${count}")
+        fi
+    done
 }
 
 
 list_buffers () {
+    local socket
     arrBuffersData=()
-    if [[ ${#arrSockets[*]} -gt 0 ]]; then
-        for s in "${arrSockets[@]}"
+        for socket in $EMACS_SOCKET_DIR/*
         do
-            read count < <(command emacsclient -e "${LISP_BUFFER_LIST}" -s "${s}")
-            
-            arrBuffersData+=("${count}")
-        done
-    else
-        return 1
-    fi
+            if [[ -S $socket ]]; then
+            read buffy < <(command nc -U "${socket}" <<< $"-eval \'${LISP_BUFFER_LIST}\'")
 
-    }
+            arrBuffersData+=("${buffy}")
+            fi
+        done
+}
 
 get_pids () {
+    local socket
     arr_pids=()
-    if [[ ${#arrSockets[*]} -gt 0 ]]; then
         for socket in $EMACS_SOCKET_DIR/*
         do
             if [[ -S $socket ]]; then
@@ -118,7 +116,6 @@ get_pids () {
                 arr_pids+=("${pud// /}")
             fi
         done
-    fi
 }
 
 check_for_socket () {

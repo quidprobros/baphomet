@@ -21,7 +21,7 @@ BAPHOMET -- manage your emacs daemons
 
 Note:
  When called without arguments, baphomet starts a new daemon
-      if necessary and opens a buffer with a default name. 
+      if necessary and opens a buffer with a default name.
  When called with only a buffer or filename, baphomet joins any daemon
       and creates buffer with specified name.
 
@@ -39,6 +39,8 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* confirm working with both gnu and bsd variants
+* consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
 * BUG: when joining nonexistent daemon, there should be prompt to summon or join existing
 * BUG: dont kill daemons with unsaved buffers
 * option to display buffer names
