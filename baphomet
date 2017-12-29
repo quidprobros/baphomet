@@ -13,7 +13,7 @@ shopt -s extglob
 shopt -s nullglob
 
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
-# '
+:
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
 :
 LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
@@ -99,7 +99,7 @@ check_for_socket () {
     :
     # check if supplied socket ref exists
     if [[ ${#1} -ne 0 ]]; then
-        containsElement "${1//=/}" "${arrSockets[@]}";
+        containsElement "${1}" "${arrSockets[@]}";
         return $?
     fi
     :
@@ -124,8 +124,6 @@ do
                 printf '\e[37;4;2msockets\e[0m\n'
                 select sock in "${arrSockets[@]/%/=}"
                 do
-                    socket="${sock//=/}"
-
                     exec command emacsclient -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
                     exit
                 done
@@ -177,17 +175,16 @@ do
             DIE="DIE"
             ;&
         --stop|--kill|-k)
-            socket="${2//=/}"
             :
+            socket="${2}"
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
             :
             if [[ $DIE == "DIE" ]]; then
                 for socket in ${arrIterate[@]}
                 do
-                    socket_name=$(basename ${socket})
-                    nc -U "${socket_name}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
-                    printf 'Slaying daemon known as \e[33m%s\e[0m ...' "${socket_name/%/=}"
+                    nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
+                    printf 'Slaying daemon known as \e[33m%s\e[0m ...' "${socket/%/=}"
                     wait
                     printf ' done.\n'
                     printf ' So slain.\n'
@@ -201,20 +198,19 @@ do
                     printf "No such demon.\n"
                 else
                     nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1  && \
-		                    printf 'Shutting down daemon "%s"\n' "${socket}"
+		                    printf 'Slaying daemon "%s"\n' "${socket}"
                 fi
                 exit
             else
                 printf "Choose a daemon to slay:\n" && \
                     select sock in "${arrSockets[@]}"
                     do
-                        sock="${sock//=/}"
                         if [[ ${#sock} -eq 0  ]]; then
                             printf '\e[31mBad choice.\e[0m\n'
                             exec $0 -k
                         fi
                         nc -U "${sock}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 && \
-		                        printf 'Shutting down daemon "%s"\n' "${sock}"
+		                        printf 'Slaying daemon "%s"\n' "${sock}"
                         exit
                     done
             fi
