@@ -13,31 +13,16 @@ shopt -s extglob
 shopt -s nullglob
 #shopt -s nocasematch
 
-# thank defanor for this:
-# to the server: nc -U server <<< 'COMMAND'
-# # -file FILENAME, eval EXPR
-
-# to get PID nc -U server <<< '-ignore' | awk -F ' ' '{print $2}'
-# so get status by using nc instead of emacs directly
-#  defanor> physikoi_: i don't know, but perhaps one can start investigating by
-#                  checking `server-mode', and `server-process-filter' in particular
-# 15:24 < defanor> there seems to be quite an informative docstring with command listing
-#                  and descriptions
-# 15:27 < defanor> seems to work that way: $ nc -U /tmp/emacs1000/server <<< '-eval
-#                  (emacs-version)' / -emacs-pid 20534 / -print
-# "GNU&_Emacs&_25.3.1&_(x86_64&-pc&-linux&-gnu,&_GTK+&_Version&_3.14.13)\n&_of&_2017&-09&-12
-
-LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) \'t)'
+LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 # '
-LISP_BUFFER_COUNT=$'(length (cl-remove-if-not \'buffer-file-name (buffer-list)))'
-#'
-LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not \'buffer-file-name (buffer-list)))'
-#'  (format "%s" (cl-remove-if-not 'buffer-file-name (buffer-list)))
+LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
+:
+LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
+:
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
-#'
-
-LISP_GREETING=$'(momentary-string-display "BAPHOMET" 200)'
-#'
+:
+#LISP_GREETING=$'(momentary-string-display "BAPHOMET" 200)'
+:
 
 SCRIPT_NAME=$(basename $0)
 
@@ -93,26 +78,26 @@ count_buffers () {
 list_buffers () {
     local socket
     arrBuffersData=()
-        for socket in ${arrIterate[@]}
-        do
-            if [[ -S $socket ]]; then
+    for socket in ${arrIterate[@]}
+    do
+        if [[ -S $socket ]]; then
             read buffy < <(command nc -U "${socket}" <<< $"-eval \'${LISP_BUFFER_LIST}\'")
 
             arrBuffersData+=("${buffy}")
-            fi
-        done
+        fi
+    done
 }
 
 get_pids () {
     local socket
     arr_pids=()
-        for socket in ${arrIterate[@]}
-        do
-            if [[ -S $socket ]]; then
-                read pud < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
-                arr_pids+=("${pud// /}")
-            fi
-        done
+    for socket in ${arrIterate[@]}
+    do
+        if [[ -S $socket ]]; then
+            read pud < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
+            arr_pids+=("${pud// /}")
+        fi
+    done
 }
 
 check_for_socket () {
@@ -233,7 +218,7 @@ do
                             printf '\e[31mBad choice.\e[0m\n'
                             exec $0 -k
                         fi
-                         nc -U "${sock}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 && \
+                        nc -U "${sock}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 && \
 		                        printf 'Shutting down daemon "%s"\n' "${sock}"
                         exit
                     done
@@ -331,7 +316,7 @@ EOF
         *)
             break;
             ;;
-            esac
+    esac
     [[ "${#@}" -gt 0 ]] && shift 2
 done
 
