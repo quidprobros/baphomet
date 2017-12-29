@@ -46,14 +46,27 @@ containsElement () {
     return 1
 }
 
+removeElement()
+{
+    #USAGE: remove arrayname position
+    local arrayname=${1:?Arrayname required} num=${2:-1}
+    local array
+    [ $num -lt 0 ] && num=0 #? Or should this return an error???
+    unset $arrayname[num]
+    eval "$arrayname=( \"\${$arrayname[@]}\" )"
+}
+
+
 list_sockets () {
-    arrIterate=($EMACS_SOCKET_DIR/*)
+    arrIterateTemp=($EMACS_SOCKET_DIR/*)
+    arrIterate=()
     :
-    for socket in ${arrIterate[@]}
+    for socket in ${arrIterateTemp[@]}
     do
         if [[ -S $socket ]]; then
             sock="$(basename ${socket})"
             arrSockets+=("${sock}")
+            arrIterate+=("${socket}")
         fi
     done
 }
@@ -64,12 +77,10 @@ count_buffers () {
     arrBuffers=()
     for s in ${arrIterate[@]}
     do
-        if [[ -S $s ]]; then
-            read count < <(command nc -U "${s}" <<< \
-                                   $"-eval ${LISP_BUFFER_COUNT// /&_}" | \
-                               awk $'NR == 2 {printf $2}')
-            arrBuffers+=("${count}")
-        fi
+        read count < <(command nc -U "${s}" <<< \
+                               $"-eval ${LISP_BUFFER_COUNT// /&_}" | \
+                           awk $'NR == 2 {printf $2}')
+        arrBuffers+=("${count}")
     done
 }
 
@@ -79,11 +90,8 @@ list_buffers () {
     arrBuffersData=()
     for socket in ${arrIterate[@]}
     do
-        if [[ -S $socket ]]; then
-            read buffy < <(command nc -U "${socket}" <<< $"-eval \'${LISP_BUFFER_LIST}\'")
-
-            arrBuffersData+=("${buffy}")
-        fi
+        read buffy < <(command nc -U "${socket}" <<< $"-eval \'${LISP_BUFFER_LIST}\'")
+        arrBuffersData+=("${buffy}")
     done
 }
 
@@ -92,10 +100,8 @@ get_pids () {
     arr_pids=()
     for socket in ${arrIterate[@]}
     do
-        if [[ -S $socket ]]; then
-            read pud < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
-            arr_pids+=("${pud// /}")
-        fi
+        read pud < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
+        arr_pids+=("${pud// /}")
     done
 }
 
