@@ -154,6 +154,16 @@ do
             fi
             exit
             ;;
+        -ul)
+            if [[ ${#2} -gt 0 ]]; then
+                id -u "${2}" >/dev/null 2>&1
+                [[ $? -eq 0 ]] && USER="${2}" exec $0 -l
+                printf '%s is an unknown user.\n' "${2^^}"
+            fi
+
+            printf 'The command `%s` requires a user value\n' "$SCRIPT_NAME -ul <user>"
+            exit 1
+            ;;
         --list|--list-daemons|-l|-ls)
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf 'No daemons found.\n';exit
