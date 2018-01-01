@@ -188,7 +188,7 @@ do
                 for socket in ${arrIterate[@]}
                 do
                     nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
-                    printf 'Slaying daemon known as \e[33m%s\e[0m ...' "${socket/%/=}"
+                    printf 'Slaying daemon known as \e[33m%s\e[0m ...' $(basename "${socket/%/=}")
                     wait
                     printf ' done.\n'
                     printf ' So slain.\n'

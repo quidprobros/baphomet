@@ -5,7 +5,7 @@ DISCLAIMER -- use at your own peril!
 BAPHOMET -- manage your emacs daemons
  Usage: baphomet [switches] [arguments]
  -h,  --help                      Display help menu
- -s,  --start [name]              Start a daemon with name 'name'
+ -s,  --start [name[,name2]]              Start a daemon with name 'name'
  -k,  --kill, --stop [name]       Stop a daemon with name 'name'
  -ka, --kill-all                  Stop all daemons
  -j,  --join [name] -b [buffer]   Join a daemon with name 'name' and
