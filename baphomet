@@ -187,10 +187,18 @@ do
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
             :
+            if [[ $DIE == "DIE" ]]; then
+                for socket in ${arrIterate[@]}
+                do
+                    slay "${socket}"
+                done
+                exit
+            fi
+            :
             socket="${2}"
             if [[ ${#socket} -eq 0 ]]
             then
-              printf "Choose a daemon to slay:\n" && \
+                printf "Choose a daemon to slay:\n" && \
                     select sock in "${arrSockets[@]}"
                     do
                         if [[ ${#sock} -eq 0  ]]; then
@@ -202,20 +210,12 @@ do
                     done
             fi
             :
-            if [[ $DIE == "DIE" ]]; then
-                for socket in ${arrIterate[@]}
-                do
-                    slay "${socket}"
-                done
-                exit
-            fi
-            :
             if [[ "${#socket}" -ne 0 ]]; then
                 check_for_socket "${socket}"
                 if [[ $? -eq 1 ]]; then
                     printf "No such demon.\n"
                 else
-                     slay "${socket}"
+                    slay "${socket}"
                 fi
                 exit
             fi
