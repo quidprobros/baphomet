@@ -29,6 +29,7 @@ ALTERNATE_EDITOR=""
 EMACS_SERVER="server"
 EMACS_SERVER_RANDOM=""
 EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
+# bookmark: use fullpath when choosing daemon
 
 EMACS_BUFFER_NAME=""
 EMACS_BUFFER_DEFAULT="baphomet_default_buffer"
