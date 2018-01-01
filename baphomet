@@ -12,6 +12,9 @@ esac
 shopt -s extglob
 shopt -s nullglob
 
+
+mkdir -p "/tmp/baphomet/${USER}/"
+
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
@@ -251,7 +254,7 @@ do
                         esac
                     done
                 else
-                    exec command emacs --user="${USER}" --daemon=$daemon > /dev/null 2>&1 &
+                    exec command emacs --user="${USER}" --daemon="/tmp/baphomet/${USER}/${daemon}" > /dev/null 2>&1 &
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
                     printf ' done. \n'
