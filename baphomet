@@ -12,8 +12,9 @@ esac
 shopt -s extglob
 shopt -s nullglob
 
+EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+[[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
-mkdir -p "/tmp/baphomet/${USER}/"
 
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
@@ -31,7 +32,6 @@ SCRIPT_NAME=$(basename $0)
 ALTERNATE_EDITOR=""
 EMACS_SERVER="server"
 EMACS_SERVER_RANDOM=""
-EMACS_SOCKET_DIR="${TMPDIR-/tmp}/emacs$(id -u)/"
 # bookmark: use fullpath when choosing daemon
 
 EMACS_BUFFER_NAME=""
