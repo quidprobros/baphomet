@@ -46,7 +46,6 @@ containsElement () {
     return 1
 }
 
-
 list_sockets () {
     arrIterateTemp=($EMACS_SOCKET_DIR/*)
     arrIterate=()
@@ -183,7 +182,6 @@ do
             DIE="DIE"
             ;&
         --stop|--kill|-k)
-            : # BOOKMARK
             :
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
@@ -203,8 +201,6 @@ do
                     done
             fi
             :
-            check_for_socket "${socket}"
-
             if [[ $DIE == "DIE" ]]; then
                 for socket in ${arrIterate[@]}
                 do
@@ -214,6 +210,7 @@ do
             fi
             :
             if [[ "${#socket}" -ne 0 ]]; then
+                check_for_socket "${socket}"
                 if [[ $? -eq 1 ]]; then
                     printf "No such demon.\n"
                 else
