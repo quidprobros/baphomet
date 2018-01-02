@@ -117,7 +117,7 @@ slay () {
     printf ' done.\n'
     printf ' So slain.\n'
 }
-# build each
+# build each element of command
 
 
 
@@ -130,7 +130,7 @@ do
             ;;
         --join|-j)
             socket="${2//=/}"
-            EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
+            [[ ${#EMACS_BUFFER_NAME} -eq 0 ]] && EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
             shift 2
             [[ ${#@} -gt 0 ]] && continue
 
@@ -171,9 +171,6 @@ do
                 printf 'The command `%s` requires a user value\n' "$SCRIPT_NAME -u <user>"
                 exit 1
             fi
-            #
-            shift 2
-            USER="${USER}" exec $0 "${@}"
             ;;
         --list|--list-daemons|-l|-ls)
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
@@ -253,7 +250,7 @@ do
             if [[ ${#2} -eq 0 ]]; then
                 printf 'No file or buffer specified!\n';exit
             else
-                EMACS_BUFFER_NAME=$2
+                EMACS_BUFFER_NAME="${2}"
             fi
             ;;
         --start|--summon|-c|-s)
@@ -266,17 +263,7 @@ do
                 :
                 check_for_socket $daemon
                 if [[ $? -eq 0 ]]; then
-                    printf 'Daemon \e[33m%s\e[0m appears to be running. Do you wish to join?\n' "${EMACS_SERVER/%/=}"
-                    select yn in "Yes" "No"
-                    do
-                        case $yn in
-                            Yes ) exec $0 -j "$EMACS_SERVER" "${@:3}"
-                                  exit
-                                  ;;
-                            No ) exit
-                                 ;;
-                        esac
-                    done
+                    exec $0 -j "$EMACS_SERVER" "${@:3}"
                 else
                     exec command emacs --user="${USER}" --daemon="/tmp/baphomet/${USER}/${daemon}" > /dev/null 2>&1 &
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
@@ -289,6 +276,10 @@ do
             ;;
         -D)
             printf 'Debug mode not ready!\n'
+            exit
+            ;;
+        -W)
+            printf 'Watch all daemonic activity.\n'
             exit
             ;;
         -z)
