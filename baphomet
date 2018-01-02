@@ -117,6 +117,9 @@ slay () {
     printf ' done.\n'
     printf ' So slain.\n'
 }
+# build each
+
+
 
 while [[ ${#@} -ne 0 ]]
 do
@@ -154,21 +157,29 @@ do
             fi
             exit
             ;;
-        -ul)
+        -u)
             if [[ ${#2} -gt 0 ]]; then
                 id -u "${2}" >/dev/null 2>&1
-                [[ $? -eq 0 ]] && USER="${2}" exec $0 -l
-                printf '%s is an unknown user.\n' "${2^^}"
+                if [[ $? -eq 0 ]]
+                then
+                    USER="${2}"
+                else
+                    printf '%s is an unknown user.\n' "${2^^}"
+                    exit 1
+                fi
+            else
+                printf 'The command `%s` requires a user value\n' "$SCRIPT_NAME -u <user>"
+                exit 1
             fi
-
-            printf 'The command `%s` requires a user value\n' "$SCRIPT_NAME -ul <user>"
-            exit 1
+            #
+            shift 2
+            USER="${USER}" exec $0 "${@}"
             ;;
         --list|--list-daemons|-l|-ls)
+            printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf 'No daemons found.\n';exit
             fi
-            printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             printf '|- \e[33m%s\e[0m\n' "${arrSockets[@]/%/=}"
 
             exit
@@ -176,12 +187,14 @@ do
         --list-very-verbose|-lvv)
             count_buffers
             get_pids
+            printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[37;4;2m%-20s %-23s %-20s\e[0m\n' "Daemon" "File #" "PID"
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%-20s\n' "${arrBuffers[@]}") <(printf '%-20s\n' "${arr_pids[@]}")
             exit
             ;;
         --list-verbose|-lv)
             count_buffers
+            printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File #"
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffers[@]}")
             exit
@@ -197,6 +210,7 @@ do
             ;&
         --stop|--kill|-k)
             :
+            printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 printf 'No daemons to slay.\n' && exit
             :
@@ -216,7 +230,7 @@ do
                     do
                         if [[ ${#sock} -eq 0  ]]; then
                             printf '\e[31mBad choice.\e[0m\n'
-                            exec $0 -k
+                            exec "${0}" -k
                         fi
                         slay "${sock}"
                         exit
