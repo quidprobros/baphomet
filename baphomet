@@ -68,6 +68,8 @@ list_sockets () {
 list_sockets
 
 count_buffers () {
+    local count
+    :
     arrBuffers=()
     for s in ${arrIterate[@]}
     do
@@ -81,6 +83,7 @@ count_buffers () {
 
 list_buffers () {
     local socket
+    :
     arrBuffersData=()
     for socket in ${arrIterate[@]}
     do
@@ -91,17 +94,19 @@ list_buffers () {
 
 get_pids () {
     local socket
+    local pid
+    :
     arr_pids=()
     for socket in ${arrIterate[@]}
     do
-        read pud < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
-        arr_pids+=("${pud// /}")
+        read pid < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
+        arr_pids+=("${pid// /}")
     done
 }
 
 check_for_socket () {
-    :
     # check if supplied socket ref exists
+    :
     if [[ ${#1} -ne 0 ]]; then
         containsElement "${1}" "${arrSockets[@]}";
         return $?
@@ -118,8 +123,6 @@ slay () {
     printf ' done.\n'
     printf ' So slain.\n'
 }
-# build each element of command
-
 
 
 while [[ ${#@} -ne 0 ]]
