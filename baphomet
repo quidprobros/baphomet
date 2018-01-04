@@ -34,7 +34,7 @@ EMACS_SERVER="server"
 EMACS_SERVER_RANDOM=""
 # bookmark: use fullpath when choosing daemon
 
-EMACS_BUFFER_NAME=""
+EMACS_BUFFER_NAME="baphomet_default_buffer"
 EMACS_BUFFER_DEFAULT="baphomet_default_buffer"
 
 readonly ERR_MISSING_SOCKET=404
@@ -51,14 +51,15 @@ containsElement () {
 }
 
 list_sockets () {
+    local socket
+    :
     arrIterateTemp=($EMACS_SOCKET_DIR/*)
     arrIterate=()
     :
     for socket in ${arrIterateTemp[@]}
     do
         if [[ -S $socket ]]; then
-            sock="$(basename ${socket})"
-            arrSockets+=("${sock}")
+            arrSockets+=("$(basename ${socket})")
             arrIterate+=("${socket}")
         fi
     done
@@ -130,10 +131,6 @@ do
             ;;
         --join|-j)
             socket="${2//=/}"
-            [[ ${#EMACS_BUFFER_NAME} -eq 0 ]] && EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
-            shift 2
-            [[ ${#@} -gt 0 ]] && continue
-
             if [[ ${#socket} -eq 0 ]]; then
                 printf '\e[37;4;2msockets\e[0m\n'
                 select sock in "${arrSockets[@]/%/=}"
@@ -141,7 +138,9 @@ do
                     exec command emacsclient -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
                     exit
                 done
+                exit
             fi
+
             :
             check_for_socket "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
@@ -173,6 +172,7 @@ do
             fi
             ;;
         --list|--list-daemons|-l|-ls)
+            EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf 'No daemons found.\n';exit
