@@ -14,7 +14,7 @@ shopt -s nullglob
 
 id -u "${USER}" >/dev/null 2>&1
 if [[ $? -eq 1 ]]; then
-    printf 'The user %s does not exist.\n' "${USER^^}";  exit 1
+    printf 'The user %s is not known to exist.\n' "${USER^^}";  exit 1
 fi
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
@@ -40,7 +40,6 @@ SCRIPT_NAME=$(basename $0)
 ALTERNATE_EDITOR=""
 EMACS_SERVER="${EMACS_SOCKET_DIR}/server"
 EMACS_SERVER_RANDOM=""
-# bookmark: use fullpath when choosing daemon
 
 EMACS_BUFFER_NAME="baphomet_default_buffer"
 EMACS_BUFFER_DEFAULT="baphomet_default_buffer"
@@ -61,14 +60,14 @@ containsElement () {
 list_sockets () {
     local socket
     :
-    arrIterateTemp=($EMACS_SOCKET_DIR/*)
-    arrIterate=()
+    arrSockets=("${EMACS_SOCKET_DIR}/*")
+    arrDaemons=()
     :
-    for socket in ${arrIterateTemp[@]}
+    for socket in ${arrSockets[@]}
     do
         if [[ -S $socket ]]; then
             arrSockets+=("${socket}")
-            arrIterate+=("${socket}")
+            arrDaemons+=("$(basename ${socket})")
         fi
     done
 }
@@ -80,7 +79,7 @@ query_daemon () {
     local element
     local CMD="${!1}"
     :
-    for s in ${arrIterate[@]}
+    for s in ${arrSockets[@]}
     do
         read element < <(nc -U "${s}" <<< \
                                $"-eval ${CMD// /&_}" | \
@@ -157,13 +156,11 @@ do
             fi
             ;;
         --list|--list-daemons|-l|-ls)
-            EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf 'No daemons found.\n';exit
             fi
-            printf '|- \e[33m%s\e[0m\n' "${arrSockets[@]/%/=}"
-
+            printf '|- \e[33m%s\e[0m\n' "${arrDaemons[@]/%/=}"
             exit
             ;;
         --list-very-verbose|-lvv)
@@ -172,7 +169,7 @@ do
 
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[37;4;2m%-20s %-23s %-20s\e[0m\n' "Daemon" "File #" "PID"
-            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%-20s\n' "${arrBuffers[@]}") <(printf '%-20s\n' "${arr_pids[@]}")
+            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrDaemons[@]/%/=}") <(printf '%-20s\n' "${arrBuffers[@]}") <(printf '%-20s\n' "${arr_pids[@]}")
             exit
             ;;
         --list-verbose|-lv)
@@ -180,7 +177,7 @@ do
             :
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File #"
-            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffers[@]}")
+            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrDaemons[@]/%/=}") <(printf '%s\n' "${arrBuffers[@]}")
             exit
             ;;
         --list-buffers|-lb)
