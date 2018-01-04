@@ -22,6 +22,7 @@ LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list
 :
 LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
 :
+LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
 #LISP_GREETING=$'(momentary-string-display "BAPHOMET" 200)'
@@ -67,42 +68,22 @@ list_sockets () {
 # generate sockets array
 list_sockets
 
-count_buffers () {
-    local count
+query_daemon () {
+    unset result
+    local element
+    local CMD="${!1}"
     :
-    arrBuffers=()
     for s in ${arrIterate[@]}
     do
-        read count < <(command nc -U "${s}" <<< \
-                               $"-eval ${LISP_BUFFER_COUNT// /&_}" | \
+        read element < <(command nc -U "${s}" <<< \
+                               $"-eval ${CMD// /&_}" | \
                            awk $'NR == 2 {printf $2}')
-        arrBuffers+=("${count}")
+        result+=("${element}")
     done
 }
 
 
-list_buffers () {
-    local socket
-    :
-    arrBuffersData=()
-    for socket in ${arrIterate[@]}
-    do
-        read buffy < <(command nc -U "${socket}" <<< $"-eval \'${LISP_BUFFER_LIST}\'")
-        arrBuffersData+=("${buffy}")
-    done
-}
 
-get_pids () {
-    local socket
-    local pid
-    :
-    arr_pids=()
-    for socket in ${arrIterate[@]}
-    do
-        read pid < <(command nc -U "${socket}" <<< '-ignore' | awk -F ' ' '{print $2}')
-        arr_pids+=("${pid// /}")
-    done
-}
 
 check_for_socket () {
     # check if supplied socket ref exists
@@ -185,22 +166,24 @@ do
             exit
             ;;
         --list-very-verbose|-lvv)
-            count_buffers
-            get_pids
+            query_daemon LISP_BUFFER_COUNT; arrBuffers=("${result[@]}")
+            query_daemon LISP_PID; arr_pids=("${result[@]}")
+
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[37;4;2m%-20s %-23s %-20s\e[0m\n' "Daemon" "File #" "PID"
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%-20s\n' "${arrBuffers[@]}") <(printf '%-20s\n' "${arr_pids[@]}")
             exit
             ;;
         --list-verbose|-lv)
-            count_buffers
+            query_daemon LISP_BUFFER_COUNT; arrBuffers=("${result[@]}")
+            :
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File #"
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffers[@]}")
             exit
             ;;
         --list-buffers|-lb)
-            list_buffers
+            query_daemon LISP_BUFFER_LIST
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File buffers"
             paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffersData[@]}")
             exit
