@@ -25,13 +25,16 @@ LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
-#LISP_GREETING=$'(momentary-string-display "BAPHOMET" 200)'
-:
+#LISP_GREET_BUFFER=$''"'"'(with-output-to-temp-buffer
+#"BAPHOMET WELCOMES YOU" (print "You are free."))'"'"''
+
+LISP_GREET_BUFFER=$'(get-buffer-create "foo")'
+
 
 SCRIPT_NAME=$(basename $0)
 
 ALTERNATE_EDITOR=""
-EMACS_SERVER="server"
+EMACS_SERVER="${EMACS_SOCKET_DIR}/server"
 EMACS_SERVER_RANDOM=""
 # bookmark: use fullpath when choosing daemon
 
@@ -60,7 +63,7 @@ list_sockets () {
     for socket in ${arrIterateTemp[@]}
     do
         if [[ -S $socket ]]; then
-            arrSockets+=("$(basename ${socket})")
+            arrSockets+=("${socket}")
             arrIterate+=("${socket}")
         fi
     done
@@ -75,14 +78,12 @@ query_daemon () {
     :
     for s in ${arrIterate[@]}
     do
-        read element < <(command nc -U "${s}" <<< \
+        read element < <(nc -U "${s}" <<< \
                                $"-eval ${CMD// /&_}" | \
                            awk $'NR == 2 {printf $2}')
         result+=("${element}")
     done
 }
-
-
 
 
 check_for_socket () {
@@ -98,7 +99,7 @@ check_for_socket () {
 
 slay () {
     local socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
-    nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
+    command nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
     printf 'Slaying daemon known as \e[33m%s\e[0m ...' $(basename "${socket/%/=}")
     wait
     printf ' done.\n'
@@ -110,8 +111,8 @@ while [[ ${#@} -ne 0 ]]
 do
     case $1 in
         -i|--interactive)
-            printf 'Interactive mode is still in development\n'
-            exit
+            printf 'Interactive mode is still in development!!!1\n'
+            break
             ;;
         --join|-j)
             socket="${2//=/}"
@@ -119,20 +120,16 @@ do
                 printf '\e[37;4;2msockets\e[0m\n'
                 select sock in "${arrSockets[@]/%/=}"
                 do
-                    exec command emacsclient -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
+                    exec command emacsclient -c -s "${sock}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
                     exit
                 done
                 exit
             fi
-
             :
+            socket="${EMACS_SOCKET_DIR}/${socket}"
             check_for_socket "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
                 exec command emacsclient -q -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
-            elif [[ "${#arrSockets[@]}" -eq 0 ]]; then
-                printf 'Daemon not found, no known process to join!\n'
-                printf '`\e[36m%s -s\e[0m` to summon a daemon.\n' "${SCRIPT_NAME}"
-
             else
                 printf 'Daemon not found!\n'
                 printf '`\e[36m%s -l\e[0m` to list daemons by name.\n' "${SCRIPT_NAME}"
@@ -198,7 +195,7 @@ do
                 printf 'No daemons to slay.\n' && exit
             :
             if [[ $DIE == "DIE" ]]; then
-                for socket in ${arrIterate[@]}
+                for socket in "${arrSockets[@]}"
                 do
                     slay "${socket}"
                 done
@@ -243,16 +240,17 @@ do
             IFS=,
             :
             [[ "${#2}" -ne 0 ]] && \
-                EMACS_SERVER=$2
+                EMACS_SERVER="${2}"
             :
             for daemon in $EMACS_SERVER; do
                 :
-                check_for_socket $daemon
+                socket="${EMACS_SOCKET_DIR}/${socket}"
+                check_for_socket $socket
                 if [[ $? -eq 0 ]]; then
                     exec $0 -j "$EMACS_SERVER" "${@:3}"
                 else
                     exec command emacs --user="${USER}" --daemon="/tmp/baphomet/${USER}/${daemon}" > /dev/null 2>&1 &
-                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
+                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
                     wait %1
                     printf ' done. \n'
                     printf 'So summoned.\n'
@@ -343,9 +341,9 @@ wait
 
 check_for_frames "${EMACS_SERVER}"
 if [ "$?" -eq 0 ]; then
-    cmd='emacsclient -qc -s '
+    cmd='emacsclient -c -s '
 else
-    cmd='emacsclient -q -s '
+    cmd='emacsclient -s '
 fi
 
 
@@ -353,7 +351,7 @@ fi
 
 # when no arguments supplies, join the first daemon
 if [[ ${#@} -eq 0 ]]; then
-    eval "${cmd} ${EMACS_SERVER} ${EMACS_BUFFER_NAME}"
+    eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFE}"
     exit
 fi
 
