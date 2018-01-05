@@ -42,9 +42,6 @@ EMACS_SERVER_RANDOM=""
 EMACS_BUFFER_NAME="baphomet_default_buffer"
 EMACS_BUFFER_DEFAULT="baphomet_default_buffer"
 
-readonly ERR_MISSING_SOCKET=404
-
-
 # # # # #
 # U T I L
 # # # # #
@@ -88,17 +85,6 @@ query_daemon () {
 }
 
 
-check_for_socket () {
-    # check if supplied socket ref exists
-    :
-    if [[ ${#1} -ne 0 ]]; then
-        containsElement "${1}" "${arrSockets[@]}";
-        return $?
-    fi
-    :
-    return 1
-}
-
 slay () {
     local socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
     nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
@@ -129,7 +115,7 @@ do
             fi
             :
             socket="${EMACS_SOCKET_DIR}/${daemon}"
-            check_for_socket "${socket}" "${arrSockets[@]}"
+            containsElement "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
                 exec emacsclient -q -c -s "${socket}" "${@:3}"
                 #wait
@@ -206,8 +192,9 @@ do
                 exit
             fi
             :
-            socket="${2}"
-            if [[ ${#socket} -eq 0 ]]
+            daemon="${2}"
+            socket="${EMACS_SOCKET_DIR}/${daemon}"
+            if [[ ${#daemon} -eq 0 ]]
             then
                 printf "Choose a daemon to slay:\n" && \
                     select sock in "${arrSockets[@]}"
@@ -221,8 +208,8 @@ do
                     done
             fi
             :
-            if [[ "${#socket}" -ne 0 ]]; then
-                check_for_socket "${socket}"
+            if [[ "${#daemon}" -ne 0 ]]; then
+                containsElement "${socket}" "${arrSockets[@]}"
                 if [[ $? -eq 1 ]]; then
                     printf "No such demon.\n"
                 else
@@ -249,7 +236,7 @@ do
             for daemon in $EMACS_SERVER; do
                 :
                 socket="${EMACS_SOCKET_DIR}/${daemon}"
-                check_for_socket $socket
+                containsElement "${socket}" "${arrSockets[@]}"
                 if [[ $? -eq 0 ]]; then
                     exec $0 -j "$EMACS_SERVER" "${@:3}"
 
@@ -359,14 +346,14 @@ check_for_frames () {
     [[ ${#EMACS_SERVER} -eq 0 ]] && \
         printf "You must specify a daemon!\n"
 
-    check_for_socket "${EMACS_SERVER}"
+    containsElement "${socket}" "${arrSockets[@]}"
     [[ $?  -eq 0 ]] && \
         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 
     return 1
 }
 
-check_for_socket "${arrSockets[0]}"
+containsElement "${socket}" "${arrSockets[@]}"
 if [[ $? -ne 0 ]]; then
     QUICK=1 exec $0 -s "${EMACS_SERVER}" &
 else
