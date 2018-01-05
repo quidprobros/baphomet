@@ -29,11 +29,8 @@ LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
-#LISP_GREET_BUFFER=$''"'"'(with-output-to-temp-buffer
-#"BAPHOMET WELCOMES YOU" (print "You are free."))'"'"''
-
-LISP_GREET_BUFFER=$'(get-buffer-create "foo")'
-
+LISP_GREET_BUFFER=$''"'"'(with-output-to-temp-buffer
+"BAPHOMET WELCOMES YOU" (print "You are free."))'"'"''
 
 SCRIPT_NAME=$(basename $0)
 
@@ -60,12 +57,13 @@ containsElement () {
 list_sockets () {
     local socket
     :
-    arrSockets=("${EMACS_SOCKET_DIR}/*")
+    arrSockets=("${EMACS_SOCKET_DIR}"/*)
     arrDaemons=()
     :
-    for socket in ${arrSockets[@]}
+    for socket in "${arrSockets[@]}"
     do
         if [[ -S $socket ]]; then
+            echo $socket
             arrSockets+=("${socket}")
             arrDaemons+=("$(basename ${socket})")
         fi
@@ -73,6 +71,8 @@ list_sockets () {
 }
 # generate sockets array
 list_sockets
+#echo ${arrSockets[@]}
+#echo ${arrDaemons[@]}
 
 query_daemon () {
     unset result
@@ -118,24 +118,26 @@ do
             break
             ;;
         --join|-j)
-            socket="${2//=/}"
-            if [[ ${#socket} -eq 0 ]]; then
-                printf '\e[37;4;2msockets\e[0m\n'
-                select sock in "${arrSockets[@]/%/=}"
+            daemon="${2//=/}"
+            if [[ ${#daemon} -eq 0 ]]; then
+                printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
+                [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
+                select sock in "${arrSockets[@]}"
                 do
-                    exec command emacsclient -c -s "${sock}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
+                    exec command emacsclient -c -s "${sock}" "${@:3}" -e "${LISP_GREET_BUFFER}"
                     exit
                 done
                 exit
             fi
             :
-            socket="${EMACS_SOCKET_DIR}/${socket}"
+            socket="${EMACS_SOCKET_DIR}/${daemon}"
             check_for_socket "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
-                exec command emacsclient -q -c -s "${socket}" "${@:3}" -- "${EMACS_BUFFER_NAME}"
+                exec command emacsclient -q -c -s "${socket}" "${@:3}" -e "${LISP_GREET_BUFFER}"
             else
                 printf 'Daemon not found!\n'
-                printf '`\e[36m%s -l\e[0m` to list daemons by name.\n' "${SCRIPT_NAME}"
+                #printf '`\e[36m%s -l\e[0m` to list daemons by name.\n' "${SCRIPT_NAME}"
+                exec "${0}" -j
                 exit 1
             fi
             exit
@@ -245,12 +247,13 @@ do
             :
             for daemon in $EMACS_SERVER; do
                 :
-                socket="${EMACS_SOCKET_DIR}/${socket}"
+                socket="${EMACS_SOCKET_DIR}/${daemon}"
                 check_for_socket $socket
                 if [[ $? -eq 0 ]]; then
                     exec $0 -j "$EMACS_SERVER" "${@:3}"
+
                 else
-                    exec command emacs --user="${USER}" --daemon="/tmp/baphomet/${USER}/${daemon}" > /dev/null 2>&1 &
+                    exec command emacs --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
                     wait %1
                     printf ' done. \n'
@@ -352,7 +355,7 @@ fi
 
 # when no arguments supplies, join the first daemon
 if [[ ${#@} -eq 0 ]]; then
-    eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFE}"
+    eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFER}"
     exit
 fi
 
@@ -381,7 +384,6 @@ case $1 in
     *)
         eval "${cmd} ${EMACS_SERVER} ${1}"
         exit
-        #-e "${LISP_BUFFER_HEADER}"
         ;;
 esac
 
