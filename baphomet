@@ -9,14 +9,35 @@ case $1 in
         ;;
 esac
 
+
+# # # # #
+# U T I L
+# # # # #
+containsElement () {
+    local e match="$1"
+    shift
+    for e; do [[ "$e" == "$match" ]] && return 0; done
+    return 1
+}
+
+
 shopt -s extglob
 shopt -s nullglob
 
-id -u "${USER}" >/dev/null 2>&1
-if [[ $? -eq 1 ]]; then
-    printf 'The user %s is not known to exist.\n' "${USER^^}";  exit 1
-fi
-declare -r EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+userTest () {
+    [[ ${#1} -ne 0 ]] && USER="${1}"
+    :
+    id -u "${USER}" >/dev/null 2>&1
+    if [[ $? -eq 1 ]]; then
+        printf 'The user %s is not known to exist.\n' "${USER^^}"; return 1
+    fi
+    return 0
+}
+userTest
+:
+EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+
+
 
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
@@ -42,16 +63,6 @@ EMACS_SERVER_RANDOM=""
 EMACS_BUFFER_NAME="baphomet_default_buffer"
 EMACS_BUFFER_DEFAULT="baphomet_default_buffer"
 
-# # # # #
-# U T I L
-# # # # #
-containsElement () {
-    local e match="$1"
-    shift
-    for e; do [[ "$e" == "$match" ]] && return 0; done
-    return 1
-}
-
 list_sockets () {
     local socket
     :
@@ -67,8 +78,6 @@ list_sockets () {
 }
 # generate sockets array
 list_sockets
-#echo ${arrSockets[@]}
-#echo ${arrDaemons[@]}
 
 query_daemon () {
     unset result
@@ -78,8 +87,8 @@ query_daemon () {
     for s in ${arrSockets[@]}
     do
         read element < <(nc -U "${s}" <<< \
-                               $"-eval ${CMD// /&_}" | \
-                           awk $'NR == 2 {printf $2}')
+                            $"-eval ${CMD// /&_}" | \
+                             awk $'NR == 2 {printf $2}')
         result+=("${element}")
     done
 }
@@ -100,6 +109,15 @@ do
         -i|--interactive)
             printf 'Interactive mode is still in development!!!1\n'
             break  3
+            ;;
+        -u|--user)
+            [[ ${#2} -eq 0 ]] && \
+                printf 'A user must be specified!\n' && exit 1
+            userTest "${2}"
+            [[ $? -eq 1 ]] && exit 1
+            :
+            EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+            cmd+=$"--user ${USER}"
             ;;
         --join|-j)
             daemon="${2//=/}"
@@ -128,21 +146,6 @@ do
                 exit 1
             fi
             exit
-            ;;
-        -u)
-            if [[ ${#2} -gt 0 ]]; then
-                id -u "${2}" >/dev/null 2>&1
-                if [[ $? -eq 0 ]]
-                then
-                    USER="${2}"
-                else
-                    printf '%s is an unknown user.\n' "${2^^}"
-                    exit 1
-                fi
-            else
-                printf 'The command `%s` requires a user value\n' "$SCRIPT_NAME -u <user>"
-                exit 1
-            fi
             ;;
         --list|--list-daemons|-l|-ls)
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
