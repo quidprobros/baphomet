@@ -16,7 +16,8 @@ id -u "${USER}" >/dev/null 2>&1
 if [[ $? -eq 1 ]]; then
     printf 'The user %s is not known to exist.\n' "${USER^^}";  exit 1
 fi
-EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+declare -r EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
 
@@ -63,7 +64,6 @@ list_sockets () {
     for socket in "${arrSockets[@]}"
     do
         if [[ -S $socket ]]; then
-            echo $socket
             arrSockets+=("${socket}")
             arrDaemons+=("$(basename ${socket})")
         fi
@@ -108,7 +108,6 @@ slay () {
     printf ' done.\n'
     printf ' So slain.\n'
 }
-
 
 while [[ ${#@} -ne 0 ]]
 do
@@ -254,7 +253,7 @@ do
 
                 else
                     exec command emacs --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${EMACS_SERVER^^}"
+                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
                     printf ' done. \n'
                     printf 'So summoned.\n'

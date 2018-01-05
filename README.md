@@ -39,6 +39,7 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* BUG: need trap
 * transparent handling of root owned files
 * BUG: default buffer should be a temp buffer
 * RE interactive kill, indicate number of file buffers
