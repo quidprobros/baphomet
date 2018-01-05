@@ -4,7 +4,7 @@
 :
 case $1 in
     -x|--escape)
-        command emacs "${@:2}"
+        exec emacs "${@:2}"
         exit
         ;;
 esac
@@ -102,7 +102,7 @@ check_for_socket () {
 
 slay () {
     local socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
-    command nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
+    nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
     printf 'Slaying daemon known as \e[33m%s\e[0m ...' $(basename "${socket/%/=}")
     wait
     printf ' done.\n'
@@ -114,7 +114,7 @@ do
     case $1 in
         -i|--interactive)
             printf 'Interactive mode is still in development!!!1\n'
-            break
+            break  3
             ;;
         --join|-j)
             daemon="${2//=/}"
@@ -123,7 +123,7 @@ do
                 [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
                 select sock in "${arrSockets[@]}"
                 do
-                    exec command emacsclient -c -s "${sock}" "${@:3}" -e "${LISP_GREET_BUFFER}"
+                    exec emacsclient -c -s "${sock}" "${@:3}" -e "${LISP_GREET_BUFFER}"
                     exit
                 done
                 exit
@@ -132,7 +132,7 @@ do
             socket="${EMACS_SOCKET_DIR}/${daemon}"
             check_for_socket "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
-                exec command emacsclient -q -c -s "${socket}" "${@:3}" -e "${LISP_GREET_BUFFER}"
+                exec emacsclient -q -c -s "${socket}" "${@:3}" -e "${LISP_GREET_BUFFER}"
             else
                 printf 'Daemon not found!\n'
                 #printf '`\e[36m%s -l\e[0m` to list daemons by name.\n' "${SCRIPT_NAME}"
@@ -252,7 +252,7 @@ do
                     exec $0 -j "$EMACS_SERVER" "${@:3}"
 
                 else
-                    exec command emacs --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
+                    exec emacs --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
                     printf ' done. \n'
@@ -321,6 +321,32 @@ EOF
     [[ "${#@}" -gt 0 ]] && shift 2
 done
 
+case $1 in
+    -i|--interactive)
+        select option in 'List' 'Join' 'Summon' 'Quit'
+        do
+            case $option in
+                'List')
+                    exec "${0}" -l
+                    ;;
+                'Join')
+                    exec "${0}" -j
+                    ;;
+                'Summon')
+                    exec "${0}" -s
+                    ;;
+                'Quit')
+                    exit
+                    ;;
+                *)
+                    printf 'Invalid choice.\n'
+                    ;;
+            esac
+        done
+        ;;
+esac
+
+
 
 check_for_frames () {
     local EMACS_SERVER=$1
@@ -329,7 +355,7 @@ check_for_frames () {
 
     check_for_socket "${EMACS_SERVER}"
     [[ $?  -eq 0 ]] && \
-        command emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
+        emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 
     return 1
 }
@@ -359,31 +385,5 @@ if [[ ${#@} -eq 0 ]]; then
 fi
 
 
-case $1 in
-    -i|--interactive)
-        select option in 'List' 'Join' 'Summon'
-        do
-            case $option in
-                'List')
-                    exec "${0}" -l
-                    ;;
-                'Join')
-                    exec "${0}" -j
-                    ;;
-                'Summon')
-                    exec "${0}" -s
-                    ;;
-            esac
-        done
-        ;;
-    -*)
-        printf "Unknown.\n"
-        exit 1
-        ;;
-    *)
-        eval "${cmd} ${EMACS_SERVER} ${1}"
-        exit
-        ;;
-esac
 
 exit 0
