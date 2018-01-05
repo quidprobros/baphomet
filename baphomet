@@ -64,7 +64,6 @@ list_sockets () {
     for socket in "${arrSockets[@]}"
     do
         if [[ -S $socket ]]; then
-            arrSockets+=("${socket}")
             arrDaemons+=("$(basename ${socket})")
         fi
     done
@@ -123,8 +122,8 @@ do
                 [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
                 select sock in "${arrSockets[@]}"
                 do
-                    exec emacsclient -c -s "${sock}" "${@:3}" -e "${LISP_GREET_BUFFER}"
-                    exit
+                    exec emacsclient -c -s "${sock}" "${@:3}"
+                    #-e "${LISP_GREET_BUFFER}"
                 done
                 exit
             fi
@@ -132,7 +131,10 @@ do
             socket="${EMACS_SOCKET_DIR}/${daemon}"
             check_for_socket "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
-                exec emacsclient -q -c -s "${socket}" "${@:3}" -e "${LISP_GREET_BUFFER}"
+                exec emacsclient -q -c -s "${socket}" "${@:3}"
+                #wait
+                #query_daemon LISP_BUFFER_HEADER
+                exit
             else
                 printf 'Daemon not found!\n'
                 #printf '`\e[36m%s -l\e[0m` to list daemons by name.\n' "${SCRIPT_NAME}"
@@ -321,6 +323,10 @@ EOF
     [[ "${#@}" -gt 0 ]] && shift 2
 done
 
+
+exit
+
+
 case $1 in
     -i|--interactive)
         select option in 'List' 'Join' 'Summon' 'Quit'
@@ -380,7 +386,7 @@ fi
 
 # when no arguments supplies, join the first daemon
 if [[ ${#@} -eq 0 ]]; then
-    eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFER}"
+    exec eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFER}"
     exit
 fi
 
