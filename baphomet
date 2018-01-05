@@ -110,15 +110,15 @@ do
             printf 'Interactive mode is still in development!!!1\n'
             break  3
             ;;
-        -u|--user)
-            [[ ${#2} -eq 0 ]] && \
-                printf 'A user must be specified!\n' && exit 1
-            userTest "${2}"
-            [[ $? -eq 1 ]] && exit 1
-            :
-            EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
-            cmd+=$"--user ${USER}"
-            ;;
+        # -u|--user)
+        #     [[ ${#2} -eq 0 ]] && \
+        #         printf 'A user must be specified!\n' && exit 1
+        #     userTest "${2}"
+        #     [[ $? -eq 1 ]] && exit 1
+        #     :
+        #     EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+        #     #cmd_user=$"--user ${USER}"
+        #     ;;
         --join|-j)
             daemon="${2//=/}"
             if [[ ${#daemon} -eq 0 ]]; then
@@ -314,9 +314,6 @@ EOF
 done
 
 
-exit
-
-
 case $1 in
     -i|--interactive)
         select option in 'List' 'Join' 'Summon' 'Quit'
@@ -343,6 +340,14 @@ case $1 in
 esac
 
 
+socket="${arrSockets[0]}"
+[[ ${#socket} -eq 0 ]] && exec $0 -s
+
+echo ROFL
+
+
+
+exit
 
 check_for_frames () {
     local EMACS_SERVER=$1
@@ -363,6 +368,7 @@ else
     EMACS_SERVER="${arrSockets[0]}"
 fi
 wait
+exit
 
 check_for_frames "${EMACS_SERVER}"
 if [ "$?" -eq 0 ]; then
