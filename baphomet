@@ -1,10 +1,21 @@
 #!/usr/bin/env bash
-:
+function cleanup {
+    printf '\n\nYou killed me!\n\n'
+    kill -0 "${child_pid}" >/dev/null 2>&1
+    [[ $? -eq 0 ]] && \
+        kill "${child_pid}" && \
+             kill $(( "${child_pid}"+1 ))
+    pstree "${child_pid}"
+    #
+    exit
+}
+trap cleanup SIGINT SIGTERM
+
 # Execute this script at your own peril!
 :
 case $1 in
     -x|--escape)
-        exec emacs "${@:2}"
+        exec command emacs "${@:2}"
         exit
         ;;
 esac
@@ -150,7 +161,7 @@ do
         --list|--list-daemons|-l|-ls)
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
-                printf 'No daemons found.\n';exit
+                printf '|- No daemons found.\n';exit
             fi
             printf '|- \e[33m%s\e[0m\n' "${arrDaemons[@]/%/=}"
             exit
@@ -232,23 +243,31 @@ do
             ;;
         --start|--summon|-c|-s)
             IFS=,
+            daemons="${2}"
             :
-            [[ "${#2}" -ne 0 ]] && \
-                EMACS_SERVER="${2}"
+            if [[ ${#daemons} -eq 0 ]]; then
+                if [[ ${#arrDaemons[*]} -eq 0 ]]; then
+                    daemons="server"
+                else
+                    daemons="${arrDaemons[0]}"
+                fi
+            fi
             :
-            for daemon in $EMACS_SERVER; do
+            for daemon in $daemons; do
                 :
                 socket="${EMACS_SOCKET_DIR}/${daemon}"
                 containsElement "${socket}" "${arrSockets[@]}"
                 if [[ $? -eq 0 ]]; then
-                    exec $0 -j "$EMACS_SERVER" "${@:3}"
-
+                    exec "${0}" -j "${daemon}" "${@:3}"
                 else
-                    exec emacs --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
+                    \emacs --eval "${LISP_GREET_BUFFER}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
+                    child_pid=$!
+                    parent_pid=$$
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
                     printf ' done. \n'
                     printf 'So summoned.\n'
+                    exit
                 fi
             done
             exit
@@ -341,51 +360,50 @@ esac
 
 
 socket="${arrSockets[0]}"
-[[ ${#socket} -eq 0 ]] && exec $0 -s
+[[ ${#socket} -gt 0 ]] && \
+    daemon="$(basename ${socket})" && \
+    exec "${0}" -j "${daemon}"
 
-echo ROFL
-
-
-
-exit
-
-check_for_frames () {
-    local EMACS_SERVER=$1
-    [[ ${#EMACS_SERVER} -eq 0 ]] && \
-        printf "You must specify a daemon!\n"
-
-    containsElement "${socket}" "${arrSockets[@]}"
-    [[ $?  -eq 0 ]] && \
-        emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
-
-    return 1
-}
-
-containsElement "${socket}" "${arrSockets[@]}"
-if [[ $? -ne 0 ]]; then
-    QUICK=1 exec $0 -s "${EMACS_SERVER}" &
-else
-    EMACS_SERVER="${arrSockets[0]}"
-fi
-wait
-exit
-
-check_for_frames "${EMACS_SERVER}"
-if [ "$?" -eq 0 ]; then
-    cmd='emacsclient -c -s '
-else
-    cmd='emacsclient -s '
-fi
-
-
-[[ ${#EMACS_BUFFER_NAME} -eq 0 ]] && EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
-
-# when no arguments supplies, join the first daemon
-if [[ ${#@} -eq 0 ]]; then
-    exec eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFER}"
-    exit
-fi
-
+printf 'There are no known daemons with whom to commune ...\n'
+exec "${0}" -s
 
 
 exit 0
+
+
+#c# heck_for_frames () {
+#     local EMACS_SERVER=$1
+#     [[ ${#EMACS_SERVER} -eq 0 ]] && \
+#         printf "You must specify a daemon!\n"
+
+#     containsElement "${socket}" "${arrSockets[@]}"
+#     [[ $?  -eq 0 ]] && \
+#         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
+
+#     return 1
+# }
+
+# containsElement "${socket}" "${arrSockets[@]}"
+# if [[ $? -ne 0 ]]; then
+#     QUICK=1 exec $0 -s "${EMACS_SERVER}" &
+# else
+#     EMACS_SERVER="${arrSockets[0]}"
+# fi
+# wait
+# exit
+
+# check_for_frames "${EMACS_SERVER}"
+# if [ "$?" -eq 0 ]; then
+#     cmd='emacsclient -c -s '
+# else
+#     cmd='emacsclient -s '
+# fi
+
+
+# [[ ${#EMACS_BUFFER_NAME} -eq 0 ]] && EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
+
+# # when no arguments supplies, join the first daemon
+# if [[ ${#@} -eq 0 ]]; then
+#     exec eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFER}"
+#     exit
+# fi

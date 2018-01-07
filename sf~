@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -m
+trap 'kill %%' EXIT
+command1 | command2 &
+wait
