@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 function cleanup {
     printf '\n\nYou killed me!\n\n'
-    kill -0 "${child_pid}" >/dev/null 2>&1
-    [[ $? -eq 0 ]] && \
-        kill "${child_pid}" && \
-             kill $(( "${child_pid}"+1 ))
-    pstree "${child_pid}"
-    #
+    sleep 2
+    hard_check "${daemon}"
+    [[ $? -eq 0 ]] && slay "${daemon}"
+
+    #slay $daemon
+    echo "${emacs_pid}"
+    pstree "${emacs_pid}"
+
     exit
 }
 trap cleanup SIGINT SIGTERM
@@ -74,6 +76,14 @@ EMACS_SERVER_RANDOM=""
 EMACS_BUFFER_NAME="baphomet_default_buffer"
 EMACS_BUFFER_DEFAULT="baphomet_default_buffer"
 
+
+hard_check () {
+    local socket="${EMACS_SOCKET_DIR}/${1}"
+    [[ -S $socket ]] && return 0
+    :
+    return 1
+}
+
 list_sockets () {
     local socket
     :
@@ -123,7 +133,7 @@ do
             ;;
         # -u|--user)
         #     [[ ${#2} -eq 0 ]] && \
-        #         printf 'A user must be specified!\n' && exit 1
+            #         printf 'A user must be specified!\n' && exit 1
         #     userTest "${2}"
         #     [[ $? -eq 1 ]] && exit 1
         #     :
@@ -261,8 +271,7 @@ do
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${LISP_GREET_BUFFER}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-                    child_pid=$!
-                    parent_pid=$$
+                    emacs_pid=$!
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
                     printf ' done. \n'
@@ -374,11 +383,11 @@ exit 0
 #c# heck_for_frames () {
 #     local EMACS_SERVER=$1
 #     [[ ${#EMACS_SERVER} -eq 0 ]] && \
-#         printf "You must specify a daemon!\n"
+    #         printf "You must specify a daemon!\n"
 
 #     containsElement "${socket}" "${arrSockets[@]}"
 #     [[ $?  -eq 0 ]] && \
-#         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
+    #         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 
 #     return 1
 # }
