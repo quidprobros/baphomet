@@ -162,9 +162,9 @@ do
             if [[ ${#daemon} -eq 0 ]]; then
                 printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
                 [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
-                select sock in "${arrSockets[@]}"
+                select daemon in "${arrDaemons[@]}"
                 do
-                    exec emacsclient -c -q -s "${sock}" -e "${LISP_GREET_BUFFER}" "${@:3}"
+		    exec "${0}" -j "${daemon}"
                 done
                 exit
             fi
