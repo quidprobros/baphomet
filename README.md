@@ -39,6 +39,9 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* finish simple shell
+* optional `dialog` support
+* interactive mode should allow buffer name entering
 * BUG: need trap
 * transparent handling of root owned files
 * BUG: default buffer should be a temp buffer

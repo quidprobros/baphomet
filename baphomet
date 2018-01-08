@@ -143,8 +143,7 @@ slay () {
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
-        -i|--interactive)
-            printf 'Interactive mode is still in development!!!1\n'
+        -i|--interactive|--shell)
             break  3
             ;;
         # -u|--user)
@@ -170,8 +169,8 @@ do
             :
             socket="${EMACS_SOCKET_DIR}/${daemon}"
             containsElement "${socket}" "${arrSockets[@]}"
-            if [[ $? -eq 0 ]]; then	
-		exec emacsclient -q -c -s "${socket}" -e "${LISP_GREET_BUFFER}" "${@:3}" 
+            if [[ $? -eq 0 ]]; then
+		exec emacsclient -q -c -s "${socket}" -e "${LISP_GREET_BUFFER}" "${@:3}"
                 exit
             else
                 printf 'Daemon not found!\n'
@@ -352,6 +351,23 @@ EOF
     esac
     [[ "${#@}" -gt 0 ]] && shift 2
 done
+
+# case $1 in
+#     --shell)
+#         exec bash --rcfile <(printf $'PS1="baphomet: ";\
+
+# ') -i
+#         exit
+#         ;;
+# esac
+exec bash --rcfile <(read baphomet_shell < \
+                          <(printf "PS1=\"\e[31mBAPHOMET\e[0m\ > \" ;\
+alias help=\"${0} -h\";\
+alias list=\"${0} -l\";\
+"); printf "${baphomet_shell}") -i
+exit
+
+
 
 
 case $1 in
