@@ -2,15 +2,14 @@
 function cleanup {
     printf '\n\nYou killed me!\n\n'
     printf 'Cleaning up ... '
-    kill %1
+    kill %1 >/dev/null 2>&1
     wait
     [[ -S "${EMACS_SOCKET_DIR}/${daemon}" ]] && slay "${daemon}"
     local PID=$(( "${emacs_pid}"+1 ))
     kill $PID >/dev/null 2>&1 &
     wait
     printf 'done.\n\n'
-
-    printf 'Note: a daemon may have materialized despite cancelled summoning.\n'
+    printf 'Note: The daemon \e[91m%s=\e[0m may have materialized despite interruption.\n' "${daemon^^}"
     printf 'Enter `baphomet -l` to be sure.\n'
 
     exit
