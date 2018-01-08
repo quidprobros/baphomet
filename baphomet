@@ -6,9 +6,12 @@ function cleanup {
     wait
     [[ -S "${EMACS_SOCKET_DIR}/${daemon}" ]] && slay "${daemon}"
     local PID=$(( "${emacs_pid}"+1 ))
-    kill $PID &
+    kill $PID >/dev/null 2>&1 &
     wait
-    printf 'done.\n'
+    printf 'done.\n\n'
+
+    printf 'Note: a daemon may have materialized despite cancelled summoning.\n'
+    printf 'Enter `baphomet -l` to be sure.\n'
 
     exit
 }
