@@ -1,17 +1,23 @@
 #!/usr/bin/env bash
 function cleanup {
     printf '\n\nYou killed me!\n\n'
-    sleep 2
-    hard_check "${daemon}"
-    [[ $? -eq 0 ]] && slay "${daemon}"
-
-    #slay $daemon
-    echo "${emacs_pid}"
-    pstree "${emacs_pid}"
+    printf 'Cleaning up ... '
+    kill %1
+    wait
+    [[ -S "${EMACS_SOCKET_DIR}/${daemon}" ]] && slay "${daemon}"
+    local PID=$(( "${emacs_pid}"+1 ))
+    kill $PID &
+    wait
+    printf 'done.\n'
 
     exit
 }
-trap cleanup SIGINT SIGTERM
+trap cleanup TERM INT SIGINT SIGTERM
+
+
+
+
+
 
 # Execute this script at your own peril!
 :
@@ -274,9 +280,9 @@ do
                     emacs_pid=$!
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
+		    emacs_pid2=$!
                     printf ' done. \n'
                     printf 'So summoned.\n'
-                    exit
                 fi
             done
             exit
