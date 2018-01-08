@@ -18,10 +18,6 @@ function cleanup {
 trap cleanup TERM INT SIGINT SIGTERM
 
 
-
-
-
-
 # Execute this script at your own peril!
 :
 case $1 in
@@ -59,6 +55,7 @@ userTest
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
+EMACS_BUFFER_NAME='o'
 
 
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
@@ -73,17 +70,21 @@ LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
-LISP_GREET_BUFFER=$''"'"'(with-output-to-temp-buffer
-"BAPHOMET WELCOMES YOU" (print "You are free."))'"'"''
+#LISP_GREET_BUFFER=$''"'"'(message "Baphomet welcomes you.")'"'"''
+LISP_GREET_BUFFER=$'(with-output-to-temp-buffer
+		"You are free." (print "BAPHOMET WELCOMES YOU"))'
+# LISP_GREET_BUFFER=$''"'"'(with-current-buffer (get-buffer-create "asdfdemo")
+#                   (erase-buffer)
+#                   (insert "FAK")
+#                   (pop-to-buffer (current-buffer)))'"'"''
+
+
 
 SCRIPT_NAME=$(basename $0)
 
 ALTERNATE_EDITOR=""
 EMACS_SERVER="${EMACS_SOCKET_DIR}/server"
 EMACS_SERVER_RANDOM=""
-
-EMACS_BUFFER_NAME="baphomet_default_buffer"
-EMACS_BUFFER_DEFAULT="baphomet_default_buffer"
 
 
 hard_check () {
@@ -123,6 +124,13 @@ query_daemon () {
     done
 }
 
+message_daemon () {
+    local CMD="${!1}"
+    if [[ "${#2}" -gt 0 ]]; then
+        nc -U "${2}" <<< \
+           $"-eval ${CMD// /&_}"
+    fi
+}
 
 slay () {
     local socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
@@ -156,22 +164,18 @@ do
                 [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
                 select sock in "${arrSockets[@]}"
                 do
-                    exec emacsclient -c -s "${sock}" "${@:3}"
-                    #-e "${LISP_GREET_BUFFER}"
+                    exec emacsclient -c -q -s "${sock}" -e "${LISP_GREET_BUFFER}" "${@:3}"
                 done
                 exit
             fi
             :
             socket="${EMACS_SOCKET_DIR}/${daemon}"
             containsElement "${socket}" "${arrSockets[@]}"
-            if [[ $? -eq 0 ]]; then
-                exec emacsclient -q -c -s "${socket}" "${@:3}"
-                #wait
-                #query_daemon LISP_BUFFER_HEADER
+            if [[ $? -eq 0 ]]; then	
+		exec emacsclient -q -c -s "${socket}" -e "${LISP_GREET_BUFFER}" "${@:3}" 
                 exit
             else
                 printf 'Daemon not found!\n'
-                #printf '`\e[36m%s -l\e[0m` to list daemons by name.\n' "${SCRIPT_NAME}"
                 exec "${0}" -j
                 exit 1
             fi
@@ -376,30 +380,31 @@ case $1 in
         ;;
 esac
 
+# check_for_frames () {
+#     local EMACS_SERVER=$1
+#     [[ ${#EMACS_SERVER} -eq 0 ]] && \
+#         printf "You must specify a daemon!\n"
 
+#     containsElement "${socket}" "${arrSockets[@]}"
+#     [[ $?  -eq 0 ]] && \
+#         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
+#     return 1
+# }
+
+
+# socket="${EMACS_SOCKET_DIR}/${daemon}"
 socket="${arrSockets[0]}"
 [[ ${#socket} -gt 0 ]] && \
     daemon="$(basename ${socket})" && \
-    exec "${0}" -j "${daemon}"
+    exec "${0}" -j "${daemon}" && exit
 
-printf 'There are no known daemons with whom to commune ...\n'
 exec "${0}" -s
-
+wait
 
 exit 0
 
 
-#c# heck_for_frames () {
-#     local EMACS_SERVER=$1
-#     [[ ${#EMACS_SERVER} -eq 0 ]] && \
-    #         printf "You must specify a daemon!\n"
 
-#     containsElement "${socket}" "${arrSockets[@]}"
-#     [[ $?  -eq 0 ]] && \
-    #         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
-
-#     return 1
-# }
 
 # containsElement "${socket}" "${arrSockets[@]}"
 # if [[ $? -ne 0 ]]; then
