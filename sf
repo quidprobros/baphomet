@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-set -m
-trap 'kill %%' EXIT
-yes >/dev/null 2>&1 &
-wait
