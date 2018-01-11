@@ -3,11 +3,11 @@ function cleanup {
     printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
     printf 'Cleaning up ... '
     kill %1 >/dev/null 2>&1
-    wait
-    [[ -S "${EMACS_SOCKET_DIR}/${daemon}" ]] && slay "${daemon}"
-    local PID=$(( "${emacs_pid}"+1 ))
-    kill $PID >/dev/null 2>&1 &
-    wait
+    (sleep 7;
+     hard_check "${daemon}";
+     [[ $? -eq 0 ]] && slay "${daemon}" >/dev/null 2>&1 ;
+    ) &
+    disown %1
     printf 'done.\n\n'
 
     [[ "${#daemon}" -gt 0 ]] && \
@@ -191,7 +191,7 @@ do
                 fi
                 exit
             else
-                printf 'Daemon not found!\n'
+                printf '\e[31mDaemon not found!\e[0m\n'
                 exec "${0}" -j
                 exit 1
             fi
