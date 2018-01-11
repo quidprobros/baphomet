@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 function cleanup {
-    printf '\n\nYou killed me!\n\n'
+    printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
     printf 'Cleaning up ... '
     kill %1 >/dev/null 2>&1
     wait
@@ -9,8 +9,10 @@ function cleanup {
     kill $PID >/dev/null 2>&1 &
     wait
     printf 'done.\n\n'
-    printf 'Note: The daemon \e[91m%s=\e[0m may have materialized despite interruption.\n' "${daemon^^}"
-    printf 'Enter `baphomet -l` to be sure.\n'
+
+    [[ "${#daemon}" -gt 0 ]] && \
+        printf 'Note: The daemon \e[91m%s=\e[0m may have materialized despite interruption.\n' "${daemon^^}" && \
+        printf 'Enter `baphomet -l` to be sure.\n'
     exit
 }
 trap cleanup TERM INT SIGINT SIGTERM
@@ -156,10 +158,24 @@ do
         --join|-j)
             daemon="${2//=/}"
             if [[ ${#daemon} -eq 0 ]]; then
-                printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
                 [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
-                select daemon in "${arrDaemons[@]}"
+                printf '\e[33m%.0s-' {1..20}; printf '\n'
+                printf '     DAEMON MENU\n'
+                printf '%.0s-' {1..20};  printf '\e[0m\n\n'
+                printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
+
+
+                select daemon in "${arrDaemons[@]/%/=}"
                 do
+                    if [[ $INTERACTIVE == TRUE ]]; then
+                        case $daemon in
+                            'back')
+                                echo shit
+                                exec "${0}" -i
+                                exit
+                                ;;
+                        esac
+                    fi
 		                exec "${0}" -j "${daemon}"
                 done
                 exit
@@ -187,6 +203,20 @@ do
                 printf '|- No daemons found.\n';exit
             fi
             printf '|- \e[33m%s\e[0m\n' "${arrDaemons[@]/%/=}"
+            if  [[ $INTERACTIVE == TRUE ]]; then
+                printf '\n\n\e[31mWhat do you desire?\e[0m\n'
+                select option in 'Return' 'Quit'
+                do
+                    case $option in
+                        'Return')
+                            exec "${0}" -i
+                        ;;
+                        'Quit')
+                            exit
+                            ;;
+                    esac
+                done
+            fi
             exit
             ;;
         --list-very-verbose|-lvv)
@@ -356,14 +386,42 @@ EOF
     [[ "${#@}" -gt 0 ]] && shift 2
 done
 
-# case $1 in
-#     --shell)
-#         exec bash --rcfile <(printf $'PS1="baphomet: ";\
 
-# ') -i
-#         exit
-#         ;;
-# esac
+
+
+case $1 in
+    -i|--interactive)
+        printf '\e[33m%.0s-' {1..20}; printf '\n'
+        printf '     MAIN MENU\n'
+        printf '%.0s-' {1..20};  printf '\e[0m\n'
+        select option in 'List' 'Join' 'Summon' 'Quit'
+        do
+            case $option in
+                'List')
+                    INTERACTIVE=TRUE exec "${0}" -l
+                    ;;
+                'Join')
+                    INTERACTIVE=TRUE exec "${0}" -j
+                    ;;
+                'Summon')
+                    printf '\n\e[31mName your daemon\e[0m: '
+                    read daemon
+                    [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
+                    INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
+                    ;;
+                'Quit')
+                    printf '\nBye.\n'
+                    exit
+                    ;;
+                *)
+                    printf 'Invalid choice.\n'
+                    ;;
+            esac
+        done
+        ;;
+esac
+
+
 exec bash --rcfile <(read baphomet_shell < \
                           <(printf "PS1=\"\e[31mBAPHOMET\e[0m\ > \" ;\
 alias help=\"${0} -h\";\
@@ -376,32 +434,6 @@ alias join=\"${0} -j\";\
 exit
 
 
-
-
-case $1 in
-    -i|--interactive)
-        select option in 'List' 'Join' 'Summon' 'Quit'
-        do
-            case $option in
-                'List')
-                    exec "${0}" -l
-                    ;;
-                'Join')
-                    exec "${0}" -j
-                    ;;
-                'Summon')
-                    exec "${0}" -s
-                    ;;
-                'Quit')
-                    exit
-                    ;;
-                *)
-                    printf 'Invalid choice.\n'
-                    ;;
-            esac
-        done
-        ;;
-esac
 
 # check_for_frames () {
 #     local EMACS_SERVER=$1
