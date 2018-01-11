@@ -11,7 +11,6 @@ function cleanup {
     printf 'done.\n\n'
     printf 'Note: The daemon \e[91m%s=\e[0m may have materialized despite interruption.\n' "${daemon^^}"
     printf 'Enter `baphomet -l` to be sure.\n'
-
     exit
 }
 trap cleanup TERM INT SIGINT SIGTERM
@@ -54,7 +53,7 @@ userTest
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
-EMACS_BUFFER_NAME='o'
+EMACS_BUFFER_NAME=
 
 
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
@@ -69,7 +68,6 @@ LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
-#LISP_GREET_BUFFER=$''"'"'(message "Baphomet welcomes you.")'"'"''
 LISP_GREET_BUFFER=$'(with-output-to-temp-buffer
 		"You are free." (print "BAPHOMET WELCOMES YOU"))'
 # LISP_GREET_BUFFER=$''"'"'(with-current-buffer (get-buffer-create "asdfdemo")
@@ -162,7 +160,7 @@ do
                 [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
                 select daemon in "${arrDaemons[@]}"
                 do
-		    exec "${0}" -j "${daemon}"
+		                exec "${0}" -j "${daemon}"
                 done
                 exit
             fi
@@ -170,7 +168,11 @@ do
             socket="${EMACS_SOCKET_DIR}/${daemon}"
             containsElement "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
-		exec emacsclient -q -c -s "${socket}" -e "${LISP_GREET_BUFFER}" "${@:3}"
+                if [[ ${#EMACS_BUFFER_NAME} -eq 0 ]]; then
+		                exec emacsclient -q -c -s "${socket}" -e "${LISP_GREET_BUFFER}" "${@:3}"
+                else
+                    exec emacsclient -q -c -s "${socket}" -- "${EMACS_BUFFER_NAME}"
+                fi
                 exit
             else
                 printf 'Daemon not found!\n'
@@ -285,9 +287,11 @@ do
                     emacs_pid=$!
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
-		    emacs_pid2=$!
+		                emacs_pid2=$!
                     printf ' done. \n'
                     printf 'So summoned.\n'
+                    [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
+                        exec "${0}" -b "${EMACS_BUFFER_NAME}" -j "${daemon}"
                 fi
             done
             exit
@@ -364,6 +368,10 @@ exec bash --rcfile <(read baphomet_shell < \
                           <(printf "PS1=\"\e[31mBAPHOMET\e[0m\ > \" ;\
 alias help=\"${0} -h\";\
 alias list=\"${0} -l\";\
+alias start=\"${0} -s\";\
+alias kill=\"${0} -k\";\
+alias kill-all=\"${0} -ka\";\
+alias join=\"${0} -j\";\
 "); printf "${baphomet_shell}") -i
 exit
 
@@ -398,11 +406,11 @@ esac
 # check_for_frames () {
 #     local EMACS_SERVER=$1
 #     [[ ${#EMACS_SERVER} -eq 0 ]] && \
-#         printf "You must specify a daemon!\n"
+    #         printf "You must specify a daemon!\n"
 
 #     containsElement "${socket}" "${arrSockets[@]}"
 #     [[ $?  -eq 0 ]] && \
-#         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
+    #         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 #     return 1
 # }
 
