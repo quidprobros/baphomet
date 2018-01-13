@@ -4,15 +4,18 @@ function cleanup {
     printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
     printf 'Cleaning up ... '
     kill %1 >/dev/null 2>&1
-    (sleep 7;
-     hard_check "${daemon}";
-     [[ $? -eq 0 ]] && slay "${daemon}" >/dev/null 2>&1 ;
+    (sleep 20
+     if hard_check "${daemon}"
+     then
+         slay "${daemon}" >/dev/null 2>&1
+     fi
     ) &
     disown %1
     printf 'done.\n\n'
 
     [[ "${#daemon}" -gt 0 ]] && \
         printf 'Note: The daemon \e[91m%s=\e[0m may have materialized despite interruption.\n' "${daemon^^}" && \
+        printf "Attempting to slay in the background.\\n\\n" && \
         printf "Enter \`baphomet -l\` to be sure.\\n"
     exit
 }
@@ -293,6 +296,9 @@ do
             :
             exit
             ;;
+        --nuke)
+
+            ;;
         --file|-f|--buffer|-b)
             if [[ ${#2} -eq 0 ]]; then
                 printf 'No file or buffer specified!\n';exit
@@ -315,8 +321,8 @@ do
             for daemon in $daemons; do
                 :
                 socket="${EMACS_SOCKET_DIR}/${daemon////!}"
-                containsElement "${socket}" "${arrSockets[@]}"
-                if [[ $? -eq 0 ]]; then
+                if containsElement "${socket}" "${arrSockets[@]}"
+                then
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${LISP_GREET_BUFFER}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
