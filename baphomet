@@ -118,8 +118,8 @@ query_daemon () {
     for s in "${arrSockets[@]}"
     do
         read -r element < <(nc -U "${s}" <<< \
-                            $"-eval ${CMD// /&_}" | \
-                             awk $'NR == 2 {printf $2}')
+                               $"-eval ${CMD// /&_}" | \
+                                awk $'NR == 2 {printf $2}')
         result+=("${element}")
     done
 }
@@ -216,7 +216,7 @@ do
                     case $option in
                         'Return')
                             exec "${0}" -i
-                        ;;
+                            ;;
                         'Quit')
                             exit
                             ;;
@@ -340,6 +340,10 @@ do
             printf 'Watch all daemonic activity.\n'
             exit
             ;;
+        --)
+            EMACS_BUFFER_NAME="${2}"
+            break 3
+            ;;
         -z)
             # for tessting
             echo -e ${#@}
@@ -428,8 +432,10 @@ case $1 in
 esac
 
 
-exec bash --rcfile <(read -r baphomet_shell < \
-                          <(printf '%s' "PS1='\\e[31mBAPHOMET\\e[0m > ' ;\
+case $1 in
+    --shell)
+        exec bash --rcfile <(read -r baphomet_shell < \
+                                  <(printf '%s' "PS1='\\e[31mBAPHOMET\\e[0m > ' ;\
 alias help=\"${0} -h\";\
 alias list=\"${0} -l\";\
 alias start=\"${0} -s\";\
@@ -437,8 +443,10 @@ alias kill=\"${0} -k\";\
 alias kill-all=\"${0} -ka\";\
 alias join=\"${0} -j\";\
 "); printf '%s' "${baphomet_shell}") -i
-exit
 
+        ;;
+
+esac
 
 
 # check_for_frames () {
