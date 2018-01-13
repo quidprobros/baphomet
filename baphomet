@@ -94,6 +94,8 @@ list_sockets () {
     local socket
     local daemon
     :
+    # b=($(basename ${a[@]}))
+    :
     arrSockets=("${EMACS_SOCKET_DIR}"/*)
     arrDaemons=()
     :

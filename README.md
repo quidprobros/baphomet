@@ -39,6 +39,7 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* allow enjoy by final daemon segment if unique
 * should simply open as file if no switches present
 * nested daemons like PHP namespaces
 * finish simple shell
