@@ -17,9 +17,11 @@ function cleanup {
     exit
 }
 trap cleanup TERM INT SIGINT SIGTERM
-
-
-# Execute this script at your own peril!
+:
+:
+shopt -s extglob
+shopt -s nullglob
+shopt -s nocasematch
 :
 case $1 in
     -x|--escape)
@@ -37,10 +39,6 @@ containsElement () {
     for e; do [[ "$e" == "$match" ]] && return 0; done
     return 1
 }
-
-
-shopt -s extglob
-shopt -s nullglob
 
 userTest () {
     [[ ${#1} -ne 0 ]] && USER="${1}"
@@ -101,7 +99,7 @@ list_sockets () {
     for socket in "${arrSockets[@]}"
     do
         if [[ -S $socket ]]; then
-            arrDaemons+=("$(basename ${socket})")
+            arrDaemons+=("$(basename "${socket^^}")")
         fi
     done
 }
@@ -163,7 +161,6 @@ do
                 printf '     DAEMON MENU\n'
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
                 printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
-
 
                 select daemon in "${arrDaemons[@]/%/=}"
                 do
