@@ -39,6 +39,8 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* should simply open as file if no switches present
+* nested daemons like PHP namespaces
 * finish simple shell
 * optional `dialog` support
 * interactive mode should allow buffer name entering

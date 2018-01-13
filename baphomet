@@ -92,6 +92,7 @@ hard_check () {
 
 list_sockets () {
     local socket
+    local daemon
     :
     arrSockets=("${EMACS_SOCKET_DIR}"/*)
     arrDaemons=()
@@ -99,7 +100,8 @@ list_sockets () {
     for socket in "${arrSockets[@]}"
     do
         if [[ -S $socket ]]; then
-            arrDaemons+=("$(basename "${socket^^}")")
+            daemon="$(basename "${socket^^}")"
+            arrDaemons+=("${daemon//!//}")
         fi
     done
 }
@@ -119,6 +121,11 @@ query_daemon () {
         result+=("${element}")
     done
 }
+
+# query_daemon LISP_BUFFER_LIST
+# IFS=$'\&\_'
+# printf '%s' "${result[@]}"
+#exit
 
 message_daemon () {
     local CMD="${!1}"
@@ -305,7 +312,7 @@ do
             :
             for daemon in $daemons; do
                 :
-                socket="${EMACS_SOCKET_DIR}/${daemon}"
+                socket="${EMACS_SOCKET_DIR}/${daemon////!}"
                 containsElement "${socket}" "${arrSockets[@]}"
                 if [[ $? -eq 0 ]]; then
                     exec "${0}" -j "${daemon}" "${@:3}"
