@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=2093
 function cleanup {
     printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
     printf 'Cleaning up ... '
@@ -12,7 +13,7 @@ function cleanup {
 
     [[ "${#daemon}" -gt 0 ]] && \
         printf 'Note: The daemon \e[91m%s=\e[0m may have materialized despite interruption.\n' "${daemon^^}" && \
-        printf 'Enter `baphomet -l` to be sure.\n'
+        printf "Enter \`baphomet -l\` to be sure.\\n"
     exit
 }
 trap cleanup TERM INT SIGINT SIGTERM
@@ -26,7 +27,6 @@ case $1 in
         exit
         ;;
 esac
-
 
 # # # # #
 # U T I L
@@ -57,7 +57,6 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
 EMACS_BUFFER_NAME=
 
-
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
 
@@ -79,7 +78,7 @@ LISP_GREET_BUFFER=$'(with-output-to-temp-buffer
 
 
 
-SCRIPT_NAME=$(basename $0)
+SCRIPT_NAME=$(basename "${0}")
 
 ALTERNATE_EDITOR=""
 EMACS_SERVER="${EMACS_SOCKET_DIR}/server"
@@ -114,9 +113,9 @@ query_daemon () {
     local element
     local CMD="${!1}"
     :
-    for s in ${arrSockets[@]}
+    for s in "${arrSockets[@]}"
     do
-        read element < <(nc -U "${s}" <<< \
+        read -r element < <(nc -U "${s}" <<< \
                             $"-eval ${CMD// /&_}" | \
                              awk $'NR == 2 {printf $2}')
         result+=("${element}")
@@ -132,9 +131,10 @@ message_daemon () {
 }
 
 slay () {
-    local socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
+    local socket
+    socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
     nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
-    printf 'Slaying daemon known as \e[33m%s\e[0m ...' $(basename "${socket/%/=}")
+    printf 'Slaying daemon known as \e[33m%s\e[0m ...' "$(basename "${socket/%/=}")"
     wait
     printf ' done.\n'
     printf ' So slain.\n'
@@ -263,7 +263,7 @@ do
             socket="${EMACS_SOCKET_DIR}/${daemon}"
             if [[ ${#daemon} -eq 0 ]]
             then
-                printf "Choose a daemon to slay:\n" && \
+                printf "Choose a daemon to slay:\\n" && \
                     select sock in "${arrSockets[@]}"
                     do
                         if [[ ${#sock} -eq 0  ]]; then
@@ -278,7 +278,7 @@ do
             if [[ "${#daemon}" -ne 0 ]]; then
                 containsElement "${socket}" "${arrSockets[@]}"
                 if [[ $? -eq 1 ]]; then
-                    printf "No such demon.\n"
+                    printf "No such demon.\\n"
                 else
                     slay "${socket}"
                 fi
@@ -339,9 +339,9 @@ do
             echo -e ${#@}
             ;;
         --help|-h)
-            printf "\x1b[38;2;250;0;0m%s\x1b[0m\n" \
+            printf "\\x1b[38;2;250;0;0m%s\\x1b[0m\\n" \
                    "BAPHOMET -- manage your emacs daemons"
-            printf "\x1b[38;2;100;100;100m"
+            printf "\\x1b[38;2;100;100;100m"
             cat <<'EOF'
  Usage: baphomet [switches] [arguments]
  -h,  --help                      Display help menu
@@ -372,7 +372,7 @@ Examples with a daemon named 'joey'
 
 Disclaimer: Execute this script at your own peril.
 EOF
-            printf "\x1b[0m"
+            printf "\\x1b[0m"
             exit
             ;;
         -*)
@@ -405,7 +405,7 @@ case $1 in
                     ;;
                 'Summon')
                     printf '\n\e[31mName your daemon\e[0m: '
-                    read daemon
+                    read -r daemon
                     [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
                     INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
                     ;;
@@ -422,15 +422,15 @@ case $1 in
 esac
 
 
-exec bash --rcfile <(read baphomet_shell < \
-                          <(printf "PS1=\"\e[31mBAPHOMET\e[0m\ > \" ;\
+exec bash --rcfile <(read -r baphomet_shell < \
+                          <(printf '%s' "PS1='\\e[31mBAPHOMET\\e[0m > ' ;\
 alias help=\"${0} -h\";\
 alias list=\"${0} -l\";\
 alias start=\"${0} -s\";\
 alias kill=\"${0} -k\";\
 alias kill-all=\"${0} -ka\";\
 alias join=\"${0} -j\";\
-"); printf "${baphomet_shell}") -i
+"); printf '%s' "${baphomet_shell}") -i
 exit
 
 
@@ -450,16 +450,10 @@ exit
 # socket="${EMACS_SOCKET_DIR}/${daemon}"
 socket="${arrSockets[0]}"
 [[ ${#socket} -gt 0 ]] && \
-    daemon="$(basename ${socket})" && \
+    daemon="$(basename "${socket}")" && \
     exec "${0}" -j "${daemon}" && exit
 
 exec "${0}" -s
-wait
-
-exit 0
-
-
-
 
 # containsElement "${socket}" "${arrSockets[@]}"
 # if [[ $? -ne 0 ]]; then
