@@ -175,7 +175,7 @@ do
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
                 printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
 
-                select daemon in "${arrDaemons[@]/%/=}" "Quit"
+                select daemon in "${arrDaemons[@]/%/=}" "${OFFER/%/=}" "Quit" 
                 do
 		    [[ "${daemon^^}" == "QUIT"  ]] && \
 			printf '\nBye.\n\n' && \
@@ -184,7 +184,6 @@ do
                     if [[ $INTERACTIVE == TRUE ]]; then
                         case $daemon in
                             'back')
-                                echo shit
                                 exec "${0}" -i
                                 exit
                                 ;;
@@ -206,7 +205,7 @@ do
                 exit
             else
                 printf '\e[31mDaemon not found!\e[0m\n'
-                exec "${0}" -j
+                OFFER="${daemon}" exec "${0}" -j
                 exit 1
             fi
             exit
