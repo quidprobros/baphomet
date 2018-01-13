@@ -445,9 +445,7 @@ alias join=\"${0} -j\";\
 "); printf '%s' "${baphomet_shell}") -i
 
         ;;
-
 esac
-
 
 # check_for_frames () {
 #     local EMACS_SERVER=$1
