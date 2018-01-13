@@ -175,8 +175,12 @@ do
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
                 printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
 
-                select daemon in "${arrDaemons[@]/%/=}"
+                select daemon in "${arrDaemons[@]/%/=}" "Quit"
                 do
+		    [[ "${daemon^^}" == "QUIT"  ]] && \
+			printf '\nBye.\n\n' && \
+			exit 0
+		    :
                     if [[ $INTERACTIVE == TRUE ]]; then
                         case $daemon in
                             'back')
@@ -186,7 +190,7 @@ do
                                 ;;
                         esac
                     fi
-		                exec "${0}" -j "${daemon}"
+		    exec "${0}" -j "${daemon}"
                 done
                 exit
             fi
@@ -212,7 +216,7 @@ do
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf '|- No daemons found.\n';exit
             fi
-            printf '|- \e[33m%s\e[0m\n' "${arrDaemons[@]/%/=}"
+            printf '|- \e[33m%s\e[0m\n' "${arrDaemons[*]:0:4}"
             if  [[ $INTERACTIVE == TRUE ]]; then
                 printf '\n\n\e[31mWhat do you desire?\e[0m\n'
                 select option in 'Return' 'Quit'
