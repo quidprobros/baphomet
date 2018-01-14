@@ -60,7 +60,6 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
 DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*") (with-current-buffer (get-buffer-create baphomet-buffer)) (switch-to-buffer baphomet-buffer))'
 
-
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
@@ -70,13 +69,6 @@ LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
-LISP_GREET_BUFFER=$'(with-temp-message "BAPHOMET WELCOMES YOU")'
-# LISP_GREET_BUFFER=$''"'"'(with-current-buffer (get-buffer-create "asdfdemo")
-#                   (erase-buffer)
-#                   (insert "FAK")
-#                   (pop-to-buffer (current-buffer)))'"'"''
-
-
 ALTERNATE_EDITOR=""
 
 
@@ -326,7 +318,7 @@ do
                     printf ' done. \n'
                     printf 'So summoned.\n'
                     [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
-                        exec "${0}" -b "${EMACS_BUFFER_NAME}" -j "${daemon}"
+                        EMACS_BUFFER_NAME="SHIT" exec "${0}" -j "${daemon}"
                 fi
             done
             exit
@@ -466,28 +458,3 @@ daemon="$(basename "${socket}")"
 
 printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
 exec "${0}" --interactive
-
-# containsElement "${socket}" "${arrSockets[@]}"
-# if [[ $? -ne 0 ]]; then
-#     QUICK=1 exec $0 -s "${EMACS_SERVER}" &
-# else
-#     EMACS_SERVER="${arrSockets[0]}"
-# fi
-# wait
-# exit
-
-# check_for_frames "${EMACS_SERVER}"
-# if [ "$?" -eq 0 ]; then
-#     cmd='emacsclient -c -s '
-# else
-#     cmd='emacsclient -s '
-# fi
-
-
-# [[ ${#EMACS_BUFFER_NAME} -eq 0 ]] && EMACS_BUFFER_NAME="${EMACS_BUFFER_DEFAULT}"
-
-# # when no arguments supplies, join the first daemon
-# if [[ ${#@} -eq 0 ]]; then
-#     exec eval "${cmd} ${EMACS_SERVER} -e ${LISP_GREET_BUFFER}"
-#     exit
-# fi
