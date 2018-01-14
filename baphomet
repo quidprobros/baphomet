@@ -301,9 +301,6 @@ do
             :
             exit
             ;;
-        --nuke)
-
-            ;;
         --file|-f|--buffer|-b)
             if [[ ${#2} -eq 0 ]]; then
                 printf 'No file or buffer specified!\n';exit
@@ -356,8 +353,9 @@ do
             break 3
             ;;
         -z)
-            # for tessting
-            echo -e ${#@}
+            # for testing
+            echo -e ${@}
+            exit
             ;;
         --help|-h)
             printf "\\x1b[38;2;250;0;0m%s\\x1b[0m\\n" \
