@@ -177,7 +177,7 @@ do
 		                :
                     if [[ $INTERACTIVE == TRUE ]]
                     then
-                        printf 'Name a buffer or file by absolute path: '
+                        printf '\n\e[31mName a buffer or file by absolute path\e[0m: '
                         read -r EMACS_BUFFER_NAME
                         break
                     fi
@@ -427,6 +427,8 @@ case ${@:1:1} in
     --shell)
         exec bash --rcfile <(read -r baphomet_shell < \
                                   <(printf '%s' "PS1='\\e[31mBAPHOMET\\e[0m > ' ;\
+cd $EMACS_SOCKET_DIR;\
+alias ls=\"ls -lF\";\
 alias help=\"${0} -h\";\
 alias list=\"${0} -l\";\
 alias start=\"${0} -s\";\
