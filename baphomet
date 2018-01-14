@@ -426,7 +426,7 @@ esac
 case ${@:1:1} in
     --shell)
         exec bash --rcfile <(read -r baphomet_shell < \
-                                  <(printf '%s' "PS1='\\e[31mBAPHOMET\\e[0m > ' ;\
+                                  <(printf '%s' "PS1='\\e[35mBAPHOMET\\e[0m > ' ;\
 cd $EMACS_SOCKET_DIR;\
 alias ls=\"ls -lF\";\
 alias help=\"${0} -h\";\
@@ -436,7 +436,6 @@ alias kill=\"${0} -k\";\
 alias kill-all=\"${0} -ka\";\
 alias join=\"${0} -j\";\
 "); printf '%s' "${baphomet_shell}") -i
-
         ;;
 esac
 
