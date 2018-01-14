@@ -58,6 +58,9 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
 
+DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*") (with-current-buffer (get-buffer-create baphomet-buffer)) (switch-to-buffer baphomet-buffer))'
+
+
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
@@ -189,7 +192,9 @@ do
 
             if containsElement "${socket}" "${arrSockets[@]}"
             then
+                #(setq view-read-only t)
                 exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
+                #
             else
                 printf '\e[31mDaemon not found!\e[0m\n'
                 OFFER="${daemon}" exec "${0}" -j
@@ -315,7 +320,7 @@ do
                 then
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
-                    \emacs --eval "${LISP_GREET_BUFFER}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
+                    \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
                     printf ' done. \n'
@@ -345,18 +350,19 @@ do
             printf "\\x1b[38;2;100;100;100m"
             cat <<'EOF'
  Usage: baphomet [switches] [arguments]
- -h,  --help                      Display help menu
- -s,  --start [name]              Start a daemon with name 'name'
+ -h,  --help                      Display (this) help menu
+ -s,  --start [name[,name2]]      Start one or more daemons,
+                                        comma separated
  -k,  --kill, --stop [name]       Stop a daemon with name 'name'
  -ka, --kill-all                  Stop all daemons
- -j,  --join [name] -b [buffer]   Join a daemon with name 'name' and
-                                       create a new buffer 'buffer'
+ -j,  --join [name]               Join a daemon with name 'name'
  -l,  --list                      List known daemons
  -lv, --list-verbose              List daemons and file buffer count
  -lvv, --list-very-verbose        List daemons and file buffer count
                                        and daemon PID
- -i,  --interactive               Interactive mode
 
+ -i,  --interactive               Interactive mode
+ --shell                          Interactive shell mode
  -x,  --escape                    Exit script, run emacs as normal
 
 
@@ -456,7 +462,7 @@ esac
 socket="${arrSockets[0]}"
 daemon="$(basename "${socket}")"
 [[ ${#socket} -gt 0 ]] && \
-    EMACS_BUFFER_NAME=${1:-'BAPHOMET WELCOMES YOU'} exec "${0}" -j "${daemon}"
+    EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
 
 printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
 exec "${0}" --interactive
