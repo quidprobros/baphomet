@@ -106,13 +106,15 @@ list_sockets () {
     for socket in "${arrSockets[@]}"
     do
         if [[ -S $socket ]]; then
-            daemon="$(basename "${socket^^}")"
-            arrDaemons+=("${daemon//!//}")
+            arrDaemons+=("$(basename "${socket^^}")")
+#            arrDaemons+=("${daemon//!//}")
         fi
     done
 }
 # generate sockets array
 list_sockets
+
+
 
 query_daemon () {
     unset result
@@ -175,7 +177,7 @@ do
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
                 printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
 
-                select daemon in "${arrDaemons[@]/%/=}" "${OFFER/%/=}" "Quit" 
+                select daemon in "${arrDaemons[@]//!//}" ${OFFER:+"Commune with $OFFER="} "Quit" 
                 do
 		    [[ "${daemon^^}" == "QUIT"  ]] && \
 			printf '\nBye.\n\n' && \
@@ -194,7 +196,7 @@ do
                 exit
             fi
             :
-            socket="${EMACS_SOCKET_DIR}/${daemon}"
+            socket="${EMACS_SOCKET_DIR}/${daemon////!}"
             containsElement "${socket}" "${arrSockets[@]}"
             if [[ $? -eq 0 ]]; then
                 if [[ ${#EMACS_BUFFER_NAME} -eq 0 ]]; then
@@ -215,7 +217,7 @@ do
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf '|- No daemons found.\n';exit
             fi
-            printf '|- \e[33m%s\e[0m\n' "${arrDaemons[*]:0:4}"
+            printf '|- \e[33m%s\e[0m\n' "${arrDaemons[@]//!//}"
             if  [[ $INTERACTIVE == TRUE ]]; then
                 printf '\n\n\e[31mWhat do you desire?\e[0m\n'
                 select option in 'Return' 'Quit'
@@ -324,7 +326,7 @@ do
             :
             for daemon in $daemons; do
                 :
-                socket="${EMACS_SOCKET_DIR}/${daemon////!}"
+                socket="${EMACS_SOCKET_DIR}/${daemon}"
                 if containsElement "${socket}" "${arrSockets[@]}"
                 then
                     exec "${0}" -j "${daemon}" "${@:3}"
