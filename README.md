@@ -1,11 +1,14 @@
 DISCLAIMER -- use at your own peril!
 
 
+Requirement: Um, it works with bash 4.4.12...otherwise, test it out (soz).
+
+
 ````bash
 BAPHOMET -- manage your emacs daemons
  Usage: baphomet [switches] [arguments]
  -h,  --help                      Display help menu
- -s,  --start [name[,name2]]              Start a daemon with name 'name'
+ -s,  --start [name[,name2]]           Start a daemon with name 'name'
  -k,  --kill, --stop [name]       Stop a daemon with name 'name'
  -ka, --kill-all                  Stop all daemons
  -j,  --join [name] -b [buffer]   Join a daemon with name 'name' and

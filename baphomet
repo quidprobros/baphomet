@@ -53,10 +53,8 @@ userTest () {
     fi
     return 0
 }
-userTest
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
-
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
 
@@ -90,8 +88,6 @@ list_sockets () {
     local socket
     local daemon
     :
-    # b=($(basename ${a[@]}))
-    :
     arrSockets=("${EMACS_SOCKET_DIR}"/*)
     arrDaemons=()
     :
@@ -99,13 +95,11 @@ list_sockets () {
     do
         if [[ -S $socket ]]; then
             arrDaemons+=("$(basename "${socket^^}")")
-            #            arrDaemons+=("${daemon//!//}")
         fi
     done
 }
 # generate sockets array
 list_sockets
-
 
 
 query_daemon () {
@@ -157,15 +151,15 @@ do
         -i|--interactive|--shell)
             break  3
             ;;
-        # -u|--user)
-        #     [[ ${#2} -eq 0 ]] && \
-            #         printf 'A user must be specified!\n' && exit 1
-        #     userTest "${2}"
-        #     [[ $? -eq 1 ]] && exit 1
-        #     :
-        #     EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
-        #     #cmd_user=$"--user ${USER}"
-        #     ;;
+        -u|--user)
+            UZR="${2}"
+            [[ ${#UZR} -eq 0 ]] && \
+                    printf 'A user must be specified!\n' && exit 1
+            if ! userTest "${UZR}"; then exit 1; fi
+            :
+            shift 2
+            USER="${UZR}" exec "${0}" "${@}"
+            ;;
         --join|-j)
             daemon="${2//=/}"
             if [[ ${#daemon} -eq 0 ]]; then
@@ -181,19 +175,18 @@ do
 			                  printf '\nBye.\n\n' && \
 			                  exit 0
 		                :
-                    if [[ $INTERACTIVE == TRUE ]]; then
-                        case $daemon in
-                            'back')
-                                exec "${0}" -i
-                                ;;
-                        esac
+                    if [[ $INTERACTIVE == TRUE ]]
+                    then
+                        printf 'Name a buffer or file by absolute path: '
+                        read -r EMACS_BUFFER_NAME
+                        break
                     fi
 		                exec "${0}" -j "${daemon}"
                 done
-                exit
             fi
             :
             socket="${EMACS_SOCKET_DIR}/${daemon}"
+
             if containsElement "${socket}" "${arrSockets[@]}"
             then
                 exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
@@ -208,7 +201,8 @@ do
             if [[ ${#arrSockets[*]} -eq 0 ]]; then
                 printf '|- No daemons found.\n';exit
             fi
-            printf '|- \e[33m%s\e[0m\n' "${arrDaemons[@]:1:3}"
+
+            printf '|- \e[33m%s\e[0m\n' "${arrDaemons[@]/%/=}"
             if  [[ $INTERACTIVE == TRUE ]]; then
                 printf '\n\n\e[31mWhat do you desire?\e[0m\n'
                 select option in 'Return' 'Quit'
@@ -428,6 +422,7 @@ case ${@:1:1} in
 esac
 
 
+
 case ${@:1:1} in
     --shell)
         exec bash --rcfile <(read -r baphomet_shell < \
@@ -453,6 +448,10 @@ esac
     #         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 #     return 1
 # }
+
+#printf $1;exit
+
+
 socket="${arrSockets[0]}"
 daemon="$(basename "${socket}")"
 [[ ${#socket} -gt 0 ]] && \
