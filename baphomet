@@ -57,7 +57,6 @@ userTest
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
-EMACS_BUFFER_NAME=
 
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
@@ -107,7 +106,7 @@ list_sockets () {
     do
         if [[ -S $socket ]]; then
             arrDaemons+=("$(basename "${socket^^}")")
-#            arrDaemons+=("${daemon//!//}")
+            #            arrDaemons+=("${daemon//!//}")
         fi
     done
 }
@@ -177,12 +176,12 @@ do
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
                 printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
 
-                select daemon in "${arrDaemons[@]//!//}" ${OFFER:+"Commune with $OFFER="} "Quit" 
+                select daemon in "${arrDaemons[@]//!//}" ${OFFER:+"Commune with $OFFER="} "Quit"
                 do
-		    [[ "${daemon^^}" == "QUIT"  ]] && \
-			printf '\nBye.\n\n' && \
-			exit 0
-		    :
+		                [[ "${daemon^^}" == "QUIT"  ]] && \
+			                  printf '\nBye.\n\n' && \
+			                  exit 0
+		                :
                     if [[ $INTERACTIVE == TRUE ]]; then
                         case $daemon in
                             'back')
@@ -191,7 +190,7 @@ do
                                 ;;
                         esac
                     fi
-		    exec "${0}" -j "${daemon}"
+		                exec "${0}" -j "${daemon}"
                 done
                 exit
             fi
@@ -471,13 +470,13 @@ esac
 # }
 
 
-# socket="${EMACS_SOCKET_DIR}/${daemon}"
 socket="${arrSockets[0]}"
+daemon="$(basename "${socket}")"
 [[ ${#socket} -gt 0 ]] && \
-    daemon="$(basename "${socket}")" && \
-    exec "${0}" -j "${daemon}" && exit
+     EMACS_BUFFER_NAME="${1}" exec "${0}" -j "${daemon}"
 
-exec "${0}" -s
+printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
+exec "${0}" --interactive
 
 # containsElement "${socket}" "${arrSockets[@]}"
 # if [[ $? -ne 0 ]]; then
