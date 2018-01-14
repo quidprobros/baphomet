@@ -70,20 +70,14 @@ LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
-LISP_GREET_BUFFER=$'(with-output-to-temp-buffer
-		"You are free." (print "BAPHOMET WELCOMES YOU"))'
+LISP_GREET_BUFFER=$'(with-temp-message "BAPHOMET WELCOMES YOU")'
 # LISP_GREET_BUFFER=$''"'"'(with-current-buffer (get-buffer-create "asdfdemo")
 #                   (erase-buffer)
 #                   (insert "FAK")
 #                   (pop-to-buffer (current-buffer)))'"'"''
 
 
-
-SCRIPT_NAME=$(basename "${0}")
-
 ALTERNATE_EDITOR=""
-EMACS_SERVER="${EMACS_SOCKET_DIR}/server"
-EMACS_SERVER_RANDOM=""
 
 
 hard_check () {
@@ -129,12 +123,8 @@ query_daemon () {
     done
 }
 
-# query_daemon LISP_BUFFER_LIST
-# IFS=$'\&\_'
-# printf '%s' "${result[@]}"
-#exit
-
 message_daemon () {
+    unset CMD
     local CMD="${!1}"
     if [[ "${#2}" -gt 0 ]]; then
         nc -U "${2}" <<< \
@@ -151,6 +141,16 @@ slay () {
     printf ' done.\n'
     printf ' So slain.\n'
 }
+
+sanitize () {
+    unset result
+    :
+    result="${1//[^a-zA-Z0-9\/]/}"
+    result="${result////!}"
+    result="${result%!}"
+    result="${result#!}"
+}
+
 
 while [[ ${#@} -ne 0 ]]
 do
@@ -186,7 +186,6 @@ do
                         case $daemon in
                             'back')
                                 exec "${0}" -i
-                                exit
                                 ;;
                         esac
                     fi
@@ -196,18 +195,12 @@ do
             fi
             :
             socket="${EMACS_SOCKET_DIR}/${daemon////!}"
-            containsElement "${socket}" "${arrSockets[@]}"
-            if [[ $? -eq 0 ]]; then
-                if [[ ${#EMACS_BUFFER_NAME} -eq 0 ]]; then
-		                exec emacsclient -q -c -s "${socket}" -e "${LISP_GREET_BUFFER}" "${@:3}"
-                else
-                    exec emacsclient -q -c -s "${socket}" -- "${EMACS_BUFFER_NAME}"
-                fi
-                exit
+            if containsElement "${socket}" "${arrSockets[@]}"
+            then
+                exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
             else
                 printf '\e[31mDaemon not found!\e[0m\n'
                 OFFER="${daemon}" exec "${0}" -j
-                exit 1
             fi
             exit
             ;;
@@ -278,7 +271,7 @@ do
             if [[ ${#daemon} -eq 0 ]]
             then
                 printf "Choose a daemon to slay:\\n" && \
-                    select sock in "${arrSockets[@]}"
+                    select sock in "${arrDaemons[@]}"
                     do
                         if [[ ${#sock} -eq 0  ]]; then
                             printf '\e[31mBad choice.\e[0m\n'
@@ -322,16 +315,16 @@ do
             :
             for daemon in $daemons; do
                 :
+                sanitize "${daemon}"
+                daemon="${result}"
                 socket="${EMACS_SOCKET_DIR}/${daemon}"
                 if containsElement "${socket}" "${arrSockets[@]}"
                 then
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${LISP_GREET_BUFFER}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-                    emacs_pid=$!
                     printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
                     wait %1
-		                emacs_pid2=$!
                     printf ' done. \n'
                     printf 'So summoned.\n'
                     [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
