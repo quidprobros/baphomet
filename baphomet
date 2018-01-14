@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=2093
+#set -x
+set -u
 function cleanup {
     printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
     printf 'Cleaning up ... '
@@ -27,13 +29,12 @@ shopt -s extglob
 shopt -s nullglob
 shopt -s nocasematch
 :
-case $1 in
+case ${@:1:1} in
     -x|--escape)
         exec command emacs "${@:2}"
         exit
         ;;
 esac
-
 # # # # #
 # U T I L
 # # # # #
@@ -45,7 +46,7 @@ containsElement () {
 }
 
 userTest () {
-    [[ ${#1} -ne 0 ]] && USER="${1}"
+    [[ ${#@} -ne 0 ]] && USER="${1}"
     :
     id -u "${USER}" >/dev/null 2>&1
     if [[ $? -eq 1 ]]; then
@@ -144,6 +145,7 @@ slay () {
 
 sanitize () {
     unset result
+
     :
     result="${1//[^a-zA-Z0-9\/]/}"
     result="${result////!}"
@@ -394,7 +396,8 @@ EOF
 done
 
 
-case $1 in
+
+case ${@:1:1} in
     -i|--interactive)
         printf '\e[33m%.0s-' {1..20}; printf '\n'
         printf '     MAIN MENU\n'
@@ -427,7 +430,7 @@ case $1 in
 esac
 
 
-case $1 in
+case ${@:1:1} in
     --shell)
         exec bash --rcfile <(read -r baphomet_shell < \
                                   <(printf '%s' "PS1='\\e[31mBAPHOMET\\e[0m > ' ;\
@@ -457,7 +460,7 @@ esac
 socket="${arrSockets[0]}"
 daemon="$(basename "${socket}")"
 [[ ${#socket} -gt 0 ]] && \
-    EMACS_BUFFER_NAME="${1}" exec "${0}" -j "${daemon}"
+    EMACS_BUFFER_NAME="${@:1:1}" exec "${0}" -j "${daemon}"
 
 printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
 exec "${0}" --interactive
