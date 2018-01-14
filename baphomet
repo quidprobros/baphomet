@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # shellcheck disable=2093
 #set -x
-set -u
+#set -u
 shopt -s extglob
 shopt -s nullglob
 shopt -s nocasematch
@@ -56,9 +56,6 @@ userTest () {
 userTest
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
-
-INTERACTIVE=
-EMACS_BUFFER_NAME=
 
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
@@ -345,6 +342,7 @@ do
             ;;
         --)
             EMACS_BUFFER_NAME="${2}"
+            shift
             break 3
             ;;
         --help|-h)
@@ -455,12 +453,10 @@ esac
     #         emacsclient -n -s "${EMACS_SERVER}" -e "${LISP_FRAME_CHECK}" | grep t > /dev/null 2>&1 && return $?
 #     return 1
 # }
-
-
 socket="${arrSockets[0]}"
 daemon="$(basename "${socket}")"
 [[ ${#socket} -gt 0 ]] && \
-    EMACS_BUFFER_NAME="${@:1:1}" exec "${0}" -j "${daemon}"
+    EMACS_BUFFER_NAME=${1:-'BAPHOMET WELCOMES YOU'} exec "${0}" -j "${daemon}"
 
 printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
 exec "${0}" --interactive
