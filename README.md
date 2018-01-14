@@ -19,6 +19,8 @@ BAPHOMET -- manage your emacs daemons
                                        and daemon PID
  -i,  --interactive               Interactive mode
 
+ --shell                         Interactive shell mode
+
  -x,  --escape                    Exit script, run emacs as normal
 
 
