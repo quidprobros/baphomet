@@ -114,21 +114,6 @@ query_daemon () {
     done
 }
 
-query_this_daemon () {
-    unset result
-    local element
-    local CMD="${!1}"
-    :
-    for s in "${2}"
-    do
-        read -r element < <(nc -U "${s}" <<< \
-                               $"-eval ${CMD// /&_}" | \
-                                awk $'NR == 2 {printf $2}')
-        result+=("${element}")
-    done
-}
-
-
 message_daemon () {
     unset CMD
     local CMD="${!1}"
