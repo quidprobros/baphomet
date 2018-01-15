@@ -66,7 +66,8 @@ LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
 :
-LISP_BUFFER_LIST=$'(format "%s" (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
+LISP_BUFFER_LIST=$'(delete '"'"'nil (mapcar '"'"'buffer-file-name (buffer-list)))'
+BS=$'(buffer-list)'
 :
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
@@ -108,10 +109,25 @@ query_daemon () {
     do
         read -r element < <(nc -U "${s}" <<< \
                                $"-eval ${CMD// /&_}" | \
+                                awk $'FNR == 2 {printf $2}')
+        result+=("${element//&_/}")
+    done
+}
+
+query_this_daemon () {
+    unset result
+    local element
+    local CMD="${!1}"
+    :
+    for s in "${2}"
+    do
+        read -r element < <(nc -U "${s}" <<< \
+                               $"-eval ${CMD// /&_}" | \
                                 awk $'NR == 2 {printf $2}')
         result+=("${element}")
     done
 }
+
 
 message_daemon () {
     unset CMD
@@ -331,6 +347,11 @@ do
             ;;
         -W)
             printf 'Watch all daemonic activity.\n'
+            exit
+            ;;
+        -z)
+            query_daemon LISP_BUFFER_LIST
+            printf "${result[@]}"
             exit
             ;;
         --)
