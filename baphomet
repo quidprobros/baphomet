@@ -66,8 +66,7 @@ LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
 :
-LISP_BUFFER_LIST=$'(delete '"'"'nil (mapcar '"'"'buffer-file-name (buffer-list)))'
-BS=$'(buffer-list)'
+LISP_BUFFER_LIST=$'(mapconcat '"'"'identity (delete '"'"'nil (mapcar '"'"'buffer-file-name (buffer-list))) "+++")'
 :
 LISP_PID=$'(emacs-pid)'
 LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
@@ -239,7 +238,8 @@ do
         --list-buffers|-lb)
             query_daemon LISP_BUFFER_LIST
             printf '\e[37;4;2m%-20s %s\e[0m\n' "Daemon" "File buffers"
-            paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffersData[@]}")
+            printf '%s' "${result[@]}"|tr "+++" "\\n"
+            #paste <(printf '|- \e[33m%-20s\e[0m\n' "${arrSockets[@]/%/=}") <(printf '%s\n' "${arrBuffersData[@]}")
             exit
             ;;
         --kill-all|-ka)
