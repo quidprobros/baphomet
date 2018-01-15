@@ -110,7 +110,7 @@ query_daemon () {
         read -r element < <(nc -U "${s}" <<< \
                                $"-eval ${CMD// /&_}" | \
                                 awk $'FNR == 2 {printf $2}')
-        result+=("${element//&_/}")
+        result+=("${element}")
     done
 }
 
@@ -336,7 +336,8 @@ do
             ;;
         -z)
             query_daemon LISP_BUFFER_LIST
-            printf "${result[@]}"
+            r="${result[@]//[^a-zA-Z0-9\/\&\_]/}"
+            printf '%s' "${r}"
             exit
             ;;
         --)
