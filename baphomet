@@ -58,7 +58,9 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
 
-DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*") (with-current-buffer (get-buffer-create baphomet-buffer)) (switch-to-buffer baphomet-buffer))'
+DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
+(with-current-buffer (get-buffer-create baphomet-buffer))
+(switch-to-buffer baphomet-buffer))'
 
 LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
@@ -424,8 +426,10 @@ esac
 case ${@:1:1} in
     --shell)
         exec bash --rcfile <(read -r baphomet_shell < \
-                                  <(printf '%s' "PS1='\\e[35mBAPHOMET\\e[0m > ' ;\
+                                  <(printf '%s' "PS1='\\e[38;5;196mBAPHOMET\\e[0m > ' ;\
+trap \"printf '%s\\n\\n' $'\\111\\47\\154\\154\\40 \\142\\145\\40 \\163\\145\\145\\151\\156\\147\\40 \\171\\157\\165\\56' \"  EXIT;\
 cd $EMACS_SOCKET_DIR;\
+tput clear;\
 alias ls=\"ls -lF\";\
 alias help=\"${0} -h\";\
 alias list=\"${0} -l\";\
