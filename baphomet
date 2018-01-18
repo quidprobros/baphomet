@@ -198,7 +198,7 @@ do
             t=("${arrDaemons[@]//\!/\/}")
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[38;5;196m%s\e[0m\n' "Daemons"
-            printf '|- \e[33m%s=\e[0m\n' "${t[@]:-No daemons found.}"
+            printf '%s|- \e[33m%s=\e[0m\n' "d" "${t[@]:-No daemons found.}"
 
             if  [[ $INTERACTIVE == TRUE ]]; then
                 printf '\n\n\e[31mWhat do you desire?\e[0m\n'
