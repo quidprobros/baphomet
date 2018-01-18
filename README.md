@@ -44,6 +44,7 @@ Disclaimer: Execute this script at your own peril.
 
 TO-DO
 ===
+* in cases where user attempts to open a file when no daemon exists, be sure to open file after daemon summoned
 * interactive mode should also list file buffers
 * make sure you can just open a file without switches
 * allow enjoy by final daemon segment if unique
