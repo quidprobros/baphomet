@@ -219,7 +219,7 @@ do
             query_daemon "${LISP_PID}"; arr_pids=("${result[@]}")
             :
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]}") <(printf '%s\n' $'Files #' "${arrBuffers[@]}") <(printf '%s\n' $'PID' "${arr_pids[@]}") |sed $'s/\t/,|,/g' |  column -s ',' -t
+            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]:- none}") <(printf '%s\n' $'Files #' "${arrBuffers[@]:- –}") <(printf '%s\n' $'PID' "${arr_pids[@]:- –}") |sed $'s/\t/,|,/g' |  column -s ',' -t
             :
             exit
             ;;
@@ -227,7 +227,7 @@ do
             query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
             :
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]}") <(printf '%s\n' $'Files #' "${arrBuffers[@]}") |sed $'s/\t/,|,/g' |  column -s ',' -t
+            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]:- None found}") <(printf '%s\n' $'Files #' "${arrBuffers[@]- –}") |sed $'s/\t/,|,/g' |  column -s ',' -t
             exit
             ;;
         --list-buffers|-lb)
