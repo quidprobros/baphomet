@@ -144,8 +144,10 @@ sanitize () {
 
 
 msg () {
-    if [[ $1 -eq 404 ]]; then
-        printf 'The daemon \e[31m%s\e[0m was not found!\n' ${2:+"${2^^}="}
+    if [[ $1 -eq 400 ]]; then
+        printf '\e[31mBad choice.\e[0m\n'
+    elif [[ $1 -eq 404 ]]; then
+        printf 'The daemon \e[31m\b%s\e[0m was not found!\n' ${2:+" ${2^^}="}
     elif [[ $1 -eq 0404 ]]; then
         printf 'No daemons to slay.\n'
     fi
@@ -280,7 +282,7 @@ do
                     select sock in $(printf '\e[33m%s=\e[0m\n' "${arrDaemons[@]//\!/\/}")
                     do
                         if [[ ${#sock} -eq 0  ]]; then
-                            printf '\e[31mBad choice.\e[0m\n'
+                            msg 400
                             exec "${0}" -k
                         fi
                         slay "${sock}"
@@ -291,7 +293,7 @@ do
             if [[ "${#daemon}" -ne 0 ]]; then
                 containsElement "${socket}" "${arrSockets[@]}"
                 if [[ $? -eq 1 ]]; then
-                    printf "No such demon.\\n"
+                    msg 404 "${daemon}"
                 else
                     slay "${socket}"
                 fi
