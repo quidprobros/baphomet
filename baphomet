@@ -114,7 +114,7 @@ query_daemon () {
 
 message_daemon () {
     unset CMD
-    local CMD="${!1}"
+    local CMD="${1}"
     if [[ "${#2}" -gt 0 ]]; then
         nc -U "${2}" <<< \
            $"-eval ${CMD// /&_}"
@@ -198,7 +198,7 @@ do
             t=("${arrDaemons[@]//\!/\/}")
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[38;5;196m%s\e[0m\n' "Daemons"
-            printf '%s|- \e[33m%s=\e[0m\n' "d" "${t[@]:-No daemons found.}"
+            printf '|- \e[33m%s=\e[0m\n' "${t[@]:-No daemons found.}"
 
             if  [[ $INTERACTIVE == TRUE ]]; then
                 printf '\n\n\e[31mWhat do you desire?\e[0m\n'
@@ -355,37 +355,38 @@ do
             printf "\\x1b[38;2;250;0;0m%s\\x1b[0m\\n" \
                    "BAPHOMET -- manage your emacs daemons"
             printf "\\x1b[38;2;100;100;100m"
-            #     cat <<'EOF'
-            # Usage: baphomet [switches] [arguments]
-            # -h,  --help                      Display (this) help menu
-            # -s,  --start [name[,name2]]      Start one or more daemons,
-            # comma separated
-            # -k,  --kill, --stop [name]       Stop a daemon with name 'name'
-            # -ka, --kill-all                  Stop all daemons
-            # -j,  --join [name]               Join a daemon with name 'name'
-            # -l,  --list                      List known daemons
-            # -lv, --list-verbose              List daemons and file buffer count
-            # -lvv, --list-very-verbose        List daemons and file buffer count
-            # and daemon PID
+            cat <<'EOF'
+   Usage: baphomet [switches] [arguments]
+   -h,  --help                      Display (this) help menu
+   -s,  --start [name[,name2]]      Start one or more daemons,
+   comma separated
+   -k,  --kill, --stop [name]       Stop a daemon with name 'name'
+   -ka, --kill-all                  Stop all daemons
+   -j,  --join [name]               Join a daemon with name 'name'
+   -l,  --list                      List known daemons
+   -lv, --list-verbose              List daemons and file buffer count
+   -lvv, --list-very-verbose        List daemons and file buffer count
+   and daemon PID
 
-            # -i,  --interactive               Interactive mode
-            # --shell                          Interactive shell mode
-            # -x,  --escape                    Exit script, run emacs as normal
+   -i,  --interactive               Interactive mode
+   --shell                          Interactive shell mode
+   -x,  --escape                    Exit script, run emacs as normal
 
 
-            # Note:
-            # When called without arguments, baphomet starts a new daemon
-            # if necessary and opens a buffer with a default name.
-            # When called with only a buffer or filename, baphomet joins any daemon
-            # and creates buffer with specified name.
+   Note:
+   When called without arguments, baphomet starts a new daemon
+   if necessary and opens a buffer with a default name.
+   When called with only a buffer or filename, baphomet joins any daemon
+   and creates buffer with specified name.
 
-            # Examples with a daemon named 'joey'
-            # start daemon: baphomet --start joey
-            # stop daemon:  baphomet --stop joey
-            # join daemon:  baphomet --join joey
+   Examples with a daemon named 'joey'
+   start daemon: baphomet --start joey
+   stop daemon:  baphomet --stop joey
+   join daemon:  baphomet --join joey
 
-            # Disclaimer: Execute this script at your own peril.
-            # EOF
+   Disclaimer: Execute this script at your own peril.
+EOF
+
             printf "\\x1b[0m"
             exit
             ;;
