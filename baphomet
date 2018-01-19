@@ -94,8 +94,7 @@ list_sockets () {
         fi
     done
     pd=("${arrDaemons[@]//\!/\/}")
- #   pd=("${pd[@]/%/=}")
-#    pd=("${pd[@]/#/\|\- }")
+    pd=("${pd[@]/%/=}")
 }
 # generate sockets array
 list_sockets
@@ -160,6 +159,9 @@ do
             USER="${UZR}" exec "${0}" "${@}"
             ;;
         --join|-j)
+            B_STATE="JOIN"
+            :
+            :
             daemon="${2//=/}"
             if [[ ${#daemon} -eq 0 ]]; then
                 [[ "${#arrSockets[@]}" -eq 0 ]] && printf '|- There are no daemons here.\n' && exit
@@ -185,10 +187,11 @@ do
             fi
             :
             socket="${EMACS_SOCKET_DIR}/${daemon}"
-
             if containsElement "${socket}" "${arrSockets[@]}"
             then
-                exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
+                :
+                shift 2
+                continue
             else
                 printf '\e[31mDaemon not found!\e[0m\n'
                 OFFER="${daemon}" exec "${0}" -j
@@ -311,12 +314,14 @@ do
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${daemon^^}"
-                    wait %1
+                    print_daemon="${daemon^^}"
+                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${print_daemon//\!/\/}"
+                    wait $!
                     printf ' done. \n'
                     printf 'So summoned.\n'
+                    :
                     [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
-                        EMACS_BUFFER_NAME="SHIT" exec "${0}" -j "${daemon}"
+                        EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
                 fi
             done
             exit
@@ -389,9 +394,11 @@ EOF
     esac
     [[ "${#@}" -gt 0 ]] && shift 2
 done
+:
+if [[ ${B_STATE} == "JOIN" ]]; then
+    exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
+fi
 
-echo 'donee test'
-exit
 
 case ${@:1:1} in
     -i|--interactive)
