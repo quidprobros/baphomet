@@ -93,6 +93,9 @@ list_sockets () {
             arrDaemons+=("$(basename "${socket^^}")")
         fi
     done
+    pd=("${arrDaemons[@]//\!/\/}")
+ #   pd=("${pd[@]/%/=}")
+#    pd=("${pd[@]/#/\|\- }")
 }
 # generate sockets array
 list_sockets
@@ -193,10 +196,8 @@ do
             exit
             ;;
         --list|--list-daemons|-l|-ls)
-            t=("${arrDaemons[@]//\!/\/}")
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            printf '\e[33m%s\e[0m\n' $'\e[37;4;2mDaemons\e[0m' "${t[@]:-No daemons found.}"
-
+            printf '\e[33m%s\e[0m\n' $'\e[37;4;2mDaemons\e[0m' "${pd[@]:-No daemons found.}"
             if  [[ $INTERACTIVE == TRUE ]]; then
                 printf '\n\n\e[31mWhat do you desire?\e[0m\n'
                 select option in 'Return' 'Quit'
@@ -218,21 +219,15 @@ do
             query_daemon "${LISP_PID}"; arr_pids=("${result[@]}")
             :
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            paste <(printf '|- \e[33m%s=\e[0m\n' $'\e[38;5;196mDaemons\e[0m' "${arrDaemons[@]//\!/\/}") <(printf '%s\n' $'Files' "${arrBuffers[@]}") <(printf '%s\n' $'\e[38;5;196mFiles\e[0m' "${arr_pids[@]}") |sed $'s/\t/,|,/g' | column -s ',' -t
-            #
+            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]}") <(printf '%s\n' $'Files #' "${arrBuffers[@]}") <(printf '%s\n' $'PID' "${arr_pids[@]}") |sed $'s/\t/,|,/g' |  column -s ',' -t
+            :
             exit
             ;;
         --list-verbose|-lv)
             query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
             :
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            paste <(printf '|- \e[33m%s=\e[0m\n' "${arrDaemons[@]//\!/\/}") <(printf '%s\n' "${arrBuffers[@]}")|sed $'s/\t/,|,/g' | column -s ',' -t
-
-
-            # paste <(printf '\e[33m%s\e[0m\n' "${arrDaemons[@]//\!/\/}") <(printf '\e[33m%s\e[0m\n' "${arrBuffers[@]}") | sed 's/\n/,|,/g'
-
-
-            # paste <(printf '\e[37;4;2m%s\e[0m' "Daemon") <(printf '\e[37;4;2m%s\e[0m' "Count") | paste - <(printf '\n\e[33m%s\e[0m\n' "${arrDaemons[@]//\!/\/}") <(printf '\n\e[33m%s\e[0m\n' "${arrBuffers[@]}") | sed 's/\t/,|,/g'|column -s ',' -t
+            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]}") <(printf '%s\n' $'Files #' "${arrBuffers[@]}") |sed $'s/\t/,|,/g' |  column -s ',' -t
             exit
             ;;
         --list-buffers|-lb)
@@ -252,7 +247,7 @@ do
                 printf 'No daemons to slay.\n' && exit
             :
             if [[ $DIE == "DIE" ]]; then
-                for socket in "${arrSockets[@]//\!/\/}"
+                for socket in "${arrSockets[@]}"
                 do
                     slay "${socket}"
                 done
