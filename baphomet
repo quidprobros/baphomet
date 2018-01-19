@@ -143,6 +143,12 @@ sanitize () {
 }
 
 
+msg () {
+    if [[ $1 -eq 404 ]]; then
+        printf 'The daemon \e[31m%s\e[0m was not found!\n' ${2:+"${2^^}="}
+    fi
+}
+
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
@@ -193,8 +199,14 @@ do
                 shift 2
                 continue
             else
-                printf '\e[31mDaemon not found!\e[0m\n'
-                OFFER="${daemon}" exec "${0}" -j
+                msg 404 "${daemon}"
+                shift 2
+                OFFER="${daemon}"
+
+                #OFFER="${daemon}" exec "${0}" -j
+#                continue
+                # R="${@}"
+                # OFFER="${daemon}" exec "${0}" -j ${R:+"$R"}
             fi
             exit
             ;;
