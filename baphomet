@@ -397,13 +397,15 @@ case ${@:1:1} in
         printf '\e[33m%.0s-' {1..20}; printf '\n'
         printf '     MAIN MENU\n'
         printf '%.0s-' {1..20};  printf '\e[0m\n'
-        select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'\e[91mJoin\e[0m'} 'Summon' $'\e[91mQuit\e[0m'
+        select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} $'Summon' $'Shell' $'Quit'
         do
+            option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
+            :
             case $option in
                 'List')
                     INTERACTIVE=TRUE exec "${0}" -l
                     ;;
-                $'\e[91mJoin\e[0m')
+                'Join')
                     INTERACTIVE=TRUE exec "${0}" -j
                     ;;
                 'Summon')
@@ -412,7 +414,10 @@ case ${@:1:1} in
                     [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
                     INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
                     ;;
-                $'\e[91mQuit\e[0m')
+                'Shell')
+                    INTERACTIVE=TRUE exec "${0}" --shell
+                    ;;
+                'Quit')
                     printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
                     exit
                     ;;
