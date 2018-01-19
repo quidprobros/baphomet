@@ -444,6 +444,8 @@ case ${@:1:1} in
                                        alias ls=\"ls -lF\";\
                                        alias help=\"${0} -h\";\
                                        alias list=\"${0} -l\";\
+                                       alias lv=\"${0} -lv\";\
+                                       alias lvv=\"${0} -lvv\";\
                                        alias start=\"${0} -s\";\
                                        alias summon=start;\
                                        alias kill=\"${0} -k\";\
