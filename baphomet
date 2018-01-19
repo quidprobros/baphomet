@@ -413,7 +413,7 @@ case ${@:1:1} in
                     INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
                     ;;
                 $'\e[91mQuit\e[0m')
-                    printf '\nBye.\n'
+                    printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
                     exit
                     ;;
                 *)
