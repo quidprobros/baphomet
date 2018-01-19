@@ -390,7 +390,8 @@ EOF
     [[ "${#@}" -gt 0 ]] && shift 2
 done
 
-
+echo 'donee test'
+exit
 
 case ${@:1:1} in
     -i|--interactive)
