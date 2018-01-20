@@ -153,7 +153,7 @@ sanitize () {
 
 
 msg () {
-    printf '\e[7m\n\n'
+    printf '\e[7m\n\n%s' $' \u2605 '
     if [[ $1 -eq 201 ]]; then
         printf 'Summoning the daemon \b%b ...' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
         wait "${3}"
@@ -189,8 +189,7 @@ do
         --join|-j)
             B_STATE="JOIN"
             :
-            :
-            daemon="${2//=/}"
+            daemon="${2}"
             if [[ ${#daemon} -eq 0 ]]; then
                 [[ "${#arrSockets[@]}" -eq 0 ]] && msg 0404 && exit
                 printf '\e[33m%.0s-' {1..20}; printf '\n'
