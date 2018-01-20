@@ -145,7 +145,12 @@ sanitize () {
 
 msg () {
     printf '\e[7m'
-    if [[ $1 -eq 400 ]]; then
+    if [[ $1 -eq 201 ]]; then
+        printf 'Summoning the daemon \b%b ...' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
+        wait "${3}"
+        printf ' done. \n'
+        printf 'So summoned.\n'
+    elif [[ $1 -eq 400 ]]; then
         printf '\e[31mBad choice.\e[0m\n'
     elif [[ $1 -eq 404 ]]; then
         printf 'The daemon \b%b was not found!\n' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
@@ -332,11 +337,7 @@ do
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-                    print_daemon="${daemon^^}"
-                    printf '      Summoning the daemon \e[91m%s=\e[0m ...' "${print_daemon//\!/\/}"
-                    wait $!
-                    printf ' done. \n'
-                    printf 'So summoned.\n'
+                    msg 201 "${daemon^^}" $!
                     :
                     [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
                         EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
