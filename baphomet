@@ -32,7 +32,9 @@ trap cleanup TERM INT SIGINT SIGTERM
 case ${@:1:1} in
     -x|--escape)
         exec command emacs "${@:2}"
-        exit
+        ;;
+    -Q|--quick)
+        exec command emacs -Q "${@:2}"
         ;;
 esac
 # # # # #
