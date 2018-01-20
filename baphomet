@@ -153,20 +153,22 @@ sanitize () {
 
 
 msg () {
-    printf '\e[7m'
+    printf '\e[7m\n\n'
     if [[ $1 -eq 201 ]]; then
         printf 'Summoning the daemon \b%b ...' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
         wait "${3}"
         printf ' done. \n'
         printf 'So summoned.\n'
+    elif [[ $1 -eq 204 ]]; then
+        printf '%s' $'May you live long and prosper.'
     elif [[ $1 -eq 400 ]]; then
         printf '\e[31mBad choice.\e[0m\n'
     elif [[ $1 -eq 404 ]]; then
         printf 'The daemon \b%b was not found!\n' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
     elif [[ $1 -eq 0404 ]]; then
-        printf 'No daemons to be found.\n'
+        printf '%s' $'No daemons to be found.'
     fi
-    printf '\e[0m'
+    printf '\e[0m\n\n'
 }
 
 while [[ ${#@} -ne 0 ]]
@@ -454,7 +456,7 @@ case ${@:1:1} in
                     INTERACTIVE=TRUE exec "${0}" --shell
                     ;;
                 'Quit')
-                    printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
+                    msg 204
                     exit
                     ;;
                 *)
