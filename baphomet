@@ -9,7 +9,7 @@ shopt -s nocasematch
 function cleanup {
     printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
     printf 'Cleaning up ... '
-    kill %1 >/dev/null 2>&1
+    kill %% >/dev/null 2>&1
     wait
     (sleep 20
      if hard_check "${daemon}"
@@ -17,7 +17,9 @@ function cleanup {
          slay "${daemon}" >/dev/null 2>&1
      fi
     ) &
-    disown %1
+    jobs
+    disown $!
+    jobs
     printf 'done.\n\n'
 
     [[ "${#daemon}" -gt 0 ]] && \
@@ -69,9 +71,8 @@ LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list
 LISP_BUFFER_LIST=$'(mapconcat '"'"'identity (delete '"'"'nil (mapcar '"'"'buffer-file-name (buffer-list))) "+++")'
 :
 LISP_PID=$'(emacs-pid)'
-#LISP_BUFFER_HEADER=$'(setq header-line-format "BAPHOMET")'
 :
-
+:
 
 hard_check () {
     local socket="${EMACS_SOCKET_DIR}/${1}"
@@ -98,6 +99,14 @@ list_sockets () {
 }
 # generate sockets array
 list_sockets
+
+pretty () {
+    # make it presentable
+    ## takes a reference
+    x="${!1//\!/\/}"
+    x="${x/%/=}"
+    eval "${1}=${x}"
+}
 
 
 query_daemon () {
