@@ -199,7 +199,7 @@ do
                 select daemon in "${arrDaemons[@]}" ${OFFER:+"Commune with $OFFER="} "Quit"
                 do
                     [[ "${daemon^^}" == "QUIT"  ]] && \
-                        printf '\nBye.\n\n' && \
+                        msg 204 && \
                         exit 0
                     :
                     if [[ $INTERACTIVE == TRUE ]]
@@ -222,11 +222,6 @@ do
                 msg 404 "${daemon}"
                 shift 2
                 OFFER="${daemon}"
-
-                #OFFER="${daemon}" exec "${0}" -j
-#                continue
-                # R="${@}"
-                # OFFER="${daemon}" exec "${0}" -j ${R:+"$R"}
             fi
             exit
             ;;
