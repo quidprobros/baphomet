@@ -9,7 +9,7 @@ shopt -s nocasematch
 function cleanup {
     printf '\n\n\e[7mI'"'"'ll be seeing you.\e[0m\n\n'
     printf 'Cleaning up ... '
-    kill %% >/dev/null 2>&1
+    kill %1 >/dev/null 2>&1
     wait
     (sleep 20
      if hard_check "${daemon}"
@@ -17,8 +17,7 @@ function cleanup {
          slay "${daemon}" >/dev/null 2>&1
      fi
     ) &
-    jobs
-    disown $!
+    disown %1
     jobs
     printf 'done.\n\n'
 
@@ -347,7 +346,7 @@ do
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-                    msg 201 "${daemon^^}" $!
+                    msg 201 "${daemon^^}" '%1'
                     :
                     [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
                         EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
@@ -459,7 +458,7 @@ case ${@:1:1} in
                     exit
                     ;;
                 *)
-                    printf 'Invalid choice.\n'
+                    msg 400
                     ;;
             esac
         done
