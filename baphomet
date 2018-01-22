@@ -345,8 +345,13 @@ do
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
                     msg 201 "${daemon^^}" '%1'
                     :
-                    [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
+                    if containsElement '--' "${@}"
+                    then
+                        EMACS_BUFFER_NAME="${@}"
+                        EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME#*\ \-\-\ }"
+                        [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
                         EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
+                    fi
                 fi
             done
             exit
