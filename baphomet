@@ -357,11 +357,11 @@ do
             done
             exit
             ;;
-        -D)
+        --debug|-d)
             printf 'Debug mode not ready!\n'
             exit
             ;;
-        -W)
+        -w|--watch)
             printf 'Watch all daemonic activity.\n'
             exit
             ;;
