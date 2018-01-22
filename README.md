@@ -47,7 +47,6 @@ TO-DO
 * interactive mode should also list file buffers
 * allow enjoy by final daemon segment if unique
 * nested daemons like PHP namespaces
-* finish simple shell
 * optional `dialog` support
 * interactive mode should allow buffer name entering
 * BUG: need trap
