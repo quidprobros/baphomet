@@ -50,14 +50,13 @@ TO-DO
 * optional `dialog` support
 * interactive mode should allow buffer name entering
 * transparent handling of root owned files
-* BUG: default buffer should be a temp buffer
+* BUG: default buffer should be a temp buffer[<8;33;6m
 * RE interactive kill, indicate number of file buffers
 * confirm working with both gnu and bsd variants
 * consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
 * BUG: dont kill daemons with unsaved buffers
 * option to display buffer names
 * option to mark daemons to slay
-* probably better to wait for path change when determing daemon status re slaying
 * `http://graphemica.com/search?page=2&q=braille`
 * check if compatible with gui version and xterm
 * determine min requirements
