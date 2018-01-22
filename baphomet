@@ -193,7 +193,7 @@ do
             daemon="${2}"
             if [[ ${#daemon} -eq 0 ]]; then
                 [[ "${#arrSockets[@]}" -eq 0 ]] && msg 0404 && exit
-                printf '\e[33m%.0s-' {1..20}; printf '\n'
+                printf '\e[33m%.0s-' {1..20}; echo
                 printf '     DAEMON MENU\n'
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
                 printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
