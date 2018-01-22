@@ -49,7 +49,6 @@ TO-DO
 * nested daemons like PHP namespaces
 * optional `dialog` support
 * interactive mode should allow buffer name entering
-* BUG: need trap
 * transparent handling of root owned files
 * BUG: default buffer should be a temp buffer
 * RE interactive kill, indicate number of file buffers
