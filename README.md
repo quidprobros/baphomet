@@ -55,7 +55,6 @@ TO-DO
 * RE interactive kill, indicate number of file buffers
 * confirm working with both gnu and bsd variants
 * consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
-* BUG: when joining nonexistent daemon, there should be prompt to summon or join existing
 * BUG: dont kill daemons with unsaved buffers
 * option to display buffer names
 * option to mark daemons to slay

@@ -224,6 +224,7 @@ do
                 msg 404 "${daemon}"
                 shift 2
                 OFFER="${daemon}"
+                exec "${0}" --list
             fi
             exit
             ;;
