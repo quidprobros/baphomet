@@ -390,21 +390,22 @@ do
                    "BAPHOMET -- manage your emacs daemons"
             printf "\\x1b[38;2;100;100;100m"
             cat <<'EOF'
-   Usage: baphomet [switches] [arguments]
-   -h,  --help                      Display (this) help menu
-   -s,  --start [name[,name2]]      Start one or more daemons,
-   comma separated
-   -k,  --kill, --stop [name]       Stop a daemon with name 'name'
-   -ka, --kill-all                  Stop all daemons
-   -j,  --join [name]               Join a daemon with name 'name'
-   -l,  --list                      List known daemons
-   -lv, --list-verbose              List daemons and file buffer count
-   -lvv, --list-very-verbose        List daemons and file buffer count
-   and daemon PID
+  Usage: baphomet [switches] [arguments]
+   -h,   --help                      Display (this) help menu
+   -s,   --start [name[,name2]]      Summon one or more daemons
+   -k,   --kill,                     Slay one or more daemons
+         --stop [name[,name2]]
+   -ka,  --kill-all                  Slay all daemons
+   -j,   --join [name]               Join a daemon with name 'name'
+   -l,   --list                      List known daemons
+   -lv,  --list-verbose              List daemons and file buffer count
+   -lvv, --list-very-verbose         List daemons, file buffer count,
+                                          and process ID
+   -b,   --buffer <name>             Specify buffer name
 
-   -i,  --interactive               Interactive mode
-   --shell                          Interactive shell mode
-   -x,  --escape                    Exit script, run emacs as normal
+   -i,   --interactive               Interactive mode
+   -is,  --shell                     Interactive shell mode
+   -x,   --escape                    Exit script, run emacs as normal
 
 
    Note:
@@ -413,10 +414,12 @@ do
    When called with only a buffer or filename, baphomet joins any daemon
    and creates buffer with specified name.
 
-   Examples with a daemon named 'joey'
-   start daemon: baphomet --start joey
-   stop daemon:  baphomet --stop joey
-   join daemon:  baphomet --join joey
+   Examples:
+   - Summon, slay, or join  daemon named 'levi'
+   $ `baphomet --start|--slay|--join levi`
+   - Join daemon named 'levi' and open buffer 'justice.txt'
+   $ `baphomet --join levi -b|-- justice.txt`
+
 
    Disclaimer: Execute this script at your own peril.
 EOF
