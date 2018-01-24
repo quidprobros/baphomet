@@ -277,6 +277,8 @@ do
             ;&
         --stop|--kill|-k)
             :
+            IFS=,
+            :
             printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 msg 0404  && exit
@@ -296,6 +298,12 @@ do
                 printf "Choose a daemon to slay:\\n" && \
                     select daemon in "${arrDaemons[@]}"
                     do
+                        for R in "${daemon}"; do
+                            echo $R;
+                            exit
+                        done
+                        exit
+
                         daemon="${daemon//=/}"
                         socket="${EMACS_SOCKET_DIR}/${daemon}"
                         slay "${socket}"
@@ -303,13 +311,12 @@ do
                         exit
                     done
             else
-                containsElement "${socket}" "${arrSockets[@]}"
-                if [[ $? -eq 1 ]]; then
-                    msg 404 "${daemon}"
-                else
+                if containsElement "${socket}" "${arrSockets[@]}"
+                then
                     slay "${socket}"
+                else
+                    msg 404 "${daemon}"
                 fi
-                exit
             fi
             :
             exit
