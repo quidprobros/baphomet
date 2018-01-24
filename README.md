@@ -1,5 +1,6 @@
 DISCLAIMER -- use at your own peril!
 
+Until I can be sure daemons cannot be killed with unsaved buffers, be extra careful.
 
 Requirement: Aside from requiring bash 4ish, not too sure! (soz).
 
