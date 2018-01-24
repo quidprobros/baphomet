@@ -5,37 +5,39 @@ Requirement: Um, it works with bash 4.4.12...otherwise, test it out (soz).
 
 
 ````bash
-BAPHOMET -- manage your emacs daemons
- Usage: baphomet [switches] [arguments]
- -h,  --help                      Display help menu
- -s,  --start [name[,name2]]           Start a daemon with name 'name'
- -k,  --kill, --stop [name]       Stop a daemon with name 'name'
- -ka, --kill-all                  Stop all daemons
- -j,  --join [name] -b [buffer]   Join a daemon with name 'name' and
-                                       create a new buffer 'buffer'
- -l,  --list                      List known daemons
- -lv, --list-verbose              List daemons and file buffer count
- -lvv, --list-very-verbose        List daemons and file buffer count
-                                       and daemon PID
- -i,  --interactive               Interactive mode
+  Usage: baphomet [switches] [arguments]
+   -h,   --help                      Display (this) help menu
+   -s,   --start [name[,name2]]      Summon one or more daemons
+   -k,   --kill,                     Slay one or more daemons
+         --stop [name[,name2]]
+   -ka,  --kill-all                  Slay all daemons
+   -j,   --join [name]               Join a daemon with name 'name'
+   -l,   --list                      List known daemons
+   -lv,  --list-verbose              List daemons and file buffer count
+   -lvv, --list-very-verbose         List daemons, file buffer count,
+                                          and process ID
+   -b,   --buffer <name>             Specify buffer name
 
- --shell                         Interactive shell mode
+   -i,   --interactive               Interactive mode
+   -is,  --shell                     Interactive shell mode
+   -x,   --escape                    Exit script, run emacs as normal
 
- -x,  --escape                    Exit script, run emacs as normal
+
+   Note:
+   When called without arguments, baphomet starts a new daemon
+   if necessary and opens a buffer with a default name.
+   When called with only a buffer or filename, baphomet joins any daemon
+   and creates buffer with specified name.
+
+   Examples:
+   - Summon, slay, or join  daemon named 'levi'
+   $ `baphomet --start|--slay|--join levi`
+   - Join daemon named 'levi' and open buffer 'justice.txt'
+   $ `baphomet --join levi -b|-- justice.txt`
 
 
-Note:
- When called without arguments, baphomet starts a new daemon
-      if necessary and opens a buffer with a default name.
- When called with only a buffer or filename, baphomet joins any daemon
-      and creates buffer with specified name.
+   Disclaimer: Execute this script at your own peril.
 
-Examples with a daemon named 'joey'
- start daemon: baphomet --start joey
- stop daemon:  baphomet --stop joey
- join daemon:  baphomet --join joey
-
-Disclaimer: Execute this script at your own peril.
 ````
 
 
