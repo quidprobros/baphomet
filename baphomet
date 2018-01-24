@@ -294,19 +294,15 @@ do
             if [[ ${#daemon} -eq 0 ]]
             then
                 printf "Choose a daemon to slay:\\n" && \
-                    select sock in $(printf '\e[33m%s=\e[0m\n' "${arrDaemons[@]//\!/\/}")
+                    select daemon in "${arrDaemons[@]}"
                     do
-                        sock="${sock//=/}"
-                        # if [[ ${#sock} -eq 0  ]]; then
-                        #     msg 400
-                        #     exec "${0}" -k
-                        # fi
-                        slay "${sock}"
+                        daemon="${daemon//=/}"
+                        socket="${EMACS_SOCKET_DIR}/${daemon}"
+                        slay "${socket}"
+
                         exit
                     done
-            fi
-            :
-            if [[ "${#daemon}" -ne 0 ]]; then
+            else
                 containsElement "${socket}" "${arrSockets[@]}"
                 if [[ $? -eq 1 ]]; then
                     msg 404 "${daemon}"
