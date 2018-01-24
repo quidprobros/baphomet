@@ -63,13 +63,12 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
 DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
 (with-current-buffer (get-buffer-create baphomet-buffer))
-(switch-to-buffer baphomet-buffer))'
+(switch-to-buffer baphomet-buffer) (setq header-line-format "BAPHOMET"))'
 
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
 :
-#LISP_BUFFER_LIST=$'(mapconcat '"'"'identity (delete '"'"'nil (mapcar '"'"'buffer-file-name (buffer-list))) "+++")'
 LISP_BUFFER_LIST=$'(concat (daemonp) ";" (mapconcat '"'"'identity (delete '"'"'nil (mapcar '"'"'buffer-file-name (buffer-list))) "+++"))'
 :
 LISP_PID=$'(emacs-pid)'
