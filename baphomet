@@ -296,10 +296,11 @@ do
                 printf "Choose a daemon to slay:\\n" && \
                     select sock in $(printf '\e[33m%s=\e[0m\n' "${arrDaemons[@]//\!/\/}")
                     do
-                        if [[ ${#sock} -eq 0  ]]; then
-                            msg 400
-                            exec "${0}" -k
-                        fi
+                        sock="${sock//=/}"
+                        # if [[ ${#sock} -eq 0  ]]; then
+                        #     msg 400
+                        #     exec "${0}" -k
+                        # fi
                         slay "${sock}"
                         exit
                     done
