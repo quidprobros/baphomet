@@ -1,8 +1,12 @@
 DISCLAIMER -- use at your own peril!
 
 
-Requirement: Um, it works with bash 4.4.12...otherwise, test it out (soz).
+Requirement: Aside from requiring bash 4ish, not too sure! (soz).
 
+Developed on `macos 10.13.x` (think, BSD) with `bash 4.4.12(1)-release`.
+
+Believed to work with the following configurations:
+* `Bash 4.3.42, Fedora 23`
 
 ````bash
   Usage: baphomet [switches] [arguments]
