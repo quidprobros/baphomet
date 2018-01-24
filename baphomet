@@ -440,7 +440,7 @@ case ${@:1:1} in
         printf '\e[33m%.0s-' {1..20}; printf '\n'
         printf '     MAIN MENU\n'
         printf '%.0s-' {1..20};  printf '\e[0m\n'
-        select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} $'Summon' $'Shell' $'Quit'
+        select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
         do
             option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
             :
@@ -450,6 +450,9 @@ case ${@:1:1} in
                     ;;
                 'Join')
                     INTERACTIVE=TRUE exec "${0}" -j
+                    ;;
+                'Slay')
+                    INTERACTIVE=TRUE exec "${0}" -k
                     ;;
                 'Summon')
                     printf '\n\e[31mName your daemon\e[0m: '
