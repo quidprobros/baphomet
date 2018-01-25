@@ -275,7 +275,7 @@ do
         --kill-all|-ka)
             DIE="DIE"
             ;&
-        --stop|--kill|-k)
+        --stop|--kill|-k|--slay)
             IFS=,
             daemons="${2}"
             :
