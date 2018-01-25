@@ -296,16 +296,8 @@ do
                 printf "Choose a daemon to slay:\\n" && \
                     select daemon in "${arrDaemons[@]}"
                     do
-                        for R in "${daemon}"; do
-                            echo $R;
-                            exit
-                        done
-                        exit
-
-                        daemon="${daemon//=/}"
                         socket="${EMACS_SOCKET_DIR}/${daemon}"
                         slay "${socket}"
-
                         exit
                     done
             else
