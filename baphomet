@@ -360,6 +360,9 @@ do
             printf 'Debug mode not ready!\n'
             exit
             ;;
+        --version)
+            printf 'idk check github'
+            ;;
         -w|--watch)
             printf 'Watch all daemonic activity.\n'
             exit
@@ -397,7 +400,7 @@ do
    -i,   --interactive               Interactive mode
    -is,  --shell                     Interactive shell mode
    -x,   --escape                    Exit script, run emacs as normal
-
+   -V,   --version                   Get version of baphomet
 
    Note:
    When called without arguments, baphomet starts a new daemon
