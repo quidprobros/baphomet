@@ -39,9 +39,14 @@ case ${@:1:1} in
 esac
 :
 prettyify () {
-    red=$'\x1b[38;2;250;0;0m'
+    rrr=$'\x1b[38;2;250;0;0m'
     gray=$'\x1b[38;2;100;100;100m'
     none=$'\x1b[0m'
+    #
+    _gray=$'\e[37;4;2m'
+    none2=$'\e[0m'
+
+    yyy=$'\e[33m'
 }
 # # # # #
 # U T I L
@@ -251,14 +256,14 @@ do
             [[ $B_VERBOSE -gt 0 ]] && query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
             [[ $B_VERBOSE -gt 1 ]] && query_daemon "${LISP_PID}"; arr_pids=("${result[@]}")
 
-            printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]:- None found}") \
+            printf '%s%s%s\n\n' "${_gray}" "${EMACS_SOCKET_DIR}" "${none2}"
+            paste <(printf '%s\n' $'Daemons' "${pd[@]:- None found}") \
                   <([[ $B_VERBOSE -gt 0 ]] && printf '%s\n' $'Files #' "${arrBuffers[@]:- –}") \
                   <([[ $B_VERBOSE -gt 1 ]] && printf '%s\n' $'PID' "${arr_pids[@]:- –}") \
                 | sed $'s/\t/,,/g' |  column -s ',' -t
             :
             if  [[ $INTERACTIVE == TRUE ]]; then
-                printf '\n\n\e[31mWhat do you desire?\e[0m\n'
+                printf '\n\n%s%s%s\n' "${rrr}" 'What do you desire?' "${none2}"
                 select option in 'Return' 'Quit'
                 do
                     case $option in
@@ -392,7 +397,7 @@ do
             ;;
         --help|-h)
             printf '%s%s\n' \
-                   "${red}" "BAPHOMET -- manage your emacs daemons"
+                   "${rrr}" "BAPHOMET -- manage your emacs daemons"
             printf '%s' "${gray}"
             cat <<'EOF'
   Usage: baphomet [switches] [arguments]
