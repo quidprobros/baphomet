@@ -229,6 +229,8 @@ do
             exit
             ;;
         --list|--list-daemons|-l|-ls)
+            # this can be consolidated by counting number of v flags
+
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
             printf '\e[33m%s\e[0m\n' $'\e[37;4;2mDaemons\e[0m' "${pd[@]:-No daemons found.}"
             if  [[ $INTERACTIVE == TRUE ]]; then
