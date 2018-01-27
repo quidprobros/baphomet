@@ -37,6 +37,14 @@ case ${@:1:1} in
         exec command emacs -Q "${@:2}"
         ;;
 esac
+:
+case "${@}" in
+    --pretty)
+        # make output pretty
+        echo ro;exit
+        :
+        ;;
+esac
 # # # # #
 # U T I L
 # # # # #
