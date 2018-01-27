@@ -18,9 +18,8 @@ Believed to work with the following configurations:
    -ka,  --kill-all                  Slay all daemons
    -j,   --join [name]               Join a daemon with name 'name'
    -l,   --list                      List known daemons
-   -lv,  --list-verbose              List daemons and file buffer count
-   -lvv, --list-very-verbose         List daemons, file buffer count,
-                                          and process ID
+   -v,   --verbose                   Make output verbose
+   -vv,  --very-verbose              Make output very verbose
    -b,   --buffer <name>             Specify buffer name
 
    -i,   --interactive               Interactive mode
@@ -45,7 +44,9 @@ Believed to work with the following configurations:
 
 ````
 
-
+2017/01/27
+===
+The options `-lv` and `-lvv` not longer work. Prefer `-v -l` and `-vv -l`, respectively, for the same results.
 
 
 
