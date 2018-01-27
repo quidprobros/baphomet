@@ -196,7 +196,7 @@ do
             USER="${UZR}" exec "${0}" "${@}"
             ;;
         -v|--verbose)
-            B_VERBOSE=1
+            B_VERBOSE=$(( B_VERBOSE+1 ))
             shift
             ;;
         -vv|--very-verbose)
