@@ -263,7 +263,7 @@ do
             fi
             exit
             ;;
-        --list-buffers|-lb)
+        --list-buffers)
             query_daemon "${LISP_BUFFER_LIST}"
 	    printf '\e[37;4;2m%-20s\e[0m\n' "File buffers"
             R="${result[0]//$'+++'/$'\n'}"

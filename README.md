@@ -52,6 +52,7 @@ The options `-lv` and `-lvv` not longer work. Prefer `-v -l` and `-vv -l`, respe
 
 TO-DO
 ===
+* being able to parse flags in continuum would be nice
 * interactive mode should also list file buffers
 * allow enjoy by final daemon segment if unique
 * optional `dialog` support
