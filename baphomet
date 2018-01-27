@@ -187,6 +187,14 @@ do
             shift 2
             USER="${UZR}" exec "${0}" "${@}"
             ;;
+        -v|--verbose)
+            B_VERBOSE=1
+            shift
+            ;;
+        -vv|--very-verbose)
+            B_VERBOSE=2
+            shift
+            ;;
         --join|-j)
             B_STATE="JOIN"
             :
@@ -230,9 +238,15 @@ do
             ;;
         --list|--list-daemons|-l|-ls)
             # this can be consolidated by counting number of v flags
+            [[ $B_VERBOSE -gt 0 ]] && query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
+            [[ $B_VERBOSE -gt 1 ]] && query_daemon "${LISP_PID}"; arr_pids=("${result[@]}")
 
             printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            printf '\e[33m%s\e[0m\n' $'\e[37;4;2mDaemons\e[0m' "${pd[@]:-No daemons found.}"
+            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]:- None found}") \
+                  <([[ $B_VERBOSE -gt 0 ]] && printf '%s\n' $'Files #' "${arrBuffers[@]:- –}") \
+                  <([[ $B_VERBOSE -gt 1 ]] && printf '%s\n' $'PID' "${arr_pids[@]:- –}") \
+                | sed $'s/\t/,,/g' |  column -s ',' -t
+            :
             if  [[ $INTERACTIVE == TRUE ]]; then
                 printf '\n\n\e[31mWhat do you desire?\e[0m\n'
                 select option in 'Return' 'Quit'
@@ -247,22 +261,6 @@ do
                     esac
                 done
             fi
-            exit
-            ;;
-        --list-very-verbose|-lvv)
-            query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
-            query_daemon "${LISP_PID}"; arr_pids=("${result[@]}")
-            :
-            printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]:- none}") <(printf '%s\n' $'Files #' "${arrBuffers[@]:- –}") <(printf '%s\n' $'PID' "${arr_pids[@]:- –}") |sed $'s/\t/,|,/g' |  column -s ',' -t
-            :
-            exit
-            ;;
-        --list-verbose|-lv)
-            query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
-            :
-            printf '\e[37;4;2m%s\e[0m\n\n' "${EMACS_SOCKET_DIR}"
-            paste <(printf '\e[33m%s\e[0m\n' $'Daemons' "${pd[@]:- None found}") <(printf '%s\n' $'Files #' "${arrBuffers[@]- –}") |sed $'s/\t/,|,/g' |  column -s ',' -t
             exit
             ;;
         --list-buffers|-lb)
@@ -429,7 +427,7 @@ EOF
             break;
             ;;
     esac
-    [[ "${#@}" -gt 0 ]] && shift 2
+    [[ "${#@}" -eq 0 ]] && exit
 done
 :
 if [[ ${B_STATE} == "JOIN" ]]; then
