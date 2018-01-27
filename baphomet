@@ -38,13 +38,11 @@ case ${@:1:1} in
         ;;
 esac
 :
-case "${@}" in
-    --pretty)
-        # make output pretty
-        echo ro;exit
-        :
-        ;;
-esac
+prettyify () {
+    red=$'\x1b[38;2;250;0;0m'
+    gray=$'\x1b[38;2;100;100;100m'
+    none=$'\x1b[0m'
+}
 # # # # #
 # U T I L
 # # # # #
@@ -183,6 +181,10 @@ msg () {
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
+        -p|--pretty)
+            prettyify
+            shift
+            ;;
         -i|--interactive|-is|--shell)
             break  3
             ;;
@@ -389,9 +391,9 @@ do
             break 3
             ;;
         --help|-h)
-            printf "\\x1b[38;2;250;0;0m%s\\x1b[0m\\n" \
-                   "BAPHOMET -- manage your emacs daemons"
-            printf "\\x1b[38;2;100;100;100m"
+            printf '%s%s\n' \
+                   "${red}" "BAPHOMET -- manage your emacs daemons"
+            printf '%s' "${gray}"
             cat <<'EOF'
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
@@ -426,7 +428,7 @@ do
    Disclaimer: Execute this script at your own peril.
 EOF
 
-            printf "\\x1b[0m"
+            printf '%s' "${none}"
             exit
             ;;
         -*)
@@ -490,7 +492,7 @@ esac
 case ${@:1:1} in
     --shell|-is)
         exec bash --rcfile <(read -r baphomet_shell < \
-                                  <(printf '%s' "PS1=$'\\e[38;5;196m\\u2605 BAPHOMET >\\e[0m ' ;\
+                                  <(printf '%s' "PS1=$'\\u2605 BAPHOMET >\\e[0m ' ;\
                                        trap \"printf '%s\\n\\n' $'\\111\\47\\154\\154\\40 \\142\\145\\40 \\163\\145\\145\\151\\156\\147\\40 \\171\\157\\165\\56'; tput clear \"  EXIT;\
                                        cd $EMACS_SOCKET_DIR;\
                                        tput clear;\
