@@ -183,6 +183,9 @@ msg () {
     printf '\e[0m\n\n'
 }
 
+printf -v DISPLAY_HEADER '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
+
+
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
@@ -219,7 +222,7 @@ do
                 printf '\e[33m%.0s-' {1..20}; echo
                 printf '     DAEMON MENU\n'
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
-                printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
+                printf '%s' "${DISPLAY_HEADER}"
 
                 select daemon in "${arrDaemons[@]}" ${OFFER:+"Commune with $OFFER="} "Quit"
                 do
@@ -252,7 +255,6 @@ do
             exit
             ;;
         --list|--list-daemons|-l|-ls)
-            # this can be consolidated by counting number of v flags
             [[ $B_VERBOSE -gt 0 ]] && query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
             [[ $B_VERBOSE -gt 1 ]] && query_daemon "${LISP_PID}"; arr_pids=("${result[@]}")
 
@@ -294,7 +296,7 @@ do
             IFS=,
             daemons="${2}"
             :
-            printf '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
+            printf '%s' "${DISPLAY_HEADER}"
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 msg 0404  && exit
             :
