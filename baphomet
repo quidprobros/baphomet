@@ -144,6 +144,10 @@ message_daemon () {
     fi
 }
 
+query_socket () {
+    socket="${EMACS_SOCKET_DIR}/${1}"
+}
+
 slay () {
     local socket
     socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
@@ -215,8 +219,10 @@ do
             ;;
         --join|-j)
             B_STATE="JOIN"
-            :
             daemon="${2}"
+            :
+            query_socket "${daemon}"
+            :
             if [[ ${#daemon} -eq 0 ]]; then
                 [[ "${#arrSockets[@]}" -eq 0 ]] && msg 0404 && exit
                 printf '\e[33m%.0s-' {1..20}; echo
@@ -240,7 +246,7 @@ do
                 done
             fi
             :
-            socket="${EMACS_SOCKET_DIR}/${daemon}"
+            query_socket "${daemon}"
             if containsElement "${socket}" "${arrSockets[@]}"
             then
                 :
@@ -282,7 +288,7 @@ do
             ;;
         --list-buffers)
             query_daemon "${LISP_BUFFER_LIST}"
-	    printf '\e[37;4;2m%-20s\e[0m\n' "File buffers"
+	        printf '\e[37;4;2m%-20s\e[0m\n' "File buffers"
             R="${result[0]//$'+++'/$'\n'}"
             R="${R//\"/}"
 	    #            paste  <(printf '%s' "${R}")
@@ -313,13 +319,13 @@ do
                 printf "Choose a daemon to slay:\\n" && \
                     select daemon in "${arrDaemons[@]}"
                     do
-                        socket="${EMACS_SOCKET_DIR}/${daemon}"
+                        query_socket "${daemon}"
                         slay "${socket}"
                         exit
                     done
             else
                 for daemon in $daemons; do
-                    socket="${EMACS_SOCKET_DIR}/${daemon}"
+                    query_socket "${daemon}"
                     if containsElement "${socket}" "${arrSockets[@]}"
                     then
                         slay "${socket}"
@@ -354,7 +360,7 @@ do
                 :
                 sanitize "${daemon}"
                 daemon="${result}"
-                socket="${EMACS_SOCKET_DIR}/${daemon}"
+                query_socket "${daemon}"
                 if containsElement "${socket}" "${arrSockets[@]}"
                 then
                     exec "${0}" -j "${daemon}" "${@:3}"
@@ -456,9 +462,11 @@ fi
 
 case ${@:1:1} in
     -i|--interactive)
-        printf '\e[33m%.0s-' {1..20}; printf '\n'
+        printf '%s' "${yyy}"
+        printf '%.0s-' {1..20}; echo
         printf '     MAIN MENU\n'
-        printf '%.0s-' {1..20};  printf '\e[0m\n'
+        printf '%.0s-' {1..20}; echo
+        printf '%s' "${none}"
         select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
         do
             option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
