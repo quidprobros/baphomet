@@ -59,7 +59,7 @@ TO-DO
 * optional `dialog` support
 * interactive mode should allow buffer name entering
 * transparent handling of root owned files
-* BUG: default buffer should be a temp buffer[<8;33;6m
+* BUG: default buffer should be a temp buffer
 * RE interactive kill, indicate number of file buffers
 * confirm working with both gnu and bsd variants
 * consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
