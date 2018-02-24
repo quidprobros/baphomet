@@ -44,7 +44,7 @@ Believed to work with the following configurations:
 
 ````
 
-2017/01/27
+2018/01/27
 ===
 The options `-lv` and `-lvv` not longer work. Prefer `-v -l` and `-vv -l`, respectively, for the same results.
 

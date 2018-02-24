@@ -1,0 +1,8 @@
+{
+    "name": "baphomet",
+    "version": "3.0",
+    "global": "true",
+    "description": "Manage your emacs daemons ",
+    "scripts": [ "baphomet" ],
+    "install": "make install"
+}
