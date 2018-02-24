@@ -296,9 +296,14 @@ do
             exit
             ;;
         --kill-all|-ka)
+            shopt -u nocasematch
+            read -r -e -p "Beware! This command kills all buffers, even unsaved ones. Proceed? [Y/*]: "  choice
+            [[ ! $choice =~ [Y] ]] && msg 204 && exit 0
+            printf '\n%s\n\n' "Proceeding."
             DIE="DIE"
             ;&
         --stop|--kill|-k|--slay)
+            #query_daemon "${LISP_BUFFER_COUNT}"
             IFS=,
             daemons="${2}"
             :
