@@ -1,0 +1,12 @@
+Author: Christopher David Ramos
+Site: https://www.paxperscientiam.com
+Twitter: @paxperscientiam
+Github: paxperscientiam
+Location: Earth
+
+
+/* Thanks */
+https://www.reddit.com/user/n30h80r
+irc://defanor@freenode.net#emacs
+https://stackoverflow.com/users/2415684/jenesaisquoi
+irc://koala_man@freenodee.net#bash
