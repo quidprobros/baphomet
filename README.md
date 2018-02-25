@@ -44,6 +44,11 @@ Believed to work with the following configurations:
 
 ````
 
+2018/02/24
+===
+`Baphomet` will now warn you when you attempt to slay a daemon with file visiting clients, regardless of save status (re `--kill, --kill-all`).
+
+
 2018/01/27
 ===
 The options `-lv` and `-lvv` not longer work. Prefer `-v -l` and `-vv -l`, respectively, for the same results.
