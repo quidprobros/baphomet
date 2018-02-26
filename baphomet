@@ -121,6 +121,12 @@ pretty () {
 }
 
 
+query_socket () {
+    socket="${EMACS_SOCKET_DIR}/${1}"
+}
+
+
+
 query_daemon () {
     unset result
     local element
@@ -139,15 +145,14 @@ message_daemon () {
     unset result
     local CMD="${1}"
     if [[ "${#2}" -gt 0 ]]; then
-        read -r result < <(nc -U "${2}" <<< \
-           $"-eval ${CMD// /&_}" | \
-            awk $'FNR == 2 {printf $2}')
+	query_socket "${2}"
+        read -r result < <(nc -U "${socket}" <<< \
+			       $"-eval ${CMD// /&_}" | \
+				awk $'FNR == 2 {printf $2}')
     fi
+
 }
 
-query_socket () {
-    socket="${EMACS_SOCKET_DIR}/${1}"
-}
 
 slay () {
     local socket
@@ -306,7 +311,6 @@ do
             DIE="DIE"
             ;&
         --stop|--kill|-k|--slay)
-            #query_daemon "${LISP_BUFFER_COUNT}"
             IFS=,
             daemons="${2}"
             :
@@ -408,6 +412,7 @@ do
             ;;
         -z)
             message_daemon "${LISP_BUFFER_COUNT}" "SHIT"
+	    echo $result;exit
             [[ $result -gt 0 ]] && printf '%s\n' "Beware!"
             exit
             # (mapconcat 'identity (delete 'nil (mapcar 'buffer-file-name (buffer-list))) "+++")
