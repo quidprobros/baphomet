@@ -97,7 +97,7 @@ list_sockets () {
     local socket
     local daemon
     :
-    arrSockets=("${EMACS_SOCKET_DIR}"/*)
+    arrSockets=("${EMACS_SOCKET_DIR:?}"/*)
     arrDaemons=()
     :
     for socket in "${arrSockets[@]}"
