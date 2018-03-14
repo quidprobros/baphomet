@@ -6,6 +6,8 @@ shopt -s extglob
 shopt -s nullglob
 shopt -s nocasematch
 PS3="What is thy bidding?: "
+unset KMND
+KMND=('\emacs')
 :
 function cleanup {
     printf '\n\n\e[7m%s\e[0m\n\n' $'I'\''ll be seeing you.'
@@ -35,10 +37,10 @@ case ${@:1:1} in
         exec command emacs "${@:2}"
         ;;
     -Q|--quick)
-        exec command emacs -Q "${@:2}"
+        KMND+=("-Q ${@:2}")
+        eval exec "${KMND[*]}"
         ;;
 esac
-:
 prettyify () {
     rrr=$'\x1b[38;2;250;0;0m'
     gray=$'\x1b[38;2;100;100;100m'
@@ -389,7 +391,7 @@ do
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
                     msg 201 "${daemon^^}" '%1'
                     :
-                    if containsElement '--' "${@}"
+                    if containsElement '--' "${@}" && "${#daemons[@]}" -eq 1
                     then
                         EMACS_BUFFER_NAME="${@}"
                         EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME#*\ \-\-\ }"
