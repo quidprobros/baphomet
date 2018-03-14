@@ -5,6 +5,7 @@
 shopt -s extglob
 shopt -s nullglob
 shopt -s nocasematch
+PS3="What is thy bidding?: "
 :
 function cleanup {
     printf '\n\n\e[7m%s\e[0m\n\n' $'I'\''ll be seeing you.'
@@ -491,6 +492,7 @@ case ${@:1:1} in
         printf '     MAIN MENU\n'
         printf '%.0s-' {1..20}; echo
         printf '%s' "${none}"
+        PS3="Make a choice (1-6): "
         select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
         do
             option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
