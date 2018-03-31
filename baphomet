@@ -60,6 +60,8 @@ prettyify () {
     rrr=$'\e[91m'
     #
     inverse=$'\e[7m'
+    #
+    mmm=$'\e[0;36m'
 }
 # # # # #
 # U T I L
@@ -171,7 +173,7 @@ slay () {
     local socket
     socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
     nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
-    printf 'Slaying daemon known as \e[33m%s=\e[0m ...' "$(basename "${socket^^}")"
+    printf 'Slaying daemon known as %b%s=\e[0m ...' "${yyy}" "$(basename "${socket^^}")"
     wait
     printf ' done.\n'
     printf ' So slain.\n'
@@ -573,5 +575,5 @@ EOF
                                                                                  [[ ${#socket} -gt 0 ]] && \
                                                                                      EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
 
-                                                                                 printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
+                                                                                 printf '%b%s\e[0m\n' "${mmm}" "No daemons found. Let's get interactive."
                                                                                  exec "${0}" --interactive
