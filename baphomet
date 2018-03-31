@@ -127,13 +127,6 @@ list_sockets () {
 # generate sockets array
 list_sockets
 
-pretty () {
-    # make it presentable
-    ## takes a reference
-    x="${!1//\!/\/}"
-    x="${x/%/=}"
-    eval "${1}=${x}"
-}
 
 
 query_socket () {
@@ -299,7 +292,7 @@ do
                 | sed $'s/\t/,,/g' |  column -s ',' -t
             :
             if  [[ $INTERACTIVE == TRUE ]]; then
-                printf '\n\n%s%s%s\n' "${rrr}" 'What do you desire?' "${none2}"
+                printf '\n\n%b%s%b\n' "${rrr}" 'What do you desire?' "${none}"
                 select option in 'Return' 'Quit'
                 do
                     case $option in
@@ -395,7 +388,7 @@ do
             for daemon in $daemons; do
                 :
                 daemon=$(sanitize "${daemon}")
-                socket=$(query_socket "${2}")
+                socket=$(query_socket "${daemon}")
                 if containsElement "${socket}" "${arrSockets[@]}"
                 then
                     exec "${0}" -j "${daemon}" "${@:3}"
