@@ -194,16 +194,16 @@ sanitize () {
 msg () {
     printf '%b\n\n \u2605  ' "${inverse}"
     if [[ $1 -eq 201 ]]; then
-        printf 'Summoning the daemon \b%b ...' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
+        printf 'Summoning the daemon \b%b ...' ${2:+" ${2^^}="}
         wait "${3}"
         printf ' done. \n'
         printf 'So summoned.\n'
     elif [[ $1 -eq 204 ]]; then
         printf '%s' $'May you live long and prosper.'
     elif [[ $1 -eq 400 ]]; then
-        printf '%bBad choice.\e[0m\n' "${rrr}"
+        printf '%bBad choice.%b\n' "${rrr}" "${none}"
     elif [[ $1 -eq 404 ]]; then
-        printf 'The daemon \b%b was not found!\n' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
+        printf 'The daemon \b%b was not found!\n' ${2:+" ${2^^}="}
     elif [[ $1 -eq 0404 ]]; then
         printf '%s' $'No daemons to be found.'
     elif [[ $1 -eq 499 ]]; then
@@ -214,7 +214,6 @@ msg () {
 
 DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${_gray}" "${EMACS_SOCKET_DIR}"
                  }
-
 
 while [[ ${#@} -ne 0 ]]
 do
@@ -327,7 +326,7 @@ do
             DIE="DIE"
             ;&
         --stop|--kill|-k|--slay)
-            PS3='Whom do you wish to slay?'
+            PS3='Whom do you wish to slay? '
             IFS=,
             daemons="${2}"
             :
