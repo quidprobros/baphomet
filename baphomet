@@ -137,9 +137,8 @@ pretty () {
 
 
 query_socket () {
-    socket="${EMACS_SOCKET_DIR}/${1}"
+    printf '%s/%s' "${EMACS_SOCKET_DIR}" "${1}"
 }
-
 
 
 query_daemon () {
@@ -157,15 +156,17 @@ query_daemon () {
 }
 
 message_daemon () {
-    unset result
+    local result
+    local socket
     local CMD="${1}"
     if [[ "${#2}" -gt 0 ]]; then
-	      query_socket "${2}"
+	      socket=$(query_socket "${2}")
         read -r result < <(nc -U "${socket}" <<< \
 			                        $"-eval ${CMD// /&_}" | \
 				                       awk $'FNR == 2 {printf $2}')
+        printf '%s' "${result}"
+        return 0
     fi
-
 }
 
 
@@ -199,7 +200,7 @@ msg () {
     elif [[ $1 -eq 204 ]]; then
         printf '%s' $'May you live long and prosper.'
     elif [[ $1 -eq 400 ]]; then
-        printf '\e[31mBad choice.\e[0m\n'
+        printf '%bBad choice.\e[0m\n' "${rrr}"
     elif [[ $1 -eq 404 ]]; then
         printf 'The daemon \b%b was not found!\n' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
     elif [[ $1 -eq 0404 ]]; then
@@ -207,11 +208,11 @@ msg () {
     elif [[ $1 -eq 499 ]]; then
         printf '%s' $'Request cancelled.'
     fi
-    printf '\e[0m\n\n'
-#    printf -v ender %q "${none2}" && eval
+    printf %b  "${none2}"
 }
 
-printf -v DISPLAY_HEADER '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
+DISPLAY_HEADER() { printf '%b%s\e[0m\n' "${_gray}" "${EMACS_SOCKET_DIR}"
+                 }
 
 
 while [[ ${#@} -ne 0 ]]
@@ -245,14 +246,14 @@ do
             B_STATE="JOIN"
             daemon="${2}"
             :
-            query_socket "${daemon}"
+            socket=$(query_socket "${daemon}")
             :
             if [[ ${#daemon} -eq 0 ]]; then
                 [[ "${#arrSockets[@]}" -eq 0 ]] && msg 0404 && exit
                 printf '\e[33m%.0s-' {1..20}; echo
                 printf '     DAEMON MENU\n'
                 printf '%.0s-' {1..20};  printf '\e[0m\n\n'
-                printf '%s' "${DISPLAY_HEADER}"
+                DISPAY_HEADER
 
                 select daemon in "${arrDaemons[@]}" ${OFFER:+"Commune with $OFFER="} "Quit"
                 do
@@ -270,7 +271,7 @@ do
                 done
             fi
             :
-            query_socket "${daemon}"
+            socket=$(query_socket "${daemon}")
             if containsElement "${socket}" "${arrSockets[@]}"
             then
                 :
@@ -330,7 +331,7 @@ do
             IFS=,
             daemons="${2}"
             :
-            printf '%s' "${DISPLAY_HEADER}"
+            DISPLAY_HEADER
             [[ "${#arrSockets[@]}" -eq 0 ]] && \
                 msg 0404  && exit
             :
@@ -347,7 +348,7 @@ do
                 printf "Choose a daemon to slay:\\n" && \
                     select daemon in "${arrDaemons[@]}"
                     do
-                        message_daemon "${LISP_BUFFER_COUNT}" "${daemon}"
+                        result=$(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")
                         if [[ $result -gt 0 ]]
                         then
 			                      shopt -u nocasematch
@@ -355,13 +356,13 @@ do
                             [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
                             printf '\n%s\n\n' "Proceeding."
                         fi
-                        query_socket "${daemon}"
+                        socket=$(query_socket "${daemon}")
                         slay "${socket}"
                         exit
                     done
             else
                 for daemon in $daemons; do
-                    query_socket "${daemon}"
+                    socket=$(query_socket "${daemon}")
                     if containsElement "${socket}" "${arrSockets[@]}"
                     then
                         slay "${socket}"
@@ -396,7 +397,7 @@ do
                 :
                 sanitize "${daemon}"
                 daemon="${result}"
-                query_socket "${daemon}"
+                socket=$(query_socket "${2}")
                 if containsElement "${socket}" "${arrSockets[@]}"
                 then
                     exec "${0}" -j "${daemon}" "${@:3}"
@@ -427,7 +428,7 @@ do
             exit
             ;;
         -z)
-            message_daemon "${LISP_BUFFER_COUNT}" "SHIT"
+            result=$(message_daemon "${LISP_BUFFER_COUNT}" "SHIT")
 	          echo $result;exit
             [[ $result -gt 0 ]] && printf '%s\n' "Beware!"
             exit
