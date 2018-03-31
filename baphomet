@@ -142,7 +142,7 @@ query_socket () {
 
 
 query_daemon () {
-    unset result
+    local result
     local element
     local CMD="${1}"
     :
@@ -153,6 +153,7 @@ query_daemon () {
                                 awk $'FNR == 2 {printf $2}')
         result+=("${element}")
     done
+    printf %s "${result[*]}"
 }
 
 message_daemon () {
@@ -181,12 +182,12 @@ slay () {
 }
 
 sanitize () {
-    unset result
+    local result
     :
     result="${1//[^a-zA-Z0-9\/]/}"
     result="${result////!}"
     result="${result%!}"
-    result="${result#!}"
+    printf '%s' "${result#!}"
 }
 
 
@@ -286,8 +287,11 @@ do
             exit
             ;;
         --list|--list-daemons|-l|-ls)
-            [[ $B_VERBOSE -gt 0 ]] && query_daemon "${LISP_BUFFER_COUNT}"; arrBuffers=("${result[@]}")
-            [[ $B_VERBOSE -gt 1 ]] && query_daemon "${LISP_PID}"; arr_pids=("${result[@]}")
+            [[ $B_VERBOSE -gt 0 ]] && \
+                read -ra arrBuffers < <(query_daemon "${LISP_BUFFER_COUNT}")
+
+            [[ $B_VERBOSE -gt 1 ]] && \
+                read -ra arr_pids < <(query_daemon "${LISP_PID}")
 
             printf '%s%s%s\n\n' "${_gray}" "${EMACS_SOCKET_DIR}" "${none2}"
             paste <(printf '%s\n' $'Daemons' "${pd[@]:- None found}") \
@@ -312,12 +316,7 @@ do
             exit
             ;;
         --list-buffers)
-            query_daemon "${LISP_BUFFER_LIST}"
-	          printf '\e[37;4;2m%-20s\e[0m\n' "File buffers"
-            R="${result[0]//$'+++'/$'\n'}"
-            R="${R//\"/}"
-	          #            paste  <(printf '%s' "${R}")
-	          printf '%s\n' "${R}"|tr ';' '\n'
+            read -ra arr_buffers < <(query_daemon "${LISP_BUFFER_LIST}")
             exit
             ;;
         --kill-all|-ka)
@@ -328,6 +327,7 @@ do
             DIE="DIE"
             ;&
         --stop|--kill|-k|--slay)
+            PS3='Whom do you wish to slay?'
             IFS=,
             daemons="${2}"
             :
@@ -395,8 +395,7 @@ do
             :
             for daemon in $daemons; do
                 :
-                sanitize "${daemon}"
-                daemon="${result}"
+                daemon=$(sanitize "${daemon}")
                 socket=$(query_socket "${2}")
                 if containsElement "${socket}" "${arrSockets[@]}"
                 then
@@ -428,15 +427,15 @@ do
             exit
             ;;
         -z)
-            result=$(message_daemon "${LISP_BUFFER_COUNT}" "SHIT")
-	          echo $result;exit
-            [[ $result -gt 0 ]] && printf '%s\n' "Beware!"
-            exit
-            # (mapconcat 'identity (delete 'nil (mapcar 'buffer-file-name (buffer-list))) "+++")
-            query_daemon "${LISP_BUFFER_LIST}"
-            printf "${result[0]}";exit
-            r="${result[@]//[^a-zA-Z0-9\/\&\_]/}"
-            printf '%s' "${r}"
+    #         result=$(message_daemon "${LISP_BUFFER_COUNT}" "SHIT")
+# 	          echo $result;exit
+#             [[ $result -gt 0 ]] && printf '%s\n' "Beware!"
+#             exit
+#             # (mapconcat 'identity (delete 'nil (mapcar 'buffer-file-name (buffer-list))) "+++")
+#             read -ra arr_buffers < <(query_daemon "${LISP_BUFFER_LIST}")
+#             printf "${arr_buffers[0]}";exit
+# #            r="${result[@]//[^a-zA-Z0-9\/\&\_]/}"
+#  #           printf '%s' "${r}"
             exit
             ;;
         --)
