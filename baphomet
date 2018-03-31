@@ -212,7 +212,7 @@ msg () {
     printf %b  "${none2}"
 }
 
-DISPLAY_HEADER() { printf '%b%s\e[0m\n' "${_gray}" "${EMACS_SOCKET_DIR}"
+DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${_gray}" "${EMACS_SOCKET_DIR}"
                  }
 
 
