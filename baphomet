@@ -8,12 +8,6 @@ shopt -s nocasematch
 PS3="What is thy bidding?: "
 unset KMND
 unset CDPATH
-unset rrr
-unset gray
-unset none
-unset _gray
-unset none2
-unset yyy
 KMND=('\emacs')
 :
 function cleanup {
@@ -49,15 +43,12 @@ case ${@:1:1} in
         ;;
 esac
 prettyify () {
-    rrr=$'\x1b[38;2;250;0;0m'
-    gray=$'\x1b[38;2;100;100;100m'
-    none=$'\x1b[0m'
+    R_=$'\x1b[38;2;250;0;0m'
+    K1=$'\x1b[38;2;100;100;100m'
+    __=$'\x1b[0m'
     #
-    _gray=$'\e[37;4;2m'
-    none2=$'\e[0m'
 
-    yyy=$'\e[33m'
-    rrr=$'\e[91m'
+    Y_=$'\e[33m'
     #
     inverse=$'\e[7m'
     #
@@ -168,7 +159,7 @@ slay () {
     local socket
     socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
     nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
-    printf 'Slaying daemon known as %b%s=\e[0m ...' "${yyy}" "$(basename "${socket^^}")"
+    printf 'Slaying daemon known as %b%s=\e[0m ...' "${Y_}" "$(basename "${socket^^}")"
     wait
     printf ' done.\n'
     printf ' So slain.\n'
@@ -194,7 +185,7 @@ msg () {
     elif [[ $1 -eq 204 ]]; then
         printf '%s' $'May you live long and prosper.'
     elif [[ $1 -eq 400 ]]; then
-        printf '%bBad choice.%b\n' "${rrr}" "${none}"
+        printf '%bBad choice.%b\n' "${R_}" "${__}"
     elif [[ $1 -eq 404 ]]; then
         printf 'The daemon \b%b was not found!\n' ${2:+" ${2^^}="}
     elif [[ $1 -eq 0404 ]]; then
@@ -202,10 +193,10 @@ msg () {
     elif [[ $1 -eq 499 ]]; then
         printf '%s' $'Request cancelled.'
     fi
-    printf %b  "${none2}"
+    printf %b "${__}"
 }
 
-DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${_gray}" "${EMACS_SOCKET_DIR}"
+DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${K1}" "${EMACS_SOCKET_DIR}"
                  }
 
 while [[ ${#@} -ne 0 ]]
@@ -285,14 +276,14 @@ do
             [[ $B_VERBOSE -gt 1 ]] && \
                 read -ra arr_pids < <(query_daemon "${LISP_PID}")
 
-            printf '%s%s%s\n\n' "${_gray}" "${EMACS_SOCKET_DIR}" "${none2}"
+            printf '%s%s%s\n\n' "${K1}" "${EMACS_SOCKET_DIR}" "${none2}"
             paste <(printf '%s\n' $'Daemons' "${pd[@]:- None found}") \
                   <([[ $B_VERBOSE -gt 0 ]] && printf '%s\n' $'Files #' "${arrBuffers[@]:- –}") \
                   <([[ $B_VERBOSE -gt 1 ]] && printf '%s\n' $'PID' "${arr_pids[@]:- –}") \
                 | sed $'s/\t/,,/g' |  column -s ',' -t
             :
             if  [[ $INTERACTIVE == TRUE ]]; then
-                printf '\n\n%b%s%b\n' "${rrr}" 'What do you desire?' "${none}"
+                printf '\n\n%b%s%b\n' "${R_}" 'What do you desire?' "${__}"
                 select option in 'Return' 'Quit'
                 do
                     case $option in
@@ -437,8 +428,8 @@ do
             ;;
         --help|-h)
             printf '%s%s\n' \
-                   "${rrr}" "BAPHOMET -- manage your emacs daemons"
-            printf '%s' "${gray}"
+                   "${R_}" "BAPHOMET -- manage your emacs daemons"
+            printf '%s' "${K1}"
             cat <<'EOF'
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
@@ -473,11 +464,11 @@ do
    Disclaimer: Execute this script at your own peril.
 EOF
 
-            printf '%s' "${none}"
+            printf '%s' "${__}"
             exit
             ;;
         -*)
-            printf '%bUnknown argument "%s"\e[0m\n\v' "${rrr}" "${1}"
+            printf '%bUnknown argument "%s"\e[0m\n\v' "${R_}" "${1}"
             exit 1
             ;;
         *)
@@ -494,11 +485,11 @@ EOF
 
                                                                                  case ${@:1:1} in
                                                                                      -i|--interactive)
-                                                                                         printf '%s' "${yyy}"
+                                                                                         printf '%b' "${Y_}"
                                                                                          printf '%.0s-' {1..20}; echo
                                                                                          printf '     MAIN MENU\n'
                                                                                          printf '%.0s-' {1..20}; echo
-                                                                                         printf '%s' "${none}"
+                                                                                         printf '%b' "${__}"
                                                                                          PS3="Make a choice: "
                                                                                          select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
                                                                                          do
@@ -515,7 +506,7 @@ EOF
                                                                                                      INTERACTIVE=TRUE exec "${0}" -k
                                                                                                      ;;
                                                                                                  'Summon')
-                                                                                                     printf '\n%bName your daemon\e[0m: ' "${rrr}"
+                                                                                                     printf '\n%bName your daemon\e[0m: ' "${R_}"
                                                                                                      read -r daemon
                                                                                                      [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
                                                                                                      INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
