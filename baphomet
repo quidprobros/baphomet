@@ -7,10 +7,17 @@ shopt -s nullglob
 shopt -s nocasematch
 PS3="What is thy bidding?: "
 unset KMND
+unset CDPATH
+unset rrr
+unset gray
+unset none
+unset _gray
+unset none2
+unset yyy
 KMND=('\emacs')
 :
 function cleanup {
-    printf '\n\n\e[7m%s\e[0m\n\n' $'I'\''ll be seeing you.'
+    printf '\n\n%b%s\e[0m\n\n' "${inverse}" $'I'\''ll be seeing you.'
     printf 'Cleaning up ... '
     kill %1 >/dev/null 2>&1
     wait
@@ -25,7 +32,7 @@ function cleanup {
     printf 'done.\n\n'
 
     [[ "${#daemon}" -gt 0 ]] && \
-        printf 'Note: The daemon \e[91m%s=\e[0m may have materialized despite interruption.\n' "${daemon^^}" && \
+        printf 'Note: The daemon %b%s=\e[0m may have materialized despite interruption.\n' "${rrr}" "${daemon^^}" && \
         printf "Attempting to slay in the background.\\n\\n" && \
         printf 'Enter %s to be sure.\n' $'`baphomet -l`'
     exit
@@ -50,6 +57,9 @@ prettyify () {
     none2=$'\e[0m'
 
     yyy=$'\e[33m'
+    rrr=$'\e[91m'
+    #
+    inverse=$'\e[7m'
 }
 # # # # #
 # U T I L
@@ -148,10 +158,10 @@ message_daemon () {
     unset result
     local CMD="${1}"
     if [[ "${#2}" -gt 0 ]]; then
-	query_socket "${2}"
+	      query_socket "${2}"
         read -r result < <(nc -U "${socket}" <<< \
-			       $"-eval ${CMD// /&_}" | \
-				awk $'FNR == 2 {printf $2}')
+			                        $"-eval ${CMD// /&_}" | \
+				                       awk $'FNR == 2 {printf $2}')
     fi
 
 }
@@ -178,7 +188,7 @@ sanitize () {
 
 
 msg () {
-    printf '\e[7m\n\n%s' $' \u2605 '
+    printf '%b\n\n \u2605  ' "${inverse}"
     if [[ $1 -eq 201 ]]; then
         printf 'Summoning the daemon \b%b ...' ${2:+" \\e[31m${2^^}=\\e[m\\e[7m"}
         wait "${3}"
@@ -196,6 +206,7 @@ msg () {
         printf '%s' $'Request cancelled.'
     fi
     printf '\e[0m\n\n'
+#    printf -v ender %q "${none2}" && eval
 }
 
 printf -v DISPLAY_HEADER '\e[37;4;2m%s\e[0m\n' "${EMACS_SOCKET_DIR}"
@@ -299,11 +310,11 @@ do
             ;;
         --list-buffers)
             query_daemon "${LISP_BUFFER_LIST}"
-	        printf '\e[37;4;2m%-20s\e[0m\n' "File buffers"
+	          printf '\e[37;4;2m%-20s\e[0m\n' "File buffers"
             R="${result[0]//$'+++'/$'\n'}"
             R="${R//\"/}"
-	    #            paste  <(printf '%s' "${R}")
-	    printf '%s\n' "${R}"|tr ';' '\n'
+	          #            paste  <(printf '%s' "${R}")
+	          printf '%s\n' "${R}"|tr ';' '\n'
             exit
             ;;
         --kill-all|-ka)
@@ -337,7 +348,7 @@ do
                         message_daemon "${LISP_BUFFER_COUNT}" "${daemon}"
                         if [[ $result -gt 0 ]]
                         then
-			    shopt -u nocasematch
+			                      shopt -u nocasematch
                             read -r -e -p "Beware! ${result} file buffers will be killed. Proceed? [Y/*]: " choice
                             [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
                             printf '\n%s\n\n' "Proceeding."
@@ -396,7 +407,7 @@ do
                         EMACS_BUFFER_NAME="${@}"
                         EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME#*\ \-\-\ }"
                         [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
-                        EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
+                            EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
                     fi
                 fi
             done
@@ -415,7 +426,7 @@ do
             ;;
         -z)
             message_daemon "${LISP_BUFFER_COUNT}" "SHIT"
-	    echo $result;exit
+	          echo $result;exit
             [[ $result -gt 0 ]] && printf '%s\n' "Beware!"
             exit
             # (mapconcat 'identity (delete 'nil (mapcar 'buffer-file-name (buffer-list))) "+++")
@@ -472,70 +483,70 @@ EOF
             exit
             ;;
         -*)
-            printf '\e[31mUnknown argument "%s"\e[0m\n\v' "${1}"
+            printf '%bUnknown argument "%s"\e[0m\n\v' "${rrr}" "${1}"
             exit 1
             ;;
         *)
             break;
             ;;
-    esac
-    [[ "${#@}" -eq 0 ]] && exit
-done
-:
-if [[ ${B_STATE} == "JOIN" ]]; then
-    exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
-fi
+                                                                                 esac
+                                                                                 [[ "${#@}" -eq 0 ]] && exit
+                                                                                done
+                                                                                 :
+                                                                                 if [[ ${B_STATE} == "JOIN" ]]; then
+                                                                                     exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
+                                                                                 fi
 
 
-case ${@:1:1} in
-    -i|--interactive)
-        printf '%s' "${yyy}"
-        printf '%.0s-' {1..20}; echo
-        printf '     MAIN MENU\n'
-        printf '%.0s-' {1..20}; echo
-        printf '%s' "${none}"
-        PS3="Make a choice (1-6): "
-        select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
-        do
-            option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
-            :
-            case $option in
-                'List')
-                    INTERACTIVE=TRUE exec "${0}" -l
-                    ;;
-                'Join')
-                    INTERACTIVE=TRUE exec "${0}" -j
-                    ;;
-                'Slay')
-                    INTERACTIVE=TRUE exec "${0}" -k
-                    ;;
-                'Summon')
-                    printf '\n\e[31mName your daemon\e[0m: '
-                    read -r daemon
-                    [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
-                    INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
-                    ;;
-                'Shell')
-                    INTERACTIVE=TRUE exec "${0}" --shell
-                    ;;
-                'Quit')
-                    msg 204
-                    exit
-                    ;;
-                *)
-                    msg 400
-                    ;;
-            esac
-        done
-        ;;
-esac
+                                                                                 case ${@:1:1} in
+                                                                                     -i|--interactive)
+                                                                                         printf '%s' "${yyy}"
+                                                                                         printf '%.0s-' {1..20}; echo
+                                                                                         printf '     MAIN MENU\n'
+                                                                                         printf '%.0s-' {1..20}; echo
+                                                                                         printf '%s' "${none}"
+                                                                                         PS3="Make a choice: "
+                                                                                         select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
+                                                                                         do
+                                                                                             option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
+                                                                                             :
+                                                                                             case $option in
+                                                                                                 'List')
+                                                                                                     INTERACTIVE=TRUE exec "${0}" -l
+                                                                                                     ;;
+                                                                                                 'Join')
+                                                                                                     INTERACTIVE=TRUE exec "${0}" -j
+                                                                                                     ;;
+                                                                                                 'Slay')
+                                                                                                     INTERACTIVE=TRUE exec "${0}" -k
+                                                                                                     ;;
+                                                                                                 'Summon')
+                                                                                                     printf '\n%bName your daemon\e[0m: ' "${rrr}"
+                                                                                                     read -r daemon
+                                                                                                     [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
+                                                                                                     INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
+                                                                                                     ;;
+                                                                                                 'Shell')
+                                                                                                     INTERACTIVE=TRUE exec "${0}" --shell
+                                                                                                     ;;
+                                                                                                 'Quit')
+                                                                                                     msg 204
+                                                                                                     exit
+                                                                                                     ;;
+                                                                                                 *)
+                                                                                                     msg 400
+                                                                                                     ;;
+                                                                                             esac
+                                                                                         done
+                                                                                         ;;
+                                                                                 esac
 
 
 
-case ${@:1:1} in
-    --shell|-is)
-        exec bash --rcfile <(read -r baphomet_shell < \
-                                  <(printf '%s' "PS1=$'\\u2605 BAPHOMET >\\e[0m ' ;\
+                                                                                 case ${@:1:1} in
+                                                                                     --shell|-is)
+                                                                                         exec bash --rcfile <(read -r baphomet_shell < \
+                                                                                                                   <(printf '%s' "PS1=$'\\u2605 BAPHOMET >\\e[0m ' ;\
                                        trap \"printf '%s\\n\\n' $'\\111\\47\\154\\154\\40 \\142\\145\\40 \\163\\145\\145\\151\\156\\147\\40 \\171\\157\\165\\56'; tput clear \"  EXIT;\
                                        cd $EMACS_SOCKET_DIR;\
                                        tput clear;\
@@ -554,13 +565,13 @@ case ${@:1:1} in
                                        alias ka=kill-all;\
                                        alias join=\"${0} -j\";\
                                        "); printf '%s' "${baphomet_shell}") -i
-        ;;
-esac
+                                                                                         ;;
+                                                                                 esac
 
-socket="${arrSockets[0]}"
-daemon="$(basename "${socket}")"
-[[ ${#socket} -gt 0 ]] && \
-    EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
+                                                                                 socket="${arrSockets[0]}"
+                                                                                 daemon="$(basename "${socket}")"
+                                                                                 [[ ${#socket} -gt 0 ]] && \
+                                                                                     EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
 
-printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
-exec "${0}" --interactive
+                                                                                 printf '\e[0;36m%s\e[0m\n' "No daemons found. Let's get interactive."
+                                                                                 exec "${0}" --interactive
