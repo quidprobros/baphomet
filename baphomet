@@ -26,8 +26,8 @@ function cleanup {
     printf 'done.\n\n'
 
     [[ "${#daemon}" -gt 0 ]] && \
-        printf 'Note: The daemon %b%s=\e[0m may have materialized despite interruption.\n' "${rrr}" "${daemon^^}" && \
-        printf "Attempting to slay in the background.\\n\\n" && \
+        printf 'Note: The daemon %b%s=\e[0m may have materialized despite interruption.\n' "${R_}" "${daemon//\!//}" && \
+        msg 'Attempting to slay in the background' && \
         printf 'Enter %s to be sure.\n' $'`baphomet -l`'
     exit
 }
@@ -173,6 +173,10 @@ sanitize () {
     result="${result%!}"
     printf '%s' "${result#!}"
 }
+pretty () {
+    local result
+    :
+}
 
 
 msg () {
@@ -182,9 +186,9 @@ msg () {
 	          printf '%s' "${1}"
 	          ;;
         *)
-
             if [[ $1 -eq 201 ]]; then
-                printf 'Summoning the daemon \b%b ...' ${2:+" ${2^^}="}
+                printf -v target %s "${2//\!//}"
+                printf 'Summoning the daemon \b%b ...' ${target:+" ${target^^}="}
                 wait "${3}"
                 printf ' done. \n'
                 printf 'So summoned.'
@@ -408,7 +412,8 @@ do
                     exec "${0}" -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-                    msg 201 "${daemon^^}" '%1'
+
+                    msg 201 "${daemon}" '%1'
                     :
                     :
                     containsElement $'--' "${@}"
