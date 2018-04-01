@@ -4,7 +4,7 @@
 #set -u
 shopt -s extglob
 shopt -s nullglob
-shopt -s nocasematch
+shopt -s nocaseglob
 PS3="What is thy bidding?: "
 unset KMND
 unset CDPATH
@@ -404,7 +404,7 @@ do
       printf 'Debug mode not ready!\n'
       exit
       ;;
-    --version)
+    --version|-V)
       printf 'idk check git tag\n'
       exit
       ;;
