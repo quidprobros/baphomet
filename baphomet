@@ -416,15 +416,15 @@ do
       exit
       ;;
     --debug|-d)
-      printf 'Debug mode not ready!\n'
+      alert 'Debug mode not ready!'
       exit
       ;;
     --version|-V)
-      printf 'idk check git tag\n'
+      msg 'IDK check git tag'
       exit
       ;;
     -w|--watch)
-      printf 'Watch all daemonic activity.\n'
+      msg 'Watch all daemonic activity. (not ready)'
       exit
       ;;
     -z)
