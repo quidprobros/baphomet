@@ -176,7 +176,13 @@ sanitize () {
 
 
 msg () {
-  printf '%b\n\n \u2605  ' "${inverse}"
+    printf '%b\n\n \u2605  ' "${inverse}"
+    case $1 in
+	''|*[!0-9]*)
+	    printf '%s' "${1}"
+	    ;;
+    *)
+
   if [[ $1 -eq 201 ]]; then
     printf 'Summoning the daemon \b%b ...' ${2:+" ${2^^}="}
     wait "${3}"
@@ -191,9 +197,17 @@ msg () {
   elif [[ $1 -eq 0404 ]]; then
     printf '%s' $'No daemons to be found.'
   elif [[ $1 -eq 499 ]]; then
-    printf '%s' $'Request cancelled.'
+      printf '%s' $'Request cancelled.'
   fi
+  esac
   printf '%b\n' "${__}"
+}
+
+warn(){
+    printf '%b%s%b\n' "${Y_}" "${1}" "${__}"
+}
+alert(){
+    printf '%b%s%b\n' "${R_}" "${1}" "${__}"
 }
 
 DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${K1}" "${EMACS_SOCKET_DIR}"
@@ -212,7 +226,7 @@ do
     -u|--user)
       UZR="${2}"
       [[ ${#UZR} -eq 0 ]] && \
-        printf 'A user must be specified!\n' && exit 1
+        alert 'A user must be specified!' && exit 1
       if ! userTest "${UZR}"; then exit 1; fi
       :
       shift 2
@@ -283,7 +297,8 @@ do
         | sed $'s/\t/,,/g' |  column -s ',' -t
       :
       if  [[ $INTERACTIVE == TRUE ]]; then
-        printf '\n\n%b%s%b\n' "${R_}" 'What do you desire?' "${__}"
+	  msg 'What do you desire?'
+
         select option in 'Return' 'Quit'
         do
           case $option in
@@ -359,7 +374,7 @@ do
       ;;
     --file|-f|--buffer|-b)
       if [[ ${#2} -eq 0 ]]; then
-        printf 'No file or buffer specified!\n';exit
+        alert 'No file or buffer specified!';exit
       else
         EMACS_BUFFER_NAME="${2}"
       fi
