@@ -1,6 +1,6 @@
 {
     "name": "baphomet",
-    "version": "3.1",
+    "version": "*",
     "global": "true",
     "description": "Manage your emacs daemons ",
     "scripts": [ "baphomet" ],
