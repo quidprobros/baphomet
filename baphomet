@@ -11,67 +11,67 @@ unset CDPATH
 KMND=('\emacs')
 :
 function cleanup {
-  printf '\n\n%b%s\e[0m\n\n' "${inverse}" $'I'\''ll be seeing you.'
-  printf 'Cleaning up ... '
-  kill %1 >/dev/null 2>&1
-  wait
-  (sleep 20
-   if hard_check "${daemon}"
-   then
-     slay "${daemon}" >/dev/null 2>&1
-   fi
-  ) &
-  disown %1
-  jobs
-  printf 'done.\n\n'
+    printf '\n\n%b%s\e[0m\n\n' "${inverse}" $'I'\''ll be seeing you.'
+    printf 'Cleaning up ... '
+    kill %1 >/dev/null 2>&1
+    wait
+    (sleep 20
+     if hard_check "${daemon}"
+     then
+         slay "${daemon}" >/dev/null 2>&1
+     fi
+    ) &
+    disown %1
+    jobs
+    printf 'done.\n\n'
 
-  [[ "${#daemon}" -gt 0 ]] && \
-    printf 'Note: The daemon %b%s=\e[0m may have materialized despite interruption.\n' "${rrr}" "${daemon^^}" && \
-    printf "Attempting to slay in the background.\\n\\n" && \
-    printf 'Enter %s to be sure.\n' $'`baphomet -l`'
-  exit
+    [[ "${#daemon}" -gt 0 ]] && \
+        printf 'Note: The daemon %b%s=\e[0m may have materialized despite interruption.\n' "${rrr}" "${daemon^^}" && \
+        printf "Attempting to slay in the background.\\n\\n" && \
+        printf 'Enter %s to be sure.\n' $'`baphomet -l`'
+    exit
 }
 trap cleanup TERM INT SIGINT SIGTERM
 :
 case ${@:1:1} in
-  -x|--escape)
-    exec command emacs "${@:2}"
-    ;;
-  -Q|--quick)
-    KMND+=("-Q ${@:2}")
-    eval exec "${KMND[*]}"
-    ;;
+    -x|--escape)
+        exec command emacs "${@:2}"
+        ;;
+    -Q|--quick)
+        KMND+=("-Q ${@:2}")
+        eval exec "${KMND[*]}"
+        ;;
 esac
 prettyify () {
-  R_=$'\x1b[38;2;250;0;0m'
-  K1=$'\x1b[38;2;100;100;100m'
-  __=$'\x1b[0m'
-  #
+    R_=$'\x1b[38;2;250;0;0m'
+    K1=$'\x1b[38;2;100;100;100m'
+    __=$'\x1b[0m'
+    #
 
-  Y_=$'\e[33m'
-  #
-  inverse=$'\e[7m'
-  #
-  mmm=$'\e[0;36m'
+    Y_=$'\e[33m'
+    #
+    inverse=$'\e[7m'
+    #
+    mmm=$'\e[0;36m'
 }
 # # # # #
 # U T I L
 # # # # #
 containsElement () {
-  local e match="$1"
-  shift
-  for e; do [[ "$e" == "$match" ]] && return 0; done
-  return 1
+    local e match="$1"
+    shift
+    for e; do [[ "$e" == "$match" ]] && return 0; done
+    return 1
 }
 
 userTest () {
-  [[ ${#@} -ne 0 ]] && USER="${1}"
-  :
-  id -u "${USER}" >/dev/null 2>&1
-  if [[ $? -eq 1 ]]; then
-    printf 'The user %s is not known to exist.\n' "${USER^^}"; return 1
-  fi
-  return 0
+    [[ ${#@} -ne 0 ]] && USER="${1}"
+    :
+    id -u "${USER}" >/dev/null 2>&1
+    if [[ $? -eq 1 ]]; then
+        printf 'The user %s is not known to exist.\n' "${USER^^}"; return 1
+    fi
+    return 0
 }
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
@@ -93,27 +93,27 @@ LISP_PID=$'(emacs-pid)'
 :
 
 hard_check () {
-  local socket="${EMACS_SOCKET_DIR}/${1}"
-  [[ -S $socket ]] && return 0
-  :
-  return 1
+    local socket="${EMACS_SOCKET_DIR}/${1}"
+    [[ -S $socket ]] && return 0
+    :
+    return 1
 }
 
 list_sockets () {
-  local socket
-  local daemon
-  :
-  arrSockets=("${EMACS_SOCKET_DIR:?}"/*)
-  arrDaemons=()
-  :
-  for socket in "${arrSockets[@]}"
-  do
-    if [[ -S $socket ]]; then
-      arrDaemons+=("$(basename "${socket^^}")")
-    fi
-  done
-  pd=("${arrDaemons[@]//\!/\/}")
-  pd=("${pd[@]/%/=}")
+    local socket
+    local daemon
+    :
+    arrSockets=("${EMACS_SOCKET_DIR:?}"/*)
+    arrDaemons=()
+    :
+    for socket in "${arrSockets[@]}"
+    do
+        if [[ -S $socket ]]; then
+            arrDaemons+=("$(basename "${socket^^}")")
+        fi
+    done
+    pd=("${arrDaemons[@]//\!/\/}")
+    pd=("${pd[@]/%/=}")
 }
 # generate sockets array
 list_sockets
@@ -121,86 +121,86 @@ list_sockets
 
 
 query_socket () {
-  printf '%s/%s' "${EMACS_SOCKET_DIR}" "${1}"
+    printf '%s/%s' "${EMACS_SOCKET_DIR}" "${1}"
 }
 
 
 query_daemon () {
-  local result
-  local element
-  local CMD="${1}"
-  :
-  for s in "${arrSockets[@]}"
-  do
-    read -r element < <(nc -U "${s}" <<< \
-                           $"-eval ${CMD// /&_}" | \
-                          awk $'FNR == 2 {printf $2}')
-    result+=("${element}")
-  done
-  printf %s "${result[*]}"
+    local result
+    local element
+    local CMD="${1}"
+    :
+    for s in "${arrSockets[@]}"
+    do
+        read -r element < <(nc -U "${s}" <<< \
+                               $"-eval ${CMD// /&_}" | \
+                                awk $'FNR == 2 {printf $2}')
+        result+=("${element}")
+    done
+    printf %s "${result[*]}"
 }
 
 message_daemon () {
-  local result
-  local socket
-  local CMD="${1}"
-  if [[ "${#2}" -gt 0 ]]; then
-	  socket=$(query_socket "${2}")
-    read -r result < <(nc -U "${socket}" <<< \
-			                    $"-eval ${CMD// /&_}" | \
-				                 awk $'FNR == 2 {printf $2}')
-    printf '%s' "${result}"
-    return 0
-  fi
+    local result
+    local socket
+    local CMD="${1}"
+    if [[ "${#2}" -gt 0 ]]; then
+	      socket=$(query_socket "${2}")
+        read -r result < <(nc -U "${socket}" <<< \
+			                        $"-eval ${CMD// /&_}" | \
+				                       awk $'FNR == 2 {printf $2}')
+        printf '%s' "${result}"
+        return 0
+    fi
 }
 
 
 slay () {
-  local socket
-  socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
-  nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
-  printf 'Slaying daemon known as %b%s=\e[0m ...' "${Y_}" "$(basename "${socket^^}")"
-  wait
-  printf ' done.\n'
-  printf ' So slain.\n'
+    local socket
+    socket="${EMACS_SOCKET_DIR}/$(basename "${1}")"
+    nc -U "${socket}" <<< '-eval (kill-emacs)' >/dev/null 2>&1 &
+    printf 'Slaying daemon known as %b%s=\e[0m ...' "${Y_}" "$(basename "${socket^^}")"
+    wait
+    printf ' done.\n'
+    printf ' So slain.\n'
 }
 
 sanitize () {
-  local result
-  :
-  result="${1//[^a-zA-Z0-9\/]/}"
-  result="${result////!}"
-  result="${result%!}"
-  printf '%s' "${result#!}"
+    local result
+    :
+    result="${1//[^a-zA-Z0-9\/]/}"
+    result="${result////!}"
+    result="${result%!}"
+    printf '%s' "${result#!}"
 }
 
 
 msg () {
     printf '%b\n\n \u2605  ' "${inverse}"
     case $1 in
-	''|*[!0-9]*)
-	    printf '%s' "${1}"
-	    ;;
-    *)
+	      ''|*[!0-9]*)
+	          printf '%s' "${1}"
+	          ;;
+        *)
 
-  if [[ $1 -eq 201 ]]; then
-    printf 'Summoning the daemon \b%b ...' ${2:+" ${2^^}="}
-    wait "${3}"
-    printf ' done. \n'
-    printf 'So summoned.'
-  elif [[ $1 -eq 204 ]]; then
-    printf '%s' $'May you live long and prosper.'
-  elif [[ $1 -eq 400 ]]; then
-    printf '%bBad choice.%b' "${R_}" "${__}"
-  elif [[ $1 -eq 404 ]]; then
-    printf 'The daemon \b%b was not found!' ${2:+" ${2^^}="}
-  elif [[ $1 -eq 0404 ]]; then
-    printf '%s' $'No daemons to be found.'
-  elif [[ $1 -eq 499 ]]; then
-      printf '%s' $'Request cancelled.'
-  fi
-  esac
-  printf '%b\n' "${__}"
+            if [[ $1 -eq 201 ]]; then
+                printf 'Summoning the daemon \b%b ...' ${2:+" ${2^^}="}
+                wait "${3}"
+                printf ' done. \n'
+                printf 'So summoned.'
+            elif [[ $1 -eq 204 ]]; then
+                printf '%s' $'May you live long and prosper.'
+            elif [[ $1 -eq 400 ]]; then
+                printf '%bBad choice.%b' "${R_}" "${__}"
+            elif [[ $1 -eq 404 ]]; then
+                printf 'The daemon \b%b was not found!' ${2:+" ${2^^}="}
+            elif [[ $1 -eq 0404 ]]; then
+                printf '%s' $'No daemons to be found.'
+            elif [[ $1 -eq 499 ]]; then
+                printf '%s' $'Request cancelled.'
+            fi
+    esac
+    printf '%b\n' "${__}"
 }
 
 warn(){
@@ -213,221 +213,229 @@ alert(){
 DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${K1}" "${EMACS_SOCKET_DIR}"
                  }
 
+DISPLAY_MENU_HEADER() {
+    printf '%b' "${Y_}"
+    printf '%.0s-' {1..20}; echo
+    printf '     MAIN MENU\n'
+    printf '%.0s-' {1..20}; echo
+    printf '%b' "${__}"
+}
+
 while [[ ${#@} -ne 0 ]]
 do
-  case $1 in
-    -p|--pretty)
-      prettyify
-      shift
-      ;;
-    -i|--interactive|-is|--shell)
-      break  3
-      ;;
-    -u|--user)
-      UZR="${2}"
-      [[ ${#UZR} -eq 0 ]] && \
-        alert 'A user must be specified!' && exit 1
-      if ! userTest "${UZR}"; then exit 1; fi
-      :
-      shift 2
-      USER="${UZR}" exec "${0}" "${@}"
-      ;;
-    -v|--verbose)
-      B_VERBOSE=$(( B_VERBOSE+1 ))
-      shift
-      ;;
-    -vv|--very-verbose)
-      B_VERBOSE=2
-      shift
-      ;;
-    --join|-j)
-      B_STATE="JOIN"
-      daemon="${2}"
-      :
-      socket=$(query_socket "${daemon}")
-      :
-      if [[ ${#daemon} -eq 0 ]]; then
-        [[ "${#arrSockets[@]}" -eq 0 ]] && msg 0404 && exit
-        printf '\e[33m%.0s-' {1..20}; echo
-        printf '     DAEMON MENU\n'
-        printf '%.0s-' {1..20};  printf '\e[0m\n\n'
-        DISPAY_HEADER
-
-        select daemon in "${arrDaemons[@]}" ${OFFER:+"Commune with $OFFER="} "Quit"
-        do
-          [[ "${daemon^^}" == "QUIT"  ]] && \
-            msg 204 && \
-            exit 0
-          :
-          if [[ $INTERACTIVE == TRUE ]]
-          then
-            printf '\n\e[31mName a buffer or file by absolute path\e[0m: '
-            read -r EMACS_BUFFER_NAME
-            break
-          fi
-          exec "${0}" -j "${daemon}"
-        done
-      fi
-      :
-      socket=$(query_socket "${daemon}")
-      if containsElement "${socket}" "${arrSockets[@]}"
-      then
-        :
-        shift 2
-        continue
-      else
-        msg 404 "${daemon}"
-        shift 2
-        OFFER="${daemon}"
-        exec "${0}" --list
-      fi
-      exit
-      ;;
-    --list|--list-daemons|-l|-ls)
-      [[ $B_VERBOSE -gt 0 ]] && \
-        read -ra arrBuffers < <(query_daemon "${LISP_BUFFER_COUNT}")
-
-      [[ $B_VERBOSE -gt 1 ]] && \
-        read -ra arr_pids < <(query_daemon "${LISP_PID}")
-
-      printf '%s%s%s\n\n' "${K1}" "${EMACS_SOCKET_DIR}" "${none2}"
-      paste <(printf '%s\n' $'Daemons' "${pd[@]:- None found}") \
-            <([[ $B_VERBOSE -gt 0 ]] && printf '%s\n' $'Files #' "${arrBuffers[@]:- –}") \
-            <([[ $B_VERBOSE -gt 1 ]] && printf '%s\n' $'PID' "${arr_pids[@]:- –}") \
-        | sed $'s/\t/,,/g' |  column -s ',' -t
-      :
-      if  [[ $INTERACTIVE == TRUE ]]; then
-	  msg 'What do you desire?'
-
-        select option in 'Return' 'Quit'
-        do
-          case $option in
-            'Return')
-              exec "${0}" -i
-              ;;
-            'Quit')
-              exit
-              ;;
-          esac
-        done
-      fi
-      exit
-      ;;
-    --list-buffers)
-      read -ra arr_buffers < <(query_daemon "${LISP_BUFFER_LIST}")
-      exit
-      ;;
-    --kill-all|-ka)
-      shopt -u nocasematch
-      read -r -e -p "Beware! This command kills all buffers, even unsaved ones. Proceed? [Y/*]: "  choice
-      [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
-      printf '\n%s\n\n' "Proceeding."
-      DIE="DIE"
-      ;&
-    --stop|--kill|-k|--slay)
-      PS3='Whom do you wish to slay? '
-      IFS=,
-      daemons="${2}"
-      :
-      DISPLAY_HEADER
-      [[ "${#arrSockets[@]}" -eq 0 ]] && \
-        msg 0404  && exit
-      :
-      if [[ $DIE == "DIE" ]]; then
-        for socket in "${arrSockets[@]}"
-        do
-          slay "${socket}"
-        done
-        exit
-      fi
-      :
-      if [[ ${#daemons} -eq 0 ]]
-      then
-        printf "Choose a daemon to slay:\\n" && \
-          select daemon in "${arrDaemons[@]}"
-          do
-            result=$(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")
-            if [[ $result -gt 0 ]]
-            then
-			        shopt -u nocasematch
-              read -r -e -p "Beware! ${result} file buffers will be killed. Proceed? [Y/*]: " choice
-              [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
-              printf '\n%s\n\n' "Proceeding."
-            fi
+    case $1 in
+        -p|--pretty)
+            prettyify
+            shift
+            ;;
+        -i|--interactive|-is|--shell)
+            break  3
+            ;;
+        -u|--user)
+            UZR="${2}"
+            [[ ${#UZR} -eq 0 ]] && \
+                alert 'A user must be specified!' && exit 1
+            if ! userTest "${UZR}"; then exit 1; fi
+            :
+            shift 2
+            USER="${UZR}" exec "${0}" "${@}"
+            ;;
+        -v|--verbose)
+            B_VERBOSE=$(( B_VERBOSE+1 ))
+            shift
+            ;;
+        -vv|--very-verbose)
+            B_VERBOSE=2
+            shift
+            ;;
+        --join|-j)
+            B_STATE="JOIN"
+            daemon="${2}"
+            :
             socket=$(query_socket "${daemon}")
-            slay "${socket}"
+            :
+            if [[ ${#daemon} -eq 0 ]]; then
+                [[ "${#arrSockets[@]}" -eq 0 ]] && msg 0404 && exit
+                printf '\e[33m%.0s-' {1..20}; echo
+                printf '     DAEMON MENU\n'
+                printf '%.0s-' {1..20};  printf '\e[0m\n\n'
+                DISPAY_HEADER
+
+                select daemon in "${arrDaemons[@]}" ${OFFER:+"Commune with $OFFER="} "Quit"
+                do
+                    [[ "${daemon^^}" == "QUIT"  ]] && \
+                        msg 204 && \
+                        exit 0
+                    :
+                    if [[ $INTERACTIVE == TRUE ]]
+                    then
+                        printf '\n\e[31mName a buffer or file by absolute path\e[0m: '
+                        read -r EMACS_BUFFER_NAME
+                        break
+                    fi
+                    exec "${0}" -j "${daemon}"
+                done
+            fi
+            :
+            socket=$(query_socket "${daemon}")
+            if containsElement "${socket}" "${arrSockets[@]}"
+            then
+                :
+                shift 2
+                continue
+            else
+                msg 404 "${daemon}"
+                shift 2
+                OFFER="${daemon}"
+                exec "${0}" --list
+            fi
             exit
-          done
-      else
-        for daemon in $daemons; do
-          socket=$(query_socket "${daemon}")
-          if containsElement "${socket}" "${arrSockets[@]}"
-          then
-            slay "${socket}"
-          else
-            msg 404 "${daemon}"
-          fi
-        done
-      fi
-      :
-      exit
-      ;;
-    --file|-f|--buffer|-b)
-      if [[ ${#2} -eq 0 ]]; then
-        alert 'No file or buffer specified!';exit
-      else
-        EMACS_BUFFER_NAME="${2}"
-      fi
-      ;;
-    --start|--summon|-c|-s)
-      IFS=,
-      daemons="${2}"
-      :
-      if [[ ${#daemons} -eq 0 ]]; then
-        if [[ ${#arrDaemons[*]} -eq 0 ]]; then
-          daemons="server"
-        else
-          daemons="${arrDaemons[0]}"
-        fi
-      fi
-      :
-      for daemon in $daemons; do
-        :
-        daemon=$(sanitize "${daemon}")
-        socket=$(query_socket "${daemon}")
-        if containsElement "${socket}" "${arrSockets[@]}"
-        then
-          exec "${0}" -j "${daemon}" "${@:3}"
-        else
-          \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
-          msg 201 "${daemon^^}" '%1'
-          :
-          :
-          containsElement $'--' "${@}"
-          if [[ "$?" -eq 0  && "${#daemons[@]}" -eq 1 ]]
-          then
-            EMACS_BUFFER_NAME="${@}"
-            EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME#*\ \-\-\ }"
-            [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
-              EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
-          fi
-        fi
-      done
-      exit
-      ;;
-    --debug|-d)
-      alert 'Debug mode not ready!'
-      exit
-      ;;
-    --version|-V)
-      msg 'IDK check git tag'
-      exit
-      ;;
-    -w|--watch)
-      msg 'Watch all daemonic activity. (not ready)'
-      exit
-      ;;
-    -z)
+            ;;
+        --list|--list-daemons|-l|-ls)
+            [[ $B_VERBOSE -gt 0 ]] && \
+                read -ra arrBuffers < <(query_daemon "${LISP_BUFFER_COUNT}")
+
+            [[ $B_VERBOSE -gt 1 ]] && \
+                read -ra arr_pids < <(query_daemon "${LISP_PID}")
+
+            printf '%s%s%s\n\n' "${K1}" "${EMACS_SOCKET_DIR}" "${none2}"
+            paste <(printf '%s\n' $'Daemons' "${pd[@]:- None found}") \
+                  <([[ $B_VERBOSE -gt 0 ]] && printf '%s\n' $'Files #' "${arrBuffers[@]:- –}") \
+                  <([[ $B_VERBOSE -gt 1 ]] && printf '%s\n' $'PID' "${arr_pids[@]:- –}") \
+                | sed $'s/\t/,,/g' |  column -s ',' -t
+            :
+            if  [[ $INTERACTIVE == TRUE ]]; then
+	              msg 'What do you desire?'
+
+                select option in 'Return' 'Quit'
+                do
+                    case $option in
+                        'Return')
+                            exec "${0}" -i
+                            ;;
+                        'Quit')
+                            exit
+                            ;;
+                    esac
+                done
+            fi
+            exit
+            ;;
+        --list-buffers)
+            read -ra arr_buffers < <(query_daemon "${LISP_BUFFER_LIST}")
+            exit
+            ;;
+        --kill-all|-ka)
+            shopt -u nocasematch
+            read -r -e -p "Beware! This command kills all buffers, even unsaved ones. Proceed? [Y/*]: "  choice
+            [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
+            printf '\n%s\n\n' "Proceeding."
+            DIE="DIE"
+            ;&
+        --stop|--kill|-k|--slay)
+            PS3='Whom do you wish to slay? '
+            IFS=,
+            daemons="${2}"
+            :
+            DISPLAY_HEADER
+            [[ "${#arrSockets[@]}" -eq 0 ]] && \
+                msg 0404  && exit
+            :
+            if [[ $DIE == "DIE" ]]; then
+                for socket in "${arrSockets[@]}"
+                do
+                    slay "${socket}"
+                done
+                exit
+            fi
+            :
+            if [[ ${#daemons} -eq 0 ]]
+            then
+                printf "Choose a daemon to slay:\\n" && \
+                    select daemon in "${arrDaemons[@]}"
+                    do
+                        result=$(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")
+                        if [[ $result -gt 0 ]]
+                        then
+			                      shopt -u nocasematch
+                            read -r -e -p "Beware! ${result} file buffers will be killed. Proceed? [Y/*]: " choice
+                            [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
+                            printf '\n%s\n\n' "Proceeding."
+                        fi
+                        socket=$(query_socket "${daemon}")
+                        slay "${socket}"
+                        exit
+                    done
+            else
+                for daemon in $daemons; do
+                    socket=$(query_socket "${daemon}")
+                    if containsElement "${socket}" "${arrSockets[@]}"
+                    then
+                        slay "${socket}"
+                    else
+                        msg 404 "${daemon}"
+                    fi
+                done
+            fi
+            :
+            exit
+            ;;
+        --file|-f|--buffer|-b)
+            if [[ ${#2} -eq 0 ]]; then
+                alert 'No file or buffer specified!';exit
+            else
+                EMACS_BUFFER_NAME="${2}"
+            fi
+            ;;
+        --start|--summon|-c|-s)
+            IFS=,
+            daemons="${2}"
+            :
+            if [[ ${#daemons} -eq 0 ]]; then
+                if [[ ${#arrDaemons[*]} -eq 0 ]]; then
+                    daemons="server"
+                else
+                    daemons="${arrDaemons[0]}"
+                fi
+            fi
+            :
+            for daemon in $daemons; do
+                :
+                daemon=$(sanitize "${daemon}")
+                socket=$(query_socket "${daemon}")
+                if containsElement "${socket}" "${arrSockets[@]}"
+                then
+                    exec "${0}" -j "${daemon}" "${@:3}"
+                else
+                    \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
+                    msg 201 "${daemon^^}" '%1'
+                    :
+                    :
+                    containsElement $'--' "${@}"
+                    if [[ "$?" -eq 0  && "${#daemons[@]}" -eq 1 ]]
+                    then
+                        EMACS_BUFFER_NAME="${@}"
+                        EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME#*\ \-\-\ }"
+                        [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
+                            EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
+                    fi
+                fi
+            done
+            exit
+            ;;
+        --debug|-d)
+            alert 'Debug mode not ready!'
+            exit
+            ;;
+        --version|-V)
+            msg 'IDK check git tag'
+            exit
+            ;;
+        -w|--watch)
+            msg 'Watch all daemonic activity. (not ready)'
+            exit
+            ;;
+        -z)
 #         result=$(message_daemon "${LISP_BUFFER_COUNT}" "SHIT")
 # 	          echo $result;exit
 #             [[ $result -gt 0 ]] && printf '%s\n' "Beware!"
@@ -440,15 +448,15 @@ do
 exit
 ;;
         --)
-          EMACS_BUFFER_NAME="${2}"
-          shift
-          break 3
-          ;;
+            EMACS_BUFFER_NAME="${2}"
+            shift
+            break 3
+            ;;
         --help|-h)
-          printf '%s%s\n' \
-                 "${R_}" "BAPHOMET -- manage your emacs daemons"
-          printf '%s' "${K1}"
-          cat <<'EOF'
+            printf '%s%s\n' \
+                   "${R_}" "BAPHOMET -- manage your emacs daemons"
+            printf '%s' "${K1}"
+            cat <<'EOF'
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
    -s,   --start [name[,name2]]      Summon one or more daemons
@@ -481,73 +489,69 @@ exit
 
    Disclaimer: Execute this script at your own peril.
 EOF
-          exit
-          ;;
+            exit
+            ;;
         -*)
-          printf '%bUnknown argument "%s"%b\n\v' "${R_}" "${1}" "${__}"
-          exit 1
-          ;;
+            printf '%bUnknown argument "%s"%b\n\v' "${R_}" "${1}" "${__}"
+            exit 1
+            ;;
         *)
-          break;
-          ;;
-                                            esac
-                                            [[ "${#@}" -eq 0 ]] && exit
-                                           done
-                                            :
-                                            if [[ ${B_STATE} == "JOIN" ]]; then
-                                              exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
-                                            fi
+            break;
+            ;;
+                                                    esac
+                                                    [[ "${#@}" -eq 0 ]] && exit
+                                                   done
+                                                    :
+                                                    if [[ ${B_STATE} == "JOIN" ]]; then
+                                                        exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
+                                                    fi
 
 
-                                            case ${@:1:1} in
-                                              -i|--interactive)
-                                                printf '%b' "${Y_}"
-                                                printf '%.0s-' {1..20}; echo
-                                                printf '     MAIN MENU\n'
-                                                printf '%.0s-' {1..20}; echo
-                                                printf '%b' "${__}"
-                                                PS3="Make a choice: "
-                                                select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
-                                                do
-                                                  option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
-                                                  :
-                                                  case $option in
-                                                    'List')
-                                                      INTERACTIVE=TRUE exec "${0}" -l
-                                                      ;;
-                                                    'Join')
-                                                      INTERACTIVE=TRUE exec "${0}" -j
-                                                      ;;
-                                                    'Slay')
-                                                      INTERACTIVE=TRUE exec "${0}" -k
-                                                      ;;
-                                                    'Summon')
-                                                      printf '\n%bName your daemon\e[0m: ' "${R_}"
-                                                      read -r daemon
-                                                      [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
-                                                      INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
-                                                      ;;
-                                                    'Shell')
-                                                      INTERACTIVE=TRUE exec "${0}" --shell
-                                                      ;;
-                                                    'Quit')
-                                                      msg 204
-                                                      exit
-                                                      ;;
-                                                    *)
-                                                      msg 400
-                                                      ;;
-                                                  esac
-                                                done
-                                                ;;
-                                            esac
+                                                    case ${@:1:1} in
+                                                        -i|--interactive)
+                                                            DISPLAY_MENU_HEADER
+                                                            PS3="Make a choice: "
+                                                            select option in ${arrDaemons[@]:+'List'} ${arrDaemons[@]:+$'Join'} ${arrDaemons[@]:+$'Slay'} $'Summon' $'Shell' $'Quit'
+                                                            do
+                                                                option=$(printf '%s' "${option}" |perl -pe 's/\x1b\[[0-9;]*[mG]//g')
+                                                                :
+                                                                case $option in
+                                                                    'List')
+                                                                        INTERACTIVE=TRUE exec "${0}" -l
+                                                                        ;;
+                                                                    'Join')
+                                                                        INTERACTIVE=TRUE exec "${0}" -j
+                                                                        ;;
+                                                                    'Slay')
+                                                                        INTERACTIVE=TRUE exec "${0}" -k
+                                                                        ;;
+                                                                    'Summon')
+                                                                        printf '\n%bName your daemon\e[0m: ' "${R_}"
+                                                                        read -r daemon
+                                                                        [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
+                                                                        INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
+                                                                        ;;
+                                                                    'Shell')
+                                                                        INTERACTIVE=TRUE exec "${0}" --shell
+                                                                        ;;
+                                                                    'Quit')
+                                                                        msg 204
+                                                                        exit
+                                                                        ;;
+                                                                    *)
+                                                                        msg 400
+                                                                        ;;
+                                                                esac
+                                                            done
+                                                            ;;
+                                                    esac
 
 
 
-                                            case ${@:1:1} in
-                                              --shell|-is)
-                                                exec bash --rcfile <(read -r baphomet_shell < \
-                                                                          <(printf '%s' "PS1=$'\\u2605 BAPHOMET >\\e[0m ' ;\
+                                                    case ${@:1:1} in
+                                                        --shell|-is)
+                                                            exec bash --rcfile <(read -r baphomet_shell < \
+                                                                                      <(printf '%s' "PS1=$'\\u2605 BAPHOMET >\\e[0m ' ;\
                                        trap \"printf '%s\\n\\n' $'\\111\\47\\154\\154\\40 \\142\\145\\40 \\163\\145\\145\\151\\156\\147\\40 \\171\\157\\165\\56'; tput clear \"  EXIT;\
                                        cd $EMACS_SOCKET_DIR;\
                                        tput clear;\
@@ -566,13 +570,13 @@ EOF
                                        alias ka=kill-all;\
                                        alias join=\"${0} -j\";\
                                        "); printf '%s' "${baphomet_shell}") -i
-                                                ;;
-                                            esac
+                                                            ;;
+                                                    esac
 
-                                            socket="${arrSockets[0]}"
-                                            daemon="$(basename "${socket}")"
-                                            [[ ${#socket} -gt 0 ]] && \
-                                              EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
+                                                    socket="${arrSockets[0]}"
+                                                    daemon="$(basename "${socket}")"
+                                                    [[ ${#socket} -gt 0 ]] && \
+                                                        EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
 
-                                            printf '%b%s\e[0m\n' "${mmm}" "No daemons found. Let's get interactive."
-                                            exec "${0}" --interactive
+                                                    printf '%b%s\e[0m\n' "${mmm}" "No daemons found. Let's get interactive."
+                                                    exec "${0}" --interactive
