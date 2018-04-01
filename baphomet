@@ -405,7 +405,8 @@ do
       exit
       ;;
     --version)
-      printf 'idk check github'
+      printf 'idk check git tag\n'
+      exit
       ;;
     -w|--watch)
       printf 'Watch all daemonic activity.\n'
