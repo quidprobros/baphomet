@@ -481,8 +481,6 @@ exit
 
    Disclaimer: Execute this script at your own peril.
 EOF
-
-          printf '%b' "${__}"
           exit
           ;;
         -*)
