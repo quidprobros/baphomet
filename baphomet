@@ -467,11 +467,11 @@ exit
    Disclaimer: Execute this script at your own peril.
 EOF
 
-          printf '%s' "${__}"
+          printf '%b' "${__}"
           exit
           ;;
         -*)
-          printf '%bUnknown argument "%s"\e[0m\n\v' "${R_}" "${1}"
+          printf '%bUnknown argument "%s"%b\n\v' "${R_}" "${1}" "${__}"
           exit 1
           ;;
         *)
