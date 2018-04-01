@@ -181,19 +181,19 @@ msg () {
     printf 'Summoning the daemon \b%b ...' ${2:+" ${2^^}="}
     wait "${3}"
     printf ' done. \n'
-    printf 'So summoned.\n'
+    printf 'So summoned.'
   elif [[ $1 -eq 204 ]]; then
     printf '%s' $'May you live long and prosper.'
   elif [[ $1 -eq 400 ]]; then
-    printf '%bBad choice.%b\n' "${R_}" "${__}"
+    printf '%bBad choice.%b' "${R_}" "${__}"
   elif [[ $1 -eq 404 ]]; then
-    printf 'The daemon \b%b was not found!\n' ${2:+" ${2^^}="}
+    printf 'The daemon \b%b was not found!' ${2:+" ${2^^}="}
   elif [[ $1 -eq 0404 ]]; then
     printf '%s' $'No daemons to be found.'
   elif [[ $1 -eq 499 ]]; then
     printf '%s' $'Request cancelled.'
   fi
-  printf %b "${__}"
+  printf '%b\n' "${__}"
 }
 
 DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${K1}" "${EMACS_SOCKET_DIR}"
