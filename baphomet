@@ -5,6 +5,7 @@
 shopt -s extglob
 shopt -s nullglob
 shopt -s nocaseglob
+shopt -s nocasematch
 PS3="What is thy bidding?: "
 unset KMND
 unset CDPATH
@@ -62,6 +63,14 @@ containsElement () {
     shift
     for e; do [[ "$e" == "$match" ]] && return 0; done
     return 1
+}
+
+containsElementWhich(){
+    local counter=0
+    local e match="$1"
+    shift
+    for e; do ((counter++)); [[ "$e" == "$match" ]]  && return "${counter}"; done
+    return 0
 }
 
 userTest () {
@@ -173,11 +182,6 @@ sanitize () {
     result="${result%!}"
     printf '%s' "${result#!}"
 }
-pretty () {
-    local result
-    :
-}
-
 
 msg () {
     printf '%b\n\n \u2605  ' "${inverse}"
@@ -281,10 +285,19 @@ do
                 done
             fi
             :
+            containsElementWhich "${daemon}" "${arrSockets[@]##*\!}"
+            index=$(("${?}" - 1))
+
             socket=$(query_socket "${daemon}")
+
             if containsElement "${socket}" "${arrSockets[@]}"
             then
                 :
+                shift 2
+                continue
+            elif [[ $index -gt 0 ]]
+            then
+                socket="${arrSockets[$index]}"
                 shift 2
                 continue
             else
@@ -441,6 +454,9 @@ do
             exit
             ;;
         -z)
+            IFS=$'!'
+            x='AFSD!ASDF!A'
+            echo ${x##*\!};exit
 #         result=$(message_daemon "${LISP_BUFFER_COUNT}" "SHIT")
 # 	          echo $result;exit
 #             [[ $result -gt 0 ]] && printf '%s\n' "Beware!"

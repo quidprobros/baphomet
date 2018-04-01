@@ -44,6 +44,12 @@ Believed to work with the following configurations:
 
 ````
 
+
+2018/04/01
+===
+Now you can join a namespaced daemon (eg this/is/my/project), you can join that daemon by specifying the last segment. Neat! Note that `baphomet` will opt for exact match if one exists.
+
+
 2018/02/24
 ===
 `Baphomet` will now warn you when you attempt to slay a daemon with file visiting clients, regardless of save status (re `--kill, --kill-all`).
@@ -60,7 +66,6 @@ TO-DO
 * BUG: `baphomet -s -- path/to/file` errors because daemon not assigned name
 * being able to parse flags in continuum would be nice
 * interactive mode should also list file buffers
-* allow enjoy by final daemon segment if unique
 * optional `dialog` support
 * interactive mode should allow buffer name entering
 * transparent handling of root owned files
