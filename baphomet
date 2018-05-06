@@ -89,7 +89,7 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
 DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
 (with-current-buffer (get-buffer-create baphomet-buffer))
-(switch-to-buffer baphomet-buffer) (setq header-line-format "BAPHOMET"))'
+(switch-to-buffer baphomet-buffer) (view-mode) (setq header-line-format "BAPHOMET"))'
 
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
