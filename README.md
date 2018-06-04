@@ -16,6 +16,7 @@ Believed to work with the following configurations:
    -k,   --kill,                     Slay one or more daemons
          --stop [name[,name2]]
    -ka,  --kill-all                  Slay all daemons
+   -p,   --prune                     Slay clientless daemons
    -j,   --join [name]               Join a daemon with name 'name'
    -l,   --list                      List known daemons
    -v,   --verbose                   Make output verbose
