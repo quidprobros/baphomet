@@ -44,6 +44,9 @@ Believed to work with the following configurations:
 
 ````
 
+2018/06/04
+===
+You can now kill clientless daemons with `baphomet --prune`!
 
 2018/04/01
 ===
@@ -86,7 +89,6 @@ TO-DO
 * include image of baphomet
 * hm, a universal keyboard using registers or whatever might be nice...
 * annotate functions
-* option to kill only clientless daemons
 * suggest daemon names
 
 * ignore this

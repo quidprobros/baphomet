@@ -339,8 +339,15 @@ do
             exit
             ;;
         --list-buffers)
-            read -ra arr_buffers < <(query_daemon "${LISP_BUFFER_LIST}")
-            exit
+            IFS=;
+            #read -ra arr_buffers < <(query_daemon "${LISP_BUFFER_LIST}")
+            read -ra buff < <(message_daemon "${LISP_BUFFER_LIST}" "baph")
+
+            for i in ${buff//\"/}
+            do
+                echo $i
+            done
+                exit
             ;;
         --kill-all|-ka)
             shopt -u nocasematch
@@ -397,6 +404,17 @@ do
             :
             exit
             ;;
+        --prune)
+          for daemon in "${arrDaemons[@]}"
+          do
+            read -ra buffer_count < <(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")
+            if [[ ${buffer_count} -eq 0 ]]
+            then
+              slay "${daemon}"
+            fi
+          done
+          exit
+          ;;
         --file|-f|--buffer|-b)
             if [[ ${#2} -eq 0 ]]; then
                 alert 'No file or buffer specified!';exit
