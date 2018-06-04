@@ -411,8 +411,11 @@ do
             if [[ ${buffer_count} -eq 0 ]]
             then
               slay "${daemon}"
+            else
+                printf '%s has buffers; it will be spared.\n' "${daemon}"
             fi
           done
+          printf '%s\n' "Done."
           exit
           ;;
         --file|-f|--buffer|-b)
@@ -499,10 +502,12 @@ exit
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
    -s,   --start [name[,name2]]      Summon one or more daemons
+
    -k,   --kill,                     Slay one or more daemons
          --stop [name[,name2]]
    -ka,  --kill-all                  Slay all daemons
    -p,   --prune                     Slay clientless daemons
+
    -j,   --join [name]               Join a daemon with name 'name'
    -l,   --list                      List known daemons
    -v,   --verbose                   Make output verbose
@@ -618,5 +623,7 @@ EOF
                                                     [[ ${#socket} -gt 0 ]] && \
                                                         EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
 
-                                                    printf '%b%s\e[0m\n' "${mmm}" "No daemons found. Let's get interactive."
-                                                    exec "${0}" --interactive
+                                                    echo "${@}"
+
+                                                    printf '%b%s\e[0m\n' "${mmm}" "No daemons found. Summoning Baphomet."
+                                                    exec "${0}" -s baphomet -- "${1}"
