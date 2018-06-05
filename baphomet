@@ -93,7 +93,8 @@ DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
 
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
-LISP_BUFFER_COUNT=$'(progn (require '"'"'cl) (length (cl-remove-if-not '"'"'buffer-file-name (buffer-list))))'
+LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
+#LISP_BUFFER_COUNT=$'(progn (require '"'"'cl) (length (cl-remove-if-not '"'"'buffer-file-name (buffer-list))))'
 :
 #LISP_BUFFER_LIST=$'(concat (daemonp) ":" (mapconcat '"'"'identity (delete '"'"'nil (mapcar '"'"'buffer-name (buffer-list))) ""))'
 # LISP_BUFFER_LIST=$'(mapcar '"'"'buffer-name (remove-if-not #'"'"'buffer-file-name (buffer-list)))'
@@ -141,8 +142,6 @@ query_daemon () {
     local element
     local CMD="${1}"
     :
-    IFS=
-
     for s in "${arrSockets[@]}"
     do
         read -r element < <(nc -U "${s}" <<< \
