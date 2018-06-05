@@ -53,9 +53,11 @@ Believed to work with the following configurations:
 
 ````
 
+
 2018/06/05
 ===
 * Fixed: `baphomet -s -- path/to/file` errors because daemon not assigned name
+* Feat: `baphomet -y|--list-buffers` will now list file visiting buffers for each daemon.
 
 
 2018/06/04
@@ -86,7 +88,6 @@ TO-DO
 * interactive mode should allow buffer name entering
 * transparent handling of root owned files
 * BUG: default buffer should be a temp buffer
-* RE interactive kill, indicate number of file buffers
 * confirm working with both gnu and bsd variants
 * consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
 * BUG: dont kill daemons with unsaved buffers
