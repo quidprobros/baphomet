@@ -13,19 +13,27 @@ Believed to work with the following configurations:
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
    -s,   --start [name[,name2]]      Summon one or more daemons
+
    -k,   --kill,                     Slay one or more daemons
          --stop [name[,name2]]
    -ka,  --kill-all                  Slay all daemons
    -p,   --prune                     Slay clientless daemons
+
    -j,   --join [name]               Join a daemon with name 'name'
    -l,   --list                      List known daemons
    -v,   --verbose                   Make output verbose
    -vv,  --very-verbose              Make output very verbose
+
+   -y,   --list-buffers              List file visiting buffers for
+                                      each daemon
+
    -b,   --buffer <name>             Specify buffer name
 
    -i,   --interactive               Interactive mode
    -is,  --shell                     Interactive shell mode
    -x,   --escape                    Exit script, run emacs as normal
+   -V,   --version                   Get version of baphomet
+
 
 
    Note:
@@ -82,7 +90,6 @@ TO-DO
 * confirm working with both gnu and bsd variants
 * consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
 * BUG: dont kill daemons with unsaved buffers
-* option to display buffer names
 * option to mark daemons to slay
 * `http://graphemica.com/search?page=2&q=braille`
 * check if compatible with gui version and xterm
