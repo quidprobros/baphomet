@@ -343,10 +343,10 @@ do
             exit
             ;;
         --list-buffers)
-
             for socket in "${arrDaemons[@]}"
             do
                 buff=$(message_daemon "${LISP_BUFFER_LIST} $socket")
+                echo ${buff[@]};exit
                 buff="${buff//\&\_/ }"
                 buff="${buff//@(\"|\(|\))/}"
 
