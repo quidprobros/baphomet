@@ -45,6 +45,11 @@ Believed to work with the following configurations:
 
 ````
 
+2018/06/05
+===
+* Fixed: `baphomet -s -- path/to/file` errors because daemon not assigned name
+
+
 2018/06/04
 ===
 You can now kill clientless daemons with `baphomet --prune`!
@@ -67,7 +72,6 @@ The options `-lv` and `-lvv` not longer work. Prefer `-v -l` and `-vv -l`, respe
 
 TO-DO
 ===
-* BUG: `baphomet -s -- path/to/file` errors because daemon not assigned name
 * being able to parse flags in continuum would be nice
 * interactive mode should also list file buffers
 * optional `dialog` support

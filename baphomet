@@ -93,9 +93,11 @@ DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
 
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
-LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
+LISP_BUFFER_COUNT=$'(progn (require '"'"'cl) (length (cl-remove-if-not '"'"'buffer-file-name (buffer-list))))'
 :
-LISP_BUFFER_LIST=$'(concat (daemonp) ";" (mapconcat '"'"'identity (delete '"'"'nil (mapcar '"'"'buffer-file-name (buffer-list))) "+++"))'
+#LISP_BUFFER_LIST=$'(concat (daemonp) ":" (mapconcat '"'"'identity (delete '"'"'nil (mapcar '"'"'buffer-name (buffer-list))) ""))'
+# LISP_BUFFER_LIST=$'(mapcar '"'"'buffer-name (remove-if-not #'"'"'buffer-file-name (buffer-list)))'
+LISP_BUFFER_LIST=$'(message "%s" (progn (require '"'"'cl) (loop for b in (buffer-list) if (buffer-file-name b) collect (buffer-name b))))'
 :
 LISP_PID=$'(emacs-pid)'
 :
@@ -139,6 +141,8 @@ query_daemon () {
     local element
     local CMD="${1}"
     :
+    IFS=
+
     for s in "${arrSockets[@]}"
     do
         read -r element < <(nc -U "${s}" <<< \
@@ -339,15 +343,23 @@ do
             exit
             ;;
         --list-buffers)
-            IFS=;
-            #read -ra arr_buffers < <(query_daemon "${LISP_BUFFER_LIST}")
-            read -ra buff < <(message_daemon "${LISP_BUFFER_LIST}" "baph")
 
-            for i in ${buff//\"/}
+            for socket in "${arrDaemons[@]}"
             do
-                echo $i
+                buff=$(message_daemon "${LISP_BUFFER_LIST} $socket")
+                buff="${buff//\&\_/ }"
+                buff="${buff//@(\"|\(|\))/}"
+
+                read -ra arr <<< "$buff"
+
+                for i in "${arr[@]}"
+                do
+                    echo "${i}"
+                done
+
             done
-                exit
+
+            exit
             ;;
         --kill-all|-ka)
             shopt -u nocasematch
@@ -404,20 +416,20 @@ do
             :
             exit
             ;;
-        --prune|-p)
-          for daemon in "${arrDaemons[@]}"
-          do
-            read -ra buffer_count < <(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")
-            if [[ ${buffer_count} -eq 0 ]]
-            then
-              slay "${daemon}"
-            else
-                printf '%s has buffers; it will be spared.\n' "${daemon}"
-            fi
-          done
-          printf '%s\n' "Done."
-          exit
-          ;;
+        --prune)
+            for daemon in "${arrDaemons[@]}"
+            do
+                read -ra buffer_count < <(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")
+                if [[ ${buffer_count} -eq 0 ]]
+                then
+                    slay "${daemon}"
+                else
+                    printf '%s has buffers; it will be spared.\n' "${daemon}"
+                fi
+            done
+            printf '%s\n' "Done."
+            exit
+            ;;
         --file|-f|--buffer|-b)
             if [[ ${#2} -eq 0 ]]; then
                 alert 'No file or buffer specified!';exit
@@ -429,14 +441,14 @@ do
             IFS=,
             daemons="${2}"
             :
-            if [[ ${#daemons} -eq 0 ]]; then
+            if [[ ${#daemons} -eq 0 || "${daemons}" == '--' ]]; then
                 if [[ ${#arrDaemons[*]} -eq 0 ]]; then
                     daemons="server"
                 else
                     daemons="${arrDaemons[0]}"
                 fi
             fi
-            :
+
             for daemon in $daemons; do
                 :
                 daemon=$(sanitize "${daemon}")

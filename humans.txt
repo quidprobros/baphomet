@@ -7,6 +7,6 @@ Location: Earth
 
 /* Thanks */
 https://www.reddit.com/user/n30h80r
-irc://defanor@freenode.net#emacs
+irc://defanor@freenode.net#emacs (bpalmer, etc)
 https://stackoverflow.com/users/2415684/jenesaisquoi
 irc://koala_man@freenodee.net#bash
