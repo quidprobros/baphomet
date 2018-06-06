@@ -417,7 +417,7 @@ do
             :
             exit
             ;;
-        --prune)
+        --prune|-g)
             for daemon in "${arrDaemons[@]}"
             do
                 read -ra buffer_count < <(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")

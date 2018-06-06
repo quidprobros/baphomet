@@ -9,7 +9,9 @@ Developed on `macos 10.13.x` (think, BSD) with `bash 4.4.12(1)-release`.
 Believed to work with the following configurations:
 * `Bash 4.3.42, Fedora 23`
 
-````bash
+
+```bash
+
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
    -s,   --start [name[,name2]]      Summon one or more daemons
@@ -51,7 +53,7 @@ Believed to work with the following configurations:
 
    Disclaimer: Execute this script at your own peril.
 
-````
+```
 
 
 2018/06/05
