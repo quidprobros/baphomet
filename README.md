@@ -10,7 +10,7 @@ Believed to work with the following configurations:
 * `Bash 4.3.42, Fedora 23`
 
 
-```bash
+```text
 
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
