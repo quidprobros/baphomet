@@ -93,6 +93,7 @@ TO-DO
 * confirm working with both gnu and bsd variants
 * consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
 * BUG: dont kill daemons with unsaved buffers
+* BUG: commands sent through socket not working when user is root
 * option to mark daemons to slay
 * `http://graphemica.com/search?page=2&q=braille`
 * check if compatible with gui version and xterm

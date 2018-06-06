@@ -347,7 +347,7 @@ do
 
                 read -ra arr <<< "$buff"
 
-                printf '%s\n' "${socket}="
+                printf '%s@%s\n' "${USER}" "${socket}="
                 for i in "${arr[@]}"
                 do
                     [[ "${i}" == 'nil' ]] && i=$'-'
