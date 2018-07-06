@@ -96,10 +96,9 @@ DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
 
 #LISP_BUFFER_LIST=$'(message "%s" (progn (require '"'"'cl) (loop for b in (buffer-list) if (buffer-file-name b) collect (buffer-name b))))'
-
+:
 LISP_BUFFER_LIST=$'(s-join "+" (progn (require '"'"'cl) (loop for b in (buffer-list) if (buffer-file-name b) collect (buffer-name b))))'
 :
-
 
 LISP_PID=$'(emacs-pid)'
 :
@@ -348,7 +347,6 @@ do
                 buff=$(message_daemon "${LISP_BUFFER_LIST}" "${socket}")
                 buff="${buff//@(&_|&-)/ }"
                 buff="${buff//\"/}"
-                #buff="${buff//@(\"|\(|\))/}"
                 buff="${buff:--}"
 
                 IFS=+ read -ra arr <<< "$buff"
