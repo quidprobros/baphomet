@@ -97,7 +97,7 @@ LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list
 
 #LISP_BUFFER_LIST=$'(message "%s" (progn (require '"'"'cl) (loop for b in (buffer-list) if (buffer-file-name b) collect (buffer-name b))))'
 :
-LISP_BUFFER_LIST=$'(s-join "+" (progn (require '"'"'cl) (loop for b in (buffer-list) if (buffer-file-name b) collect (buffer-name b))))'
+LISP_BUFFER_LIST=$'(s-join "+" (progn (require '"'"'cl) (loop for b in (buffer-list) if (buffer-file-name b) collect (concat (cond ((buffer-modified-p b) "* ") (t "  ")) (buffer-name b)))))'
 :
 
 LISP_PID=$'(emacs-pid)'
@@ -346,7 +346,8 @@ do
             for socket in "${arrDaemons[@]}"
             do
                 buff=$(message_daemon "${LISP_BUFFER_LIST}" "${socket}")
-                buff="${buff//@(&_|&-)/ }"
+                buff="${buff//&_/ }"
+                buff="${buff//&-/-}"
                 buff="${buff//\"/}"
                 buff="${buff:--}"
 
