@@ -1,9 +1,0 @@
-
-when listing buffers indicate if saved or not
-buffer opening should correspond to buffer list
-method to page file buffer anywhere
-directly use tramp
-prolly need to test for s library
-baphomet buffer could be a HELP buffer
-show status even when there are zero buffers
-option to hard kill
