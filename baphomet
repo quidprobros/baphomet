@@ -88,7 +88,7 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 
 
 DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
-(with-current-buffer (get-buffer-create baphomet-buffer))
+(with-current-buffer (switch-to-buffer baphomet-buffer))
 (switch-to-buffer baphomet-buffer) (view-mode) (setq header-line-format "BAPHOMET"))'
 
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
@@ -101,7 +101,6 @@ LISP_BUFFER_LIST=$'(s-join "+" (progn (require '"'"'cl) (loop for b in (buffer-l
 :
 
 LISP_PID=$'(emacs-pid)'
-:
 :
 
 hard_check () {
@@ -463,7 +462,6 @@ do
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
 
                     msg 201 "${daemon}" '%1'
-                    :
                     :
                     containsElement $'--' "${@}"
                     if [[ "$?" -eq 0  && "${#daemons[@]}" -eq 1 ]]
