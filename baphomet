@@ -99,6 +99,8 @@ LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list
 :
 LISP_BUFFER_LIST=$'(s-join "+" (progn (require '"'"'cl) (loop for b in (buffer-list) if (buffer-file-name b) collect (concat (cond ((buffer-modified-p b) "* ") (t "  ")) (buffer-name b)))))'
 :
+LISP_DAEMON_JOIN_MESSAGE=$'(message-box "Joined the daemon Levi")'
+
 
 LISP_PID=$'(emacs-pid)'
 :
