@@ -15,3 +15,7 @@ when listing buffers to stdout should somehow indicate relative depth
 what about being to hook into a project
 grep completion for buffer list
 new daemons might respect project roots
+filter out message buffers
+baphomet is not a file buffer
+buffer list should be alphanumeric
+list the daemon PID also
