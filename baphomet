@@ -567,8 +567,7 @@ EOF
 done
 :
 if [[ ${B_STATE} == "JOIN" ]]; then
-    exec emacsclient -q -c -s "${socket}"
-    #-- ${EMACS_BUFFER_NAME:+"$EMACS_BUFFER_NAME"}
+    exec emacsclient -q -c -s "${socket}" --eval $'(switch-to-buffer "*BAPHOMET WELCOMES YOU*")'
 fi
 
 
