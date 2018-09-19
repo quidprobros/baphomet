@@ -102,8 +102,19 @@ LISP_BUFFER_LIST=$'(s-join "+" (progn (require '"'"'cl) (loop for b in (buffer-l
 LISP_DAEMON_JOIN_MESSAGE=$'(message-box "Joined the daemon Levi")'
 
 
+
+
 LISP_PID=$'(emacs-pid)'
 :
+get_project_root () {
+    if [[ -f "./.baphomet" ]]; then
+        source "./.baphomet"
+    fi
+
+    return
+}
+get_project_root
+
 
 hard_check () {
     local socket="${EMACS_SOCKET_DIR}/${1}"
@@ -443,7 +454,7 @@ do
             ;;
         --start|--summon|-c|-s)
             IFS=,
-            daemons="${2}"
+            daemons="${daemons:-$2}"
             :
             if [[ ${#daemons} -eq 0 || "${daemons}" == '--' ]]; then
                 if [[ ${#arrDaemons[*]} -eq 0 ]]; then

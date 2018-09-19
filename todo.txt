@@ -20,3 +20,5 @@ baphomet is not a file buffer
 buffer list should be alphanumeric
 list the daemon PID also
 read desired daemon name from pwd
+how to send message to client through socket?
+requested daemon name is the socket in the pwd
