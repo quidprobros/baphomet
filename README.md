@@ -54,6 +54,10 @@ Believed to work with the following configurations:
    Disclaimer: Execute this script at your own peril.
 
 ```
+2018/09/16
+===
+* Will now check for and read `.baphomet` is project root. Presently, daemons can be specified.
+
 
 
 2018/06/05

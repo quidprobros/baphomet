@@ -87,9 +87,16 @@ EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 
 
+# DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
+# (with-current-buffer (switch-to-buffer baphomet-buffer))
+# (switch-to-buffer baphomet-buffer) (view-mode) (setq header-line-format "BAPHOMET"))'
+
 DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
-(with-current-buffer (switch-to-buffer baphomet-buffer))
-(switch-to-buffer baphomet-buffer) (view-mode) (setq header-line-format "BAPHOMET"))'
+                       (with-output-to-temp-buffer baphomet-buffer)
+                       (switch-to-buffer baphomet-buffer)
+                       (setq-local header-line-format "BAPHOMET"))'
+
+
 
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
@@ -110,8 +117,8 @@ get_project_root () {
     if [[ -f "./.baphomet" ]]; then
         source "./.baphomet"
     fi
-
-    return
+    :
+    return 0
 }
 get_project_root
 
