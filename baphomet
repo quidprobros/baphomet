@@ -85,7 +85,7 @@ function search_rc() {
         file_path="${dir_path//+(\/)//}/${file}"
 
         if [[ -f "${file_path}" ]]; then
-#            printf 'Found here: %s\n' "${file_path//+(\/)//}"
+            #            printf 'Found here: %s\n' "${file_path//+(\/)//}"
             source "${file_path}"
             return 0
         fi
@@ -125,11 +125,12 @@ userTest () {
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
-
-DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
+HEADER="${HEADER:-baphomet}"
+HEADER="♈ ${HEADER}"
+DAEMON_SPLASH=$"(progn (defconst baphomet-buffer \"*BAPHOMET WELCOMES YOU*\")
                        (with-output-to-temp-buffer baphomet-buffer)
                        (switch-to-buffer baphomet-buffer)
-                       (setq-local header-line-format "BAPHOMET"))'
+                       (setq-local header-line-format \"${HEADER}\"))"
 
 
 
@@ -212,6 +213,8 @@ message_daemon () {
         return 0
     fi
 }
+
+message_daemon $LISP_DAEMON_JOIN_MESSAGE SHART
 
 
 slay () {
@@ -601,8 +604,11 @@ EOF
 done
 :
 if [[ ${B_STATE} == "JOIN" ]]; then
-    exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME}
-    #--eval $'(switch-to-buffer "*BAPHOMET WELCOMES YOU*")'
+    if [[ ${#EMACS_BUFFER_NAME} -gt 0 ]]; then
+        exec emacsclient -q -c -s "${socket}" -- "${EMACS_BUFFER_NAME}"
+    else
+        exec emacsclient -q -c -s "${socket}" --eval $'(switch-to-buffer "*BAPHOMET WELCOMES YOU*")'
+    fi
 fi
 
 
