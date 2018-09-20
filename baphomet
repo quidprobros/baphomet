@@ -43,6 +43,7 @@ case ${@:1:1} in
         eval exec "${KMND[*]}"
         ;;
 esac
+
 prettyify () {
     R_=$'\x1b[38;2;250;0;0m'
     K1=$'\x1b[38;2;100;100;100m'
@@ -58,6 +59,45 @@ prettyify () {
 # # # # #
 # U T I L
 # # # # #
+function search_rc() {
+    local path_test="${PWD//${HOME}}"
+    if [[ ${#PWD} -eq ${#path_test} ]]; then
+        printf '%s\n' "Will not search below HOME"
+        return 1
+    fi
+    ! [[ $1 ]] && return 1
+    IFS=/
+    local file="${1}"
+    local p=($PWD)
+    local segment_count="${#p[@]}"
+    local z
+
+
+
+    for (( i=0; i<=segment_count-1; i++ ))
+    do
+        r=$(( segment_count - i ))
+        path_segment="${p[$r]}"
+        y="${path_segment}/${z}"
+
+        z="${y%%\/}"
+        dir_path="${PWD//$z}"
+        file_path="${dir_path//+(\/)//}/${file}"
+
+        if [[ -f "${file_path}" ]]; then
+#            printf 'Found here: %s\n' "${file_path//+(\/)//}"
+            source "${file_path}"
+            return 0
+        fi
+
+        if [ "$dir_path" == "${HOME}" ]; then
+            printf '%s\n' "Not found."
+            return 1
+        fi
+    done
+}
+search_rc '.baphomet'
+
 containsElement () {
     local e match="$1"
     shift
@@ -93,6 +133,7 @@ DAEMON_SPLASH=$'(progn (defconst baphomet-buffer "*BAPHOMET WELCOMES YOU*")
 
 
 
+
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
 :
 LISP_BUFFER_COUNT=$'(length (cl-remove-if-not '"'"'buffer-file-name (buffer-list)))'
@@ -108,14 +149,6 @@ LISP_DAEMON_JOIN_MESSAGE=$'(message-box "Joined the daemon Levi")'
 
 LISP_PID=$'(emacs-pid)'
 :
-get_project_root () {
-    if [[ -f "./.baphomet" ]]; then
-        source "./.baphomet"
-    fi
-    :
-    return 0
-}
-get_project_root
 
 
 hard_check () {
@@ -456,7 +489,8 @@ do
             ;;
         --start|--summon|-c|-s)
             IFS=,
-            daemons="${daemons:-$2}"
+            daemons="${2:-$daemons}"
+            #"${daemons:-$2}"
             :
             if [[ ${#daemons} -eq 0 || "${daemons}" == '--' ]]; then
                 if [[ ${#arrDaemons[*]} -eq 0 ]]; then
@@ -567,7 +601,8 @@ EOF
 done
 :
 if [[ ${B_STATE} == "JOIN" ]]; then
-    exec emacsclient -q -c -s "${socket}" --eval $'(switch-to-buffer "*BAPHOMET WELCOMES YOU*")'
+    exec emacsclient -q -c -s "${socket}" -- ${EMACS_BUFFER_NAME}
+    #--eval $'(switch-to-buffer "*BAPHOMET WELCOMES YOU*")'
 fi
 
 

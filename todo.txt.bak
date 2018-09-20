@@ -4,6 +4,24 @@ buffer opening should correspond to buffer list
 method to page file buffer anywhere
 directly use tramp
 prolly need to test for s library
-baphomet buffer could be a HELP buffer
-show status even when there are zero buffers
+
+
 option to hard kill
+daemons should have lock to prevent unauthroized access
+use escape codes to update tab name
+add option to designate default daemon
+enforce specific daemon with optional file in project directory naming desired daemon
+when listing buffers to stdout should somehow indicate relative depth
+what about being to hook into a project
+grep completion for buffer list
+new daemons might respect project roots
+filter out message buffers
+
+buffer list should be alphanumeric
+list the daemon PID also
+read desired daemon name from pwd
+how to send message to client through socket?
+requested daemon name is the socket in the pwd
+attempting to join a nonexistent daemon should prompt to create that daemon
+can i drop nc dependency
+specified buffer not created when daemon is implicit

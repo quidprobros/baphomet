@@ -1,10 +1,10 @@
 
-when listing buffers indicate if saved or not
+
 buffer opening should correspond to buffer list
 method to page file buffer anywhere
 directly use tramp
 prolly need to test for s library
-baphomet buffer could be a HELP buffer
+
 
 option to hard kill
 daemons should have lock to prevent unauthroized access
@@ -16,10 +16,13 @@ what about being to hook into a project
 grep completion for buffer list
 new daemons might respect project roots
 filter out message buffers
-baphomet is not a file buffer
+
 buffer list should be alphanumeric
 list the daemon PID also
 read desired daemon name from pwd
 how to send message to client through socket?
 requested daemon name is the socket in the pwd
 attempting to join a nonexistent daemon should prompt to create that daemon
+can i drop nc dependency
+specified buffer not created when daemon is implicit
+use new code for searching for config files
