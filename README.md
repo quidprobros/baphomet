@@ -1,3 +1,5 @@
+
+
 DISCLAIMER -- use at your own peril!
 
 Until I can be sure daemons cannot be killed with unsaved buffers, be extra careful.
@@ -88,6 +90,7 @@ The options `-lv` and `-lvv` not longer work. Prefer `-v -l` and `-vv -l`, respe
 
 TO-DO
 ===
+* bundling ... ~/bin/baphomet ~/lib/baphomet/*
 * being able to parse flags in continuum would be nice
 * interactive mode should also list file buffers
 * optional `dialog` support

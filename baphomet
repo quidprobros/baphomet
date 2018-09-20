@@ -98,6 +98,7 @@ function search_rc() {
 }
 search_rc '.baphomet'
 
+
 containsElement () {
     local e match="$1"
     shift
@@ -147,7 +148,6 @@ LISP_DAEMON_JOIN_MESSAGE=$'(message-box "Joined the daemon Levi")'
 
 
 
-
 LISP_PID=$'(emacs-pid)'
 :
 
@@ -177,7 +177,6 @@ list_sockets () {
 }
 # generate sockets array
 list_sockets
-
 
 
 query_socket () {
@@ -214,7 +213,7 @@ message_daemon () {
     fi
 }
 
-message_daemon $LISP_DAEMON_JOIN_MESSAGE SHART
+##message_daemon $LISP_DAEMON_JOIN_MESSAGE SHART
 
 
 slay () {
@@ -282,6 +281,8 @@ DISPLAY_MENU_HEADER() {
     printf '%b' "${__}"
 }
 
+
+
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
@@ -299,7 +300,7 @@ do
             if ! userTest "${UZR}"; then exit 1; fi
             :
             shift 2
-            USER="${UZR}" exec "${0}" "${@}"
+            USER="${UZR}" exec baphomet "${@}"
             ;;
         -v|--verbose)
             B_VERBOSE=$(( B_VERBOSE+1 ))
@@ -334,7 +335,7 @@ do
                         read -r EMACS_BUFFER_NAME
                         break
                     fi
-                    exec "${0}" -j "${daemon}"
+                    exec baphomet -j "${daemon}"
                 done
             fi
             :
@@ -357,7 +358,7 @@ do
                 msg 404 "${daemon}"
                 shift 2
                 OFFER="${daemon}"
-                exec "${0}" --list
+                exec baphomet --list
             fi
             exit
             ;;
@@ -381,7 +382,7 @@ do
                 do
                     case $option in
                         'Return')
-                            exec "${0}" -i
+                            exec baphomet -i
                             ;;
                         'Quit')
                             exit
@@ -509,7 +510,7 @@ do
                 socket=$(query_socket "${daemon}")
                 if containsElement "${socket}" "${arrSockets[@]}"
                 then
-                    exec "${0}" -j "${daemon}" "${@:3}"
+                    exec baphomet -j "${daemon}" "${@:3}"
                 else
                     \emacs --eval "${DAEMON_SPLASH}" --user="${USER}" --daemon="${socket}" > /dev/null 2>&1 &
 
@@ -521,7 +522,7 @@ do
                         EMACS_BUFFER_NAME="${@}"
                         EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME#*\ \-\-\ }"
                         [[ "${#EMACS_BUFFER_NAME}" -gt 0 ]] && \
-                            EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec "${0}" -j "${daemon}"
+                            EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME}" exec baphomet -j "${daemon}"
                     fi
                 fi
             done
@@ -603,6 +604,7 @@ EOF
     [[ "${#@}" -eq 0 ]] && exit
 done
 :
+
 if [[ ${B_STATE} == "JOIN" ]]; then
     if [[ ${#EMACS_BUFFER_NAME} -gt 0 ]]; then
         exec emacsclient -q -c -s "${socket}" -- "${EMACS_BUFFER_NAME}"
@@ -622,22 +624,22 @@ case ${@:1:1} in
             :
             case $option in
                 'List')
-                    INTERACTIVE=TRUE exec "${0}" -l
+                    INTERACTIVE=TRUE exec baphomet -l
                     ;;
                 'Join')
-                    INTERACTIVE=TRUE exec "${0}" -j
+                    INTERACTIVE=TRUE exec baphomet -j
                     ;;
                 'Slay')
-                    INTERACTIVE=TRUE exec "${0}" -k
+                    INTERACTIVE=TRUE exec baphomet -k
                     ;;
                 'Summon')
                     printf '\n%bName your daemon\e[0m: ' "${R_}"
                     read -r daemon
                     [[ "${daemon^^}" == "BAPHOMET" ]] && printf 'No.\n' && exit 1
-                    INTERACTIVE=TRUE exec "${0}" -s "${daemon}"
+                    INTERACTIVE=TRUE exec baphomet -s "${daemon}"
                     ;;
                 'Shell')
-                    INTERACTIVE=TRUE exec "${0}" --shell
+                    INTERACTIVE=TRUE exec baphomet --shell
                     ;;
                 'Quit')
                     msg 204
@@ -678,12 +680,18 @@ case ${@:1:1} in
         ;;
 esac
 
+
 socket="${arrSockets[0]}"
+
+if [[ ${#daemons} -gt 0 ]]; then
+    exec baphomet -s "${daemons}"
+fi
+
 daemon="$(basename "${socket}")"
 [[ ${#socket} -gt 0 ]] && \
-    EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec "${0}" -j "${daemon}"
+    EMACS_BUFFER_NAME=${1:-'*BAPHOMET WELCOMES YOU*'} exec baphomet -j "${daemon}"
 
 echo "${@}"
 
 printf '%b%s\e[0m\n' "${mmm}" "No daemons found. Summoning Baphomet."
-exec "${0}" -s baphomet -- "${1}"
+exec baphomet -s baphomet -- "${1}"
