@@ -72,8 +72,6 @@ function search_rc() {
     local segment_count="${#p[@]}"
     local z
 
-
-
     for (( i=0; i<=segment_count-1; i++ ))
     do
         r=$(( segment_count - i ))

@@ -96,7 +96,6 @@ TO-DO
 * optional `dialog` support
 * interactive mode should allow buffer name entering
 * transparent handling of root owned files
-* BUG: default buffer should be a temp buffer
 * confirm working with both gnu and bsd variants
 * consider usefulness of this `https://www.gnu.org/software/emacs/manual/html_node/elisp/Process-Information.html`
 * BUG: dont kill daemons with unsaved buffers
