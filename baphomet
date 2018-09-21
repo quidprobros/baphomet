@@ -124,7 +124,7 @@ userTest () {
 :
 EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
-HEADER="${HEADER:-baphomet}"
+HEADER="${HEADER:-baphomet} (${USER}@${daemons}=)"
 HEADER="♈ ${HEADER}"
 DAEMON_SPLASH=$"(progn (defconst baphomet-buffer \"*BAPHOMET WELCOMES YOU*\")
                        (with-output-to-temp-buffer baphomet-buffer)
@@ -682,8 +682,9 @@ esac
 socket="${arrSockets[0]}"
 
 if [[ ${#daemons} -gt 0 ]]; then
-    exec baphomet -s "${daemons}"
+    exec baphomet -s "${daemons}" -- "${1}"
 fi
+
 
 daemon="$(basename "${socket}")"
 [[ ${#socket} -gt 0 ]] && \
