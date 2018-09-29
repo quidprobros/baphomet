@@ -96,7 +96,6 @@ function search_rc() {
 }
 search_rc '.baphomet'
 
-
 containsElement () {
     local e match="$1"
     shift
@@ -480,6 +479,14 @@ do
                 fi
             done
             printf '%s\n' "Done."
+            exit
+            ;;
+        --kill-buffer|-kb)
+            BUFFER="${2:?}"
+            DAEMON="${3:?}"
+            CODE=$(printf '(kill-buffer "%s")' "${BUFFER}")
+            message_daemon  "${CODE}" "${DAEMON}"
+            printf '%s\n' ""
             exit
             ;;
         --file|-f|--buffer|-b)

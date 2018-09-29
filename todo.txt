@@ -27,3 +27,8 @@ can i drop nc dependency
 specified buffer not created when daemon is implicit
 use new code for searching for config files
 TCP
+make variables case-insensitive
+config variables should be case insensitive
+use git as root if present
+variables should be declared
+use caching
