@@ -56,6 +56,11 @@ Believed to work with the following configurations:
    Disclaimer: Execute this script at your own peril.
 
 ```
+
+2018/09/29
+===
+* Using `baphomet -kb|--kill-buffer <buffer-name> <daemon-name>` will allow you to target buffers for killing associated with a given daemon.
+
 2018/09/16
 ===
 * Will now check for and read `.baphomet` is project root. Presently, daemons can be specified.
