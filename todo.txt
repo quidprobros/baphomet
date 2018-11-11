@@ -35,3 +35,4 @@ use caching
 restart daemon option that will also reopen buffers
 wait mode for joining a daemon after it is summoned
 running emacs -k should be considered interactive and thus a kill should be followed by another kill prompt
+indicate if daemon is busy or hanging
