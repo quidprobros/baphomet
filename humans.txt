@@ -1,4 +1,5 @@
 Author: Christopher David Ramos
+Repo: https://github.com/paxperscientiam/baphomet
 Site: https://www.paxperscientiam.com
 Twitter: @paxperscientiam
 Github: paxperscientiam
