@@ -32,3 +32,5 @@ config variables should be case insensitive
 use git as root if present
 variables should be declared
 use caching
+restart daemon option that will also reopen buffers
+wait mode for joining a daemon after it is summoned

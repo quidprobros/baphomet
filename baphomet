@@ -71,7 +71,6 @@ function search_rc() {
     local p=($PWD)
     local segment_count="${#p[@]}"
     local z
-
     for (( i=0; i<=segment_count-1; i++ ))
     do
         r=$(( segment_count - i ))
@@ -81,20 +80,25 @@ function search_rc() {
         z="${y%%\/}"
         dir_path="${PWD//$z}"
         file_path="${dir_path//+(\/)//}/${file}"
-
         if [[ -f "${file_path}" ]]; then
-            #            printf 'Found here: %s\n' "${file_path//+(\/)//}"
+           # printf 'Found here: %s\n' "${file_path//+(\/)//}"
             source "${file_path}"
+            return 0
+        fi
+
+        if [[ -d "${file_path}" ]]; then
+            #printf 'Found here: %s\n' "${file_path//+(\/)//}"
+            daemons=" $(basename "${dir_path[*]}")"
             return 0
         fi
 
         if [ "$dir_path" == "${HOME}" ]; then
             printf '%s\n' "Not found."
-            return 1
+            return 101
         fi
     done
 }
-search_rc '.baphomet'
+search_rc '.git'
 
 containsElement () {
     local e match="$1"
