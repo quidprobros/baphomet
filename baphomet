@@ -83,7 +83,8 @@ function search_rc() {
 
         if [[ -e "${file_path}" ]]; then
             #printf 'Found here: %s\n' "${file_path//+(\/)//}"
-            daemons=" $(basename "${dir_path[*]}")"
+            [[ -f "${file_path}" ]] && source "${file_path}"
+            daemons="${daemons:- $(basename "${dir_path[*]}")}"
             return 0
         fi
 
