@@ -1,5 +1,5 @@
 
-when listing buffers indicate if saved or not
+
 buffer opening should correspond to buffer list
 method to page file buffer anywhere
 directly use tramp
@@ -18,10 +18,23 @@ new daemons might respect project roots
 filter out message buffers
 
 buffer list should be alphanumeric
-list the daemon PID also
+
 read desired daemon name from pwd
 how to send message to client through socket?
 requested daemon name is the socket in the pwd
 attempting to join a nonexistent daemon should prompt to create that daemon
 can i drop nc dependency
 specified buffer not created when daemon is implicit
+use new code for searching for config files
+TCP
+make variables case-insensitive
+config variables should be case insensitive
+use git as root if present
+variables should be declared
+use caching
+restart daemon option that will also reopen buffers
+wait mode for joining a daemon after it is summoned
+running emacs -k should be considered interactive and thus a kill should be followed by another kill prompt
+indicate if daemon is busy or hanging
+listing daemons with buffers should pipe to less so as not to pollute terminal
+Option to use a companion shell buffer for listngs as in emacs -y > /dev/ttys008

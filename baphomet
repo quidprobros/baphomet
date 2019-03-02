@@ -63,13 +63,13 @@ function search_rc() {
     local path_test="${PWD//${HOME}}"
     if [[ ${#PWD} -eq ${#path_test} ]]; then
         printf '%s\n' "Will not search below HOME"
-        return 1
+        read -rp "Press [Enter] to continue: "
     fi
     ! [[ $1 ]] && return 1
     IFS=/
     local file="${1}"
-    local p=($PWD)
-    local segment_count="${#p[@]}"
+    local segments=($PWD)
+    local segment_count="${#segments[@]}"
     local z
     for (( i=0; i<=segment_count-1; i++ ))
     do
@@ -80,13 +80,8 @@ function search_rc() {
         z="${y%%\/}"
         dir_path="${PWD//$z}"
         file_path="${dir_path//+(\/)//}/${file}"
-        if [[ -f "${file_path}" ]]; then
-           # printf 'Found here: %s\n' "${file_path//+(\/)//}"
-            source "${file_path}"
-            return 0
-        fi
 
-        if [[ -d "${file_path}" ]]; then
+        if [[ -e "${file_path}" ]]; then
             #printf 'Found here: %s\n' "${file_path//+(\/)//}"
             daemons=" $(basename "${dir_path[*]}")"
             return 0
@@ -98,7 +93,7 @@ function search_rc() {
         fi
     done
 }
-search_rc '.git'
+search_rc .baphomet
 
 containsElement () {
     local e match="$1"
