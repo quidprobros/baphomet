@@ -2,10 +2,12 @@
 # shellcheck disable=2093
 #set -x
 #set -u
+shopt -s dotglob
 shopt -s extglob
 shopt -s nullglob
 shopt -s nocaseglob
 shopt -s nocasematch
+
 PS3="What is thy bidding?: "
 unset KMND
 unset CDPATH
@@ -66,35 +68,28 @@ function search_rc() {
         read -rp "Press [Enter] to continue: "
     fi
     ! [[ $1 ]] && return 1
-    IFS=/
-    local file="${1}"
-    local segments=($PWD)
-    local segment_count="${#segments[@]}"
-    local z
-    for (( i=0; i<=segment_count-1; i++ ))
-    do
-        r=$(( segment_count - i ))
-        path_segment="${p[$r]}"
-        y="${path_segment}/${z}"
-
-        z="${y%%\/}"
-        dir_path="${PWD//$z}"
-        file_path="${dir_path//+(\/)//}/${file}"
-
-        if [[ -e "${file_path}" ]]; then
-            #printf 'Found here: %s\n' "${file_path//+(\/)//}"
-            [[ -f "${file_path}" ]] && source "${file_path}"
-            daemons="${daemons:- $(basename "${dir_path[*]}")}"
-            return 0
-        fi
-
-        if [ "$dir_path" == "${HOME}" ]; then
+    x=$(pwd)
+    if [[ -e "${x}/${1}" ]]; then
+        [[ -f "${x}/${1}" ]] && source "${x}/${1}"
+        daemons="${daemons:- $(basename "${x}")}"
+        return 0
+    fi
+    while [ "$x" != "/" ] ; do
+        x=$(dirname "$x")
+        if [ "${x}" == "${HOME}" ]; then
             printf '%s\n' "Not found."
             return 101
         fi
+
+        if [[ -e "${x}/${1}" ]]; then
+            echo "found while looping"
+            return 0
+        fi
     done
+    unset x
 }
 search_rc .baphomet
+[[ $? -eq 101 ]] && search_rc .git
 
 containsElement () {
     local e match="$1"
