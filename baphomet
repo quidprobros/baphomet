@@ -129,9 +129,8 @@ HEADER="♈ ${HEADER}"
 DAEMON_SPLASH=$"(progn (defconst baphomet-buffer \"*BAPHOMET WELCOMES YOU*\")
                        (with-output-to-temp-buffer baphomet-buffer)
                        (switch-to-buffer baphomet-buffer)
+                       (emacs-lock-mode 'kill)
                        (setq-local header-line-format \"${HEADER}\"))"
-
-
 
 
 #LISP_FRAME_CHECK=$'(if (> (length (frame-list)) 1) '"'"'t)'
@@ -614,7 +613,7 @@ if [[ ${B_STATE} == "JOIN" ]]; then
     if [[ ${#EMACS_BUFFER_NAME} -gt 0 ]]; then
         exec emacsclient -q -c -s "${socket}" -- "${EMACS_BUFFER_NAME}"
     else
-        exec emacsclient -q -c -s "${socket}" --eval $'(switch-to-buffer "*BAPHOMET WELCOMES YOU*")'
+        exec emacsclient -q -c -s "${socket}" --eval $'(switch-to-buffer baphomet-buffer)'
     fi
 fi
 
