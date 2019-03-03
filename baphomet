@@ -45,6 +45,14 @@ case ${@:1:1} in
         eval exec "${KMND[*]}"
         ;;
 esac
+EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+[[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
+hard_check () {
+    local socket="${EMACS_SOCKET_DIR}/${1}"
+    [[ -S $socket ]] && return 0
+    :
+    return 1
+}
 
 prettyify () {
     R_=$'\x1b[38;2;250;0;0m'
@@ -66,6 +74,7 @@ function search_rc() {
     if [[ ${#PWD} -eq ${#path_test} ]]; then
         printf '%s\n' "Will not search below HOME"
         read -rp "Press [Enter] to continue: "
+        return 102
     fi
     ! [[ $1 ]] && return 1
     x=$(pwd)
@@ -88,8 +97,13 @@ function search_rc() {
     done
     unset x
 }
-search_rc .baphomet
-[[ $? -eq 101 ]] && search_rc .git
+
+if [[ ! "${B_STATE}" == "SKIP_RC" ]]; then
+    search_rc .baphomet
+    RC_CHECK_RESULT="$?"
+    [[ "${RC_CHECK_RESULT}" -eq 101 ]] && search_rc .git
+    [[ "${RC_CHECK_RESULT}" -eq 102 ]] && B_STATE="B_RCLESS"
+fi
 
 containsElement () {
     local e match="$1"
@@ -116,8 +130,6 @@ userTest () {
     return 0
 }
 :
-EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
-[[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 HEADER="${HEADER:-baphomet} (${USER}@${daemons}=)"
 HEADER="♈ ${HEADER}"
 DAEMON_SPLASH=$"(progn (defconst baphomet-buffer \"*BAPHOMET WELCOMES YOU*\")
@@ -142,14 +154,6 @@ LISP_DAEMON_JOIN_MESSAGE=$'(message-box "Joined the daemon Levi")'
 
 LISP_PID=$'(emacs-pid)'
 :
-
-
-hard_check () {
-    local socket="${EMACS_SOCKET_DIR}/${1}"
-    [[ -S $socket ]] && return 0
-    :
-    return 1
-}
 
 list_sockets () {
     local socket
@@ -605,7 +609,9 @@ EOF
 done
 :
 
+
 if [[ ${B_STATE} == "JOIN" ]]; then
+
     if [[ ${#EMACS_BUFFER_NAME} -gt 0 ]]; then
         exec emacsclient -q -c -s "${socket}" -- "${EMACS_BUFFER_NAME}"
     else
@@ -613,6 +619,10 @@ if [[ ${B_STATE} == "JOIN" ]]; then
     fi
 fi
 
+if [[ ${B_STATE} == "B_RCLESS" ]]; then
+    shift 1
+    B_STATE="SKIP_RC" exec baphomet "${@}"
+fi
 
 case ${@:1:1} in
     -i|--interactive)
