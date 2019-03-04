@@ -45,7 +45,7 @@ case ${@:1:1} in
         eval exec "${KMND[*]}"
         ;;
 esac
-EMACS_SOCKET_DIR="/tmp/baphomet/${USER}/"
+EMACS_SOCKET_DIR="${TMPDIR:-/tmp}/baphomet/${USER}/"
 [[ ! -d $EMACS_SOCKET_DIR  ]] && mkdir -p "${EMACS_SOCKET_DIR}"
 hard_check () {
     local socket="${EMACS_SOCKET_DIR}/${1}"
@@ -203,7 +203,6 @@ message_daemon () {
 }
 
 ##message_daemon $LISP_DAEMON_JOIN_MESSAGE SHART
-
 
 slay () {
     local socket
