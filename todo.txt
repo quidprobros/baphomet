@@ -39,3 +39,5 @@ indicate if daemon is busy or hanging
 listing daemons with buffers should pipe to less so as not to pollute terminal
 Option to use a companion shell buffer for listngs as in emacs -y > /dev/ttys008
 use this for moving over to server method https://www.gnu.org/software/emacs/draft/manual/html_node/emacs/TCP-Emacs-server.html#TCP-Emacs-server
+need a wipe feature to clean dead or corrupted sessions
+Consider implementing persistant state
