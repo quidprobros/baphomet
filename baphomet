@@ -489,8 +489,7 @@ do
 
                     msg 201 "${daemon}" '%1'
                     :
-                    containsElement $'--' "${@}"
-                    if [[ "$?" -eq 0  && "${#daemons[@]}" -eq 1 ]]
+                    if [[ " ${@} " =~ " -- " ]]
                     then
                         EMACS_BUFFER_NAME="${@}"
                         EMACS_BUFFER_NAME="${EMACS_BUFFER_NAME#*\ \-\-\ }"
