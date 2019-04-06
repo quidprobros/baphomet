@@ -98,21 +98,9 @@ function search_rc() {
     unset x
 }
 
-containsElement () {
-    local e match="$1"
-    shift
-    for e; do [[ "$e" == "$match" ]] && return 0; done
-    return 1
-}
-
-containsElementWhich(){
-    echo $1
-    echo $2
-    local counter=0
-    local e match="$1"
-    shift
-    for e; do ((counter++)); [[ "$e" == "$match" ]]  && return "${counter}"; done
-    return 0
+daemonExists() {
+    [[ -S "${EMACS_SOCKET_DIR}/${1}" ]]
+    return $?
 }
 
 userTest () {
@@ -167,7 +155,6 @@ list_sockets () {
 }
 # generate sockets array
 list_sockets
-
 
 query_socket () {
     printf '%s/%s' "${EMACS_SOCKET_DIR}" "${1}"
@@ -269,8 +256,6 @@ DISPLAY_MENU_HEADER() {
     printf '%b' "${__}"
 }
 
-
-
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
@@ -303,6 +288,7 @@ do
             daemon="${2}"
             :
             socket=$(query_socket "${daemon}")
+
             :
             if [[ ${#daemon} -eq 0 ]]; then
                 [[ "${#arrSockets[@]}" -eq 0 ]] && msg 0404 && exit
@@ -327,19 +313,10 @@ do
                 done
             fi
             :
-            containsElementWhich "${daemon}" "${arrSockets[@]##*\!}"
-            index=$(("${?}" - 1))
 
-            socket=$(query_socket "${daemon}")
-
-            if containsElement "${socket}" "${arrSockets[@]}"
+            if daemonExists "${daemon}"
             then
                 :
-                shift 2
-                continue
-            elif [[ $index -gt 0 ]]
-            then
-                socket="${arrSockets[$index]}"
                 shift 2
                 continue
             else
@@ -447,7 +424,7 @@ do
             else
                 for daemon in $daemons; do
                     socket=$(query_socket "${daemon}")
-                    if containsElement "${socket}" "${arrSockets[@]}"
+                    if daemonExists "${daemon}"
                     then
                         slay "${socket}"
                     else
@@ -504,7 +481,7 @@ do
                 :
                 daemon=$(sanitize "${daemon}")
                 socket=$(query_socket "${daemon}")
-                if containsElement "${socket}" "${arrSockets[@]}"
+                if daemonExists "${daemon}"
                 then
                     B_STATE="SKIP_RC" exec baphomet -j "${daemon}" "${@:3}"
                 else
