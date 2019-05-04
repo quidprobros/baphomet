@@ -259,7 +259,7 @@ DISPLAY_MENU_HEADER() {
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
-        -p|--pretty)
+        --pretty)
             prettyify
             shift
             ;;
@@ -435,7 +435,7 @@ do
             :
             exit
             ;;
-        --prune|-g)
+        --prune|-p)
             for daemon in "${arrDaemons[@]}"
             do
                 read -ra buffer_count < <(message_daemon "${LISP_BUFFER_COUNT}" "${daemon}")
