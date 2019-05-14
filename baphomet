@@ -382,8 +382,10 @@ do
             ;;
         --kill-all|-ka)
             shopt -u nocasematch
-            read -r -e -p "Beware! This command kills all buffers, even unsaved ones. Proceed? [Y/*]: "  choice
-            [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
+            if [[ "${CHOICE:=N}" != "Y" ]]; then
+                read -r -e -p "Beware! This command kills all buffers, even unsaved ones. Proceed? [Y/*]: "  choice
+                [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
+            fi
             printf '\n%s\n\n' "Proceeding."
             DIE="DIE"
             ;&
@@ -401,6 +403,9 @@ do
                 do
                     slay "${socket}"
                 done
+                if [[ "${WIPING:=N}" == 'Y' ]]; then
+                    WIPING='Y' exec baphomet --wipe
+                fi
                 exit
             fi
             :
@@ -450,11 +455,19 @@ do
             exit
             ;;
         --wipe)
+            if [[ $WIPING =~ [Y] ]]; then                
+                command rm -rf "${EMACS_SOCKET_DIR:?}" &
+                printf '\n%s' "Proceeding ..."
+                wait
+                printf 'done.\n\n'
+                exit
+            fi
             printf '%s\n' "${EMACS_SOCKET_DIR}"
-            printf "Do you wish to wipe clean your daemon lair?:\\n"
+            printf "Do you wish to slay all daemons, minions, and wipe clean your daemon lair?:\\n"
             read -r -e -p "Beware! ${result} file buffers will be killed. Proceed? [Y/*]: " choice
             [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
-            \rm -rf "${EMACS_SOCKET_DIR}" &
+            
+            CHOICE="Y" WIPING="Y" exec baphomet --kill-all 
             printf '\n%s' "Proceeding ..."
             wait
             printf 'done.\n\n'
