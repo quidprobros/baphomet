@@ -449,6 +449,17 @@ do
             printf '%s\n' "Done."
             exit
             ;;
+        --wipe)
+            printf '%s\n' "${EMACS_SOCKET_DIR}"
+            printf "Do you wish to wipe clean your daemon lair?:\\n"
+            read -r -e -p "Beware! ${result} file buffers will be killed. Proceed? [Y/*]: " choice
+            [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
+            \rm -rf "${EMACS_SOCKET_DIR}" &
+            printf '\n%s' "Proceeding ..."
+            wait
+            printf 'done.\n\n'
+            exit
+            ;;
         --kill-buffer|-kb)
             BUFFER="${2:?}"
             DAEMON="${3:?}"
@@ -531,6 +542,7 @@ do
    -k,   --kill,                     Slay one or more daemons
          --stop [name[,name2]]
    -ka,  --kill-all                  Slay all daemons
+         --wipe                      Purge the daemon lair
    -p,   --prune                     Slay clientless daemons
 
    -j,   --join [name]               Join a daemon with name 'name'

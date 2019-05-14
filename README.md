@@ -13,47 +13,45 @@ Believed to work with the following configurations:
 
 
 ```text
+Usage: baphomet [switches] [arguments]
+-h,   --help                      Display (this) help menu
+-s,   --start [name[,name2]]      Summon one or more daemons
 
-  Usage: baphomet [switches] [arguments]
-   -h,   --help                      Display (this) help menu
-   -s,   --start [name[,name2]]      Summon one or more daemons
+-k,   --kill,                     Slay one or more daemons
+--stop [name[,name2]]
+-ka,  --kill-all                  Slay all daemons
+--wipe                      Purge the daemon lair
+-p,   --prune                     Slay clientless daemons
 
-   -k,   --kill,                     Slay one or more daemons
-         --stop [name[,name2]]
-   -ka,  --kill-all                  Slay all daemons
-   -p,   --prune                     Slay clientless daemons
+-j,   --join [name]               Join a daemon with name 'name'
+-l,   --list                      List known daemons
+-v,   --verbose                   Make output verbose
+-vv,  --very-verbose              Make output very verbose
 
-   -j,   --join [name]               Join a daemon with name 'name'
-   -l,   --list                      List known daemons
-   -v,   --verbose                   Make output verbose
-   -vv,  --very-verbose              Make output very verbose
+-y,   --list-buffers              List file visiting buffers for
+each daemon
 
-   -y,   --list-buffers              List file visiting buffers for
-                                      each daemon
+-b,   --buffer <name>             Specify buffer name
 
-   -b,   --buffer <name>             Specify buffer name
+-i,   --interactive               Interactive mode
+-is,  --shell                     Interactive shell mode
+-x,   --escape                    Exit script, run emacs as normal
+-V,   --version                   Get version of baphomet
 
-   -i,   --interactive               Interactive mode
-   -is,  --shell                     Interactive shell mode
-   -x,   --escape                    Exit script, run emacs as normal
-   -V,   --version                   Get version of baphomet
+Note:
+When called without arguments, baphomet starts a new daemon
+if necessary and opens a buffer with a default name.
+When called with only a buffer or filename, baphomet joins any daemon
+and creates buffer with specified name.
 
-
-
-   Note:
-   When called without arguments, baphomet starts a new daemon
-   if necessary and opens a buffer with a default name.
-   When called with only a buffer or filename, baphomet joins any daemon
-   and creates buffer with specified name.
-
-   Examples:
-   - Summon, slay, or join  daemon named 'levi'
-   $ `baphomet --start|--slay|--join levi`
-   - Join daemon named 'levi' and open buffer 'justice.txt'
-   $ `baphomet --join levi -b|-- justice.txt`
+Examples:
+- Summon, slay, or join  daemon named 'levi'
+$ `baphomet --start|--slay|--join levi`
+- Join daemon named 'levi' and open buffer 'justice.txt'
+$ `baphomet --join levi -b|-- justice.txt`
 
 
-   Disclaimer: Execute this script at your own peril.
+Disclaimer: Execute this script at your own peril.
 
 ```
 
