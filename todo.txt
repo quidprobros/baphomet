@@ -9,7 +9,7 @@ prolly need to test for s library
 option to hard kill
 daemons should have lock to prevent unauthroized access
 use escape codes to update tab name
-add option to designate default daemon
+
 enforce specific daemon with optional file in project directory naming desired daemon
 when listing buffers to stdout should somehow indicate relative depth
 what about being to hook into a project

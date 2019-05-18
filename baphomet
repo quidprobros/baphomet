@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# shellcheck disable=2093
 #set -x
 #set -u
 shopt -s dotglob
@@ -65,6 +64,17 @@ prettyify () {
     #
     mmm=$'\e[0;36m'
 }
+prettyify
+
+uglify () {
+    R_=
+    K1=
+    __=
+    Y_=
+    inverse=
+    mmm=
+}
+
 # # # # #
 # U T I L
 # # # # #
@@ -259,9 +269,18 @@ DISPLAY_MENU_HEADER() {
 while [[ ${#@} -ne 0 ]]
 do
     case $1 in
-        --pretty)
-            prettyify
+        --ugly)
+#            ugly
             shift
+            ;;
+        --init)
+            if [[ ! -f .baphomet ]]; then
+                echo 'daemons=' > .baphomet
+            else
+                printf 'Previously initialized.'
+                echo .baphomet
+            fi
+            exit
             ;;
         -i|--interactive|-is|--shell)
             break  3
