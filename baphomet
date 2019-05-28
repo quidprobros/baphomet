@@ -12,6 +12,7 @@ unset KMND
 unset CDPATH
 KMND=('\emacs')
 :
+:
 function cleanup {
     printf 'Cleaning up ... '
     kill %1 >/dev/null 2>&1
