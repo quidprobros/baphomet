@@ -474,7 +474,7 @@ do
             exit
             ;;
         --wipe)
-            if [[ $WIPING =~ [Y] ]]; then                
+            if [[ $WIPING =~ [Y] ]]; then
                 command rm -rf "${EMACS_SOCKET_DIR:?}" &
                 printf '\n%s' "Proceeding ..."
                 wait
@@ -485,8 +485,8 @@ do
             printf "Do you wish to slay all daemons, minions, and wipe clean your daemon lair?:\\n"
             read -r -e -p "Beware! ${result} file buffers will be killed. Proceed? [Y/*]: " choice
             [[ ! $choice =~ [Y] ]] && msg 499 && exit 0
-            
-            CHOICE="Y" WIPING="Y" exec baphomet --kill-all 
+
+            CHOICE="Y" WIPING="Y" exec baphomet --wipe
             printf '\n%s' "Proceeding ..."
             wait
             printf 'done.\n\n'
