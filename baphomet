@@ -13,6 +13,13 @@ unset CDPATH
 KMND=('\emacs')
 :
 :
+if ! command -v emacs &> /dev/null
+then
+    printf 'Emacs not found!\n'
+    exit
+fi
+
+
 function cleanup {
     printf 'Cleaning up ... '
     kill %1 >/dev/null 2>&1
@@ -199,8 +206,6 @@ message_daemon () {
         return 0
     fi
 }
-
-##message_daemon $LISP_DAEMON_JOIN_MESSAGE SHART
 
 slay () {
     local socket
