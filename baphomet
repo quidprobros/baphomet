@@ -642,10 +642,12 @@ do
       break 3
       ;;
     --help|-h)
-      printf '%s%s\n' \
-             "${R_}" "BAPHOMET -- manage your emacs daemons"
+      # printf '%s%s\n' \
+      #        "${R_}" "BAPHOMET -- manage your emacs daemons"
       printf '%s' "${K1}"
-      cat <<'EOF'
+      less <<'EOF'
+BAPHOMET -- manage your emacs daemons
+
   Usage: baphomet [switches] [arguments]
    -h,   --help                      Display (this) help menu
    -s,   --start [name[,name2]]      Summon one or more daemons
