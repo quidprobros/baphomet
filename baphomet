@@ -116,6 +116,14 @@ function search_rc() {
     unset x
 }
 
+
+
+checkForDialog() {
+  command -v dialog >/dev/null 2>&1
+  HAS_DIALOG="$?"
+}
+checkForDialog
+
 daemonExists() {
     [[ -S "${EMACS_SOCKET_DIR}/${1}" ]]
     return $?
@@ -260,6 +268,26 @@ warn(){
 alert(){
     printf '%b%s%b\n' "${R_}" "${1}" "${__}"
 }
+
+
+makeTemporaryFile() {
+  if command -v mktemp >/dev/null 2>&1; then
+    tmpfile=$(mktemp /tmp/baphomet-script.XXXXXX)
+    return 0
+  fi
+  tmpfile="${TMPDIR}/baphomet.${RANDOM}"
+}
+makeTemporaryFile
+
+dialogService() {
+  local title="${1}"
+  local inputbox="${2}"
+
+  dialog --title "${title}" \
+         --clear  \
+         --inputbox "${inputbox}" 16 51 2>| "${tmpfile}"
+}
+
 
 DISPLAY_HEADER() { printf '%bLAIR: %s\e[0m\n' "${K1}" "${EMACS_SOCKET_DIR}"
                  }
@@ -562,6 +590,7 @@ do
             exit
             ;;
         -z)
+          dialogService "I bid thee welcome" "HEY YOU"
             ;;
         --)
             EMACS_BUFFER_NAME="${2}"
