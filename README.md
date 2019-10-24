@@ -55,6 +55,10 @@ $ `baphomet --join levi -b|-- justice.txt`
 Disclaimer: Execute this script at your own peril.
 
 ```
+2019/10/24
+===
+Partially implemented watch mode: E.G. `baphomet --watch --list-buffers`
+
 2019/10/23
 ===
 Now, if you've `dialog` installed, it'll be used when using interactive mode.
