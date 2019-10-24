@@ -9,7 +9,7 @@ prolly need to test for s library
 option to hard kill
 daemons should have lock to prevent unauthroized access
 use escape codes to update tab name
-add option to designate default daemon
+
 enforce specific daemon with optional file in project directory naming desired daemon
 when listing buffers to stdout should somehow indicate relative depth
 what about being to hook into a project
@@ -29,16 +29,17 @@ use new code for searching for config files
 TCP
 make variables case-insensitive
 config variables should be case insensitive
-use git as root if present
+
 variables should be declared
 use caching
 restart daemon option that will also reopen buffers
 wait mode for joining a daemon after it is summoned
-running emacs -k should be considered interactive and thus a kill should be followed by another kill prompt
+
 indicate if daemon is busy or hanging
 listing daemons with buffers should pipe to less so as not to pollute terminal
-Option to use a companion shell buffer for listngs as in emacs -y > /dev/ttys008
+
 use this for moving over to server method https://www.gnu.org/software/emacs/draft/manual/html_node/emacs/TCP-Emacs-server.html#TCP-Emacs-server
 need a wipe feature to clean dead or corrupted sessions
 Consider implementing persistant state
 pipe buffer to less for peaking
+why not just user default server directory?

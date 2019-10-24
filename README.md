@@ -37,6 +37,7 @@ each daemon
 -is,  --shell                     Interactive shell mode
 -x,   --escape                    Exit script, run emacs as normal
 -V,   --version                   Get version of baphomet
+-w,   --watch                     Watch mode. Use as first argument
 
 Note:
 When called without arguments, baphomet starts a new daemon
