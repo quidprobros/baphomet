@@ -46,3 +46,4 @@ why not just user default server directory?
 add monitor modes if watch is present
 handle shorthand switches as with -wy
 if communication with socket hangs test
+use better colors in dialog
