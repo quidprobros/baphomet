@@ -55,6 +55,10 @@ $ `baphomet --join levi -b|-- justice.txt`
 Disclaimer: Execute this script at your own peril.
 
 ```
+2019/11/11
+===
+`baphomet` will no longer hang when a daemon is unreachable
+
 2019/10/24
 ===
 Partially implemented watch mode: E.G. `baphomet --watch --list-buffers`
