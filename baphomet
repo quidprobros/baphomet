@@ -212,7 +212,7 @@ message_daemon () {
   local CMD="${1}"
   if [[ "${#2}" -gt 0 ]]; then
 	  socket=$(query_socket "${2}")
-    read -r result < <(nc -U "${socket}" <<< \
+    read -r result < <(nc -w 5 -U "${socket}" <<< \
 			                    $"-eval ${CMD// /&_}" | \
 				                 awk $'FNR == 2 {printf $2}')
     printf '%s' "${result}"
@@ -642,7 +642,11 @@ do
       exit
       ;;
     -z)
-      dialogService menu "I bid thee welcome" "HEY YOU"
+      # query_daemon "${LISP_BUFFER_COUNT}"
+      XXS=$'(list-buffers)'
+      read -r arrBuffers < <(message_daemon "${XXS}" "APACHESERVER")
+      echo $arrBuffers
+      exit
       ;;
     --)
       EMACS_BUFFER_NAME="${2}"

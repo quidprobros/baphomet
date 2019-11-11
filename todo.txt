@@ -14,7 +14,7 @@ enforce specific daemon with optional file in project directory naming desired d
 when listing buffers to stdout should somehow indicate relative depth
 what about being to hook into a project
 
-new daemons might respect project roots
+
 filter out message buffers
 
 buffer list should be alphanumeric
@@ -36,7 +36,7 @@ restart daemon option that will also reopen buffers
 wait mode for joining a daemon after it is summoned
 
 indicate if daemon is busy or hanging
-listing daemons with buffers should pipe to less so as not to pollute terminal
+
 
 use this for moving over to server method https://www.gnu.org/software/emacs/draft/manual/html_node/emacs/TCP-Emacs-server.html#TCP-Emacs-server
 
@@ -44,3 +44,5 @@ Consider implementing persistant state
 pipe buffer to less for peaking
 why not just user default server directory?
 add monitor modes if watch is present
+handle shorthand switches as with -wy
+if communication with socket hangs test
