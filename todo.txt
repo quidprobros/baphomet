@@ -47,3 +47,5 @@ add monitor modes if watch is present
 handle shorthand switches as with -wy
 if communication with socket hangs test
 use better colors in dialog
+interactive mode not handling multiple daemon slayings
+wipe should allow to specify which socket to remove

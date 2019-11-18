@@ -109,7 +109,6 @@ TO-DO
 * bundling ... ~/bin/baphomet ~/lib/baphomet/*
 * being able to parse flags in continuum would be nice
 * interactive mode should also list file buffers
-* optional `dialog` support
 * interactive mode should allow buffer name entering
 * transparent handling of root owned files
 * confirm working with both gnu and bsd variants
