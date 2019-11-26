@@ -49,3 +49,5 @@ if communication with socket hangs test
 use better colors in dialog
 interactive mode not handling multiple daemon slayings
 wipe should allow to specify which socket to remove
+quick load multiple daemons
+Make so daemon is named for where the file is and not from where it is selected from
