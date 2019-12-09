@@ -55,7 +55,7 @@ $ `baphomet --join levi -b|-- justice.txt`
 Disclaimer: Execute this script at your own peril.
 
 ```
-[demo](demo.gif)
+![](demo.gif)
 
 2019/11/11
 ===
