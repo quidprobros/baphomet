@@ -55,6 +55,8 @@ $ `baphomet --join levi -b|-- justice.txt`
 Disclaimer: Execute this script at your own peril.
 
 ```
+[demo](demo.gif)
+
 2019/11/11
 ===
 `baphomet` will no longer hang when a daemon is unreachable
